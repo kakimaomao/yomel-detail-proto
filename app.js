@@ -67,7 +67,14 @@ function boardH(){ return document.body.classList.contains("nostatus") ? 881 : 9
 function rescale(){
   var H = boardH();
   var vw = window.innerWidth, vh = window.innerHeight;
-  if(window.visualViewport){ vw = window.visualViewport.width; vh = window.visualViewport.height; }
+  if(window.visualViewport){
+    vw = window.visualViewport.width;
+    /* ソフトキーボードが出ると visualViewport の高さが大きく縮む。
+       それで倍率を計算すると画面全体が小さくなってしまうので、
+       100px 以上縮んでいる時＝キーボードが出ている時は innerHeight のままにする。
+       Safari のツールバーの出入り（数十px）は今までどおり追従する。 */
+    if(window.visualViewport.height > vh - 100) vh = window.visualViewport.height;
+  }
   var k;
   if(SOLO){
     k = Math.min(vw/430, vh/H);            /* 端末の画面いっぱいまで拡大する */

@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="YOMEL 原型">
+<meta name="theme-color" content="#000000">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="app.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>YOMEL 詳細画面 A案</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap">
+<style>
+:root{
+  --stage:#eef2f1; --stage-fg:#1f2329; --stage-sub:#5f6a6b; --stage-card:#ffffff; --stage-line:rgba(31,35,41,.13);
+  --accent:#16c098;
+}
+:root:not([data-theme="light"]){ }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --stage:#14191a; --stage-fg:#e9eeed; --stage-sub:#93a09f; --stage-card:#1e2426; --stage-line:rgba(255,255,255,.13);
+  }
+}
+:root[data-theme="dark"]{
+  --stage:#14191a; --stage-fg:#e9eeed; --stage-sub:#93a09f; --stage-card:#1e2426; --stage-line:rgba(255,255,255,.13);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%}
+body{background:var(--stage);color:var(--stage-fg);
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Hiragino Kaku Gothic Pro",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+img{display:block}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- prototype chrome (設計稿の外) ---------- */
+#chrome{max-width:760px;margin:0 auto;padding:18px 16px 10px;display:flex;flex-direction:column;gap:10px}
+#chrome .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}
+.seg{display:inline-flex;background:var(--stage-card);border:1px solid var(--stage-line);border-radius:10px;padding:3px;gap:2px}
+.seg button{padding:7px 14px;border-radius:7px;font-size:13px;color:var(--stage-sub);white-space:nowrap}
+.seg button[aria-selected="true"]{background:var(--accent);color:#fff;font-weight:600}
+.chip{font-size:12px;color:var(--stage-sub);border:1px solid var(--stage-line);border-radius:999px;padding:6px 12px}
+#vdesc{text-align:center;font-size:12.5px;line-height:1.6;color:var(--stage-sub);min-height:2.4em;max-width:620px;margin:0 auto}
+#vdesc b{color:var(--stage-fg);font-weight:600}
+#board{display:flex;justify-content:center;align-items:flex-start;padding:0 8px}
+#clip{width:430px;height:932px;flex:0 0 430px;overflow:hidden;transform-origin:top center;
+  box-shadow:0 10px 40px rgba(0,0,0,.18)}
+
+/* ---- solo: 1案だけを画面いっぱいに出す全画面モード ---- */
+body.solo{margin:0;height:100dvh;overflow:hidden;background:#000;
+  display:flex;align-items:center;justify-content:center}
+body.solo #chrome,body.solo #notesWrap{display:none}
+body.solo #board{padding:0}
+body.solo #clip{box-shadow:none}
+body.solo #phone{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* 実機のステータスバーがある環境では、原型側のステータスバーを消して
+   画板を51px上にずらす（932→881）。ホームバーも実機のものがあるので場所だけ残す */
+body.nostatus #clip{height:881px}
+body.nostatus #phone{margin-top:-51px}
+body.nostatus .statusbar{display:none}
+body.nostatus .homeind i{visibility:hidden}
+
+/* ---------- device ---------- */
+#phone{width:430px;height:932px;background:#fff;position:relative;overflow:hidden;color:#1f2329;
+  font-weight:300;                 /* 設計稿の本文は Hiragino W3。400 だと端末により太い字形が当たる */
+  font-size:17px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+
+/* status bar */
+.statusbar{position:absolute;left:0;top:0;width:430px;height:51px;z-index:40;background:#fff}
+.statusbar .clock{position:absolute;left:0;top:0;width:125px;height:51px;display:flex;align-items:center;justify-content:center;
+  font-family:system-ui,-apple-system,sans-serif;font-weight:600;font-size:17px;letter-spacing:-.4px;color:#000}
+.statusbar .notch{position:absolute;left:152px;top:11px;width:125px;height:37px;border-radius:20px;background:#000}
+.statusbar .sysicons{position:absolute;right:22px;top:0;height:51px;display:flex;align-items:center;gap:6px}
+.statusbar .sysicons i{display:block}
+
+/* nav row */
+.navrow{position:absolute;left:0;top:51px;width:430px;height:60px;padding:0 16px;z-index:35;background:#fff;
+  display:flex;align-items:center}
+.navrow .sp{flex:1}
+.navrow .acts{display:flex;align-items:center;gap:24px;padding:0 8px}
+.navrow .acts img{width:28px;height:28px}
+.navrow .back{width:32px;height:32px;margin-left:-2px}
+
+/* scroller */
+#scroller{position:absolute;left:0;top:111px;width:430px;bottom:0;background:#fff;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none}
+#scroller::-webkit-scrollbar{display:none}
+.titleblock{padding:24px 16px 32px}
+.titleblock h1{margin:0;font-size:24px;line-height:1.5;font-weight:600;letter-spacing:0;
+  text-box-trim:trim-both;text-box-edge:cap alphabetic}
+.titleblock .meta{display:flex;align-items:center;gap:16px;margin-top:20px}
+.titleblock .meta span{display:flex;align-items:center;gap:4px;font-size:14px;color:#646a73;font-weight:300;line-height:1}
+.titleblock .meta img{width:16px;height:16px}
+
+.tabsrow{position:sticky;top:0;z-index:20;background:#fff;padding:0 16px;height:33px;
+  border-bottom:1px solid rgba(31,35,41,.15);
+  /* 拡大縮小した時に上端から下のバブルが1pxだけ覗くのを塞ぐ */
+  box-shadow:0 -4px 0 0 #fff}
+.tabs{display:flex;gap:20px;align-items:flex-start}
+.tab{display:flex;flex-direction:column;gap:8px;padding:0 2px;align-items:stretch}
+.tab .lb{font-size:15px;line-height:1.5;color:#646a73;font-weight:300;white-space:nowrap;text-align:center}
+.tab .ul{height:2px;border-radius:2px 2px 0 0;background:#1f2329;opacity:0}
+.tab[aria-selected="true"] .lb{color:#1f2329;font-weight:600}
+.tab[aria-selected="true"] .ul{opacity:1}
+
+.panels{min-height:788px;padding-bottom:190px}
+.panel{display:none}
+.panel.on{display:block}
+.panel.on.col{display:flex;flex-direction:column}
+
+/* ---- transcript ---- */
+#panelTranscript{padding:12px 16px 0}
+.grp{display:flex;gap:8px;align-items:flex-start;margin-bottom:20px}
+.grp.me{justify-content:flex-end}
+.av{width:28px;height:28px;border-radius:52px;overflow:hidden;flex:0 0 28px;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600}
+.av img{width:28px;height:28px;object-fit:cover}
+.gbody{flex:1 0 0;min-width:0;display:flex;flex-direction:column;gap:4px;justify-content:center;padding-right:40px}
+.grp.me .gbody{align-items:flex-end;padding-right:0;padding-left:40px}
+.ghead{display:flex;gap:8px;align-items:center;height:28px}
+.ghead .nm{font-size:15px;color:#646a73;font-weight:300}
+.ghead .dot{width:3px;height:3px}
+.ghead .tm{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;font-size:12px;color:#646a73;line-height:1}
+.ghead .pen{width:16px;height:16px}
+.bubbles{display:flex;flex-direction:column;gap:8px;width:100%;align-items:flex-start}
+.grp.me .bubbles{align-items:flex-end}
+.bb{padding:12px;font-size:17px;line-height:1.5;color:#1f2329;
+  max-width:322px;cursor:pointer;border:1px solid transparent}
+.bb.cur{font-weight:600}
+
+/* ---- summary ---- */
+#panelSummary{padding:0}
+.chips{display:flex;gap:8px;align-items:center;padding:12px 16px;overflow-x:auto;scrollbar-width:none;
+  position:sticky;top:33px;z-index:15;background:#fff;
+  box-shadow:0 -6px 0 0 #fff}    /* タブとの隙間から下の文字が覗かないよう白で塞ぐ */
+.chips::-webkit-scrollbar{display:none}
+.chips button{background:rgba(31,35,41,.05);backdrop-filter:blur(2px);border-radius:119px;padding:10px 16px;
+  font-size:13px;color:#646a73;white-space:nowrap;line-height:1;
+  text-box-trim:trim-both;text-box-edge:cap alphabetic}
+.chips button[aria-selected="true"]{color:#1f2329;font-weight:600}
+.sumbody{padding:12px 16px 260px;display:flex;flex-direction:column;gap:30px}
+.sec{display:flex;flex-direction:column;gap:18px}
+.sec .h{display:flex;gap:4px;align-items:center}
+.sec .h img{width:8.17px;height:8.2px}
+.sec .h span{font-family:"Hiragino Sans",sans-serif;font-weight:700;font-size:17px;line-height:1.5;color:#1f2329}
+.sec p{margin:0;font-family:"Hiragino Sans",sans-serif;font-weight:300;font-size:17px;line-height:1.5;color:#1f2329}
+.sec p.q{font-weight:600}
+.sec p.a{color:#646a73}
+.item{display:flex;flex-direction:column;gap:6px}
+.tsbadge{background:#eff0f1;border-radius:4px;padding:4px;font-family:"Hiragino Sans",sans-serif;font-size:12px;
+  color:#646a73;line-height:1;align-self:flex-start;cursor:pointer}
+
+/* ---- speakers ---- */
+#panelSpeakers{padding:24px 0 0;gap:40px}   /* 設計稿: ヘッダー291 → 内容315 = 24px */
+.spgroup{display:flex;flex-direction:column;gap:16px}
+.spghead{padding:0 16px;font-size:17px;font-weight:600;color:#646a73;height:28px;display:flex;align-items:center}
+.sprow{padding:0 16px;display:flex;flex-direction:column;gap:12px}
+.sprow .top{display:flex;gap:8px;align-items:center}
+.sprow .nmwrap{flex:1 0 0;min-width:0;height:28px;display:flex;align-items:center;justify-content:space-between}
+.sprow .left{display:flex;gap:8px;align-items:center}
+.sprow .left .nm{font-size:15px;color:#1f2329;font-weight:300}
+.sprow .left img.pen{width:16px;height:16px}
+.sprow .right{display:flex;gap:8px;align-items:center}
+.sprow .right .pc{font-family:"Hiragino Sans",sans-serif;font-size:13px;color:#646a73;line-height:1}
+.icon16{width:16px;height:16px;display:flex;align-items:center;justify-content:center}
+.play16{width:16px;height:16px;position:relative;transform:rotate(90deg)}
+.play16 img{position:absolute;left:13.03%;right:13.03%;top:8.62%;bottom:25%;width:auto;height:auto}
+.track{background:#f4f4f4;height:4px;border-radius:20px;position:relative}
+.track i{position:absolute;top:0;height:4px;border-radius:18px}
+/* 再生位置の丸は線と同じ色。色は行ごとに border-color で渡す */
+.track .ph{position:absolute;top:50%;width:10px;height:10px;transform:translate(-50%,-50%);
+  background:#fff;border:2px solid #4985fa;border-radius:50%;box-sizing:border-box}
+
+/* ---- log ---- */
+#panelLog{padding:24px 16px 0;gap:28px}     /* 同上 */
+.lgrp{display:flex;flex-direction:column;gap:8px}
+.lgrp .lb{font-family:"Hiragino Sans",sans-serif;font-size:16px;line-height:1.4;color:#646a73}
+.lgrp .vl{font-size:17px;color:#1f2329;min-height:28px;display:flex;align-items:center;gap:8px}
+.lgrp .vl img.av28{width:28px;height:28px;border-radius:52px}
+.stack{display:flex}
+.stack>*{border:1px solid #fff;border-radius:52px;margin-right:-4px}
+.stack>*:last-child{margin-right:0}
+.evt{display:flex;align-items:center;gap:8px}
+.evt i{width:8px;height:8px;border-radius:2px;background:#336df3}
+.evt span{color:#336df3;font-size:17px}
+
+/* ---- home indicator ---- */
+.homeind{position:absolute;left:0;bottom:0;width:430px;height:21px;z-index:38;pointer-events:none}
+.homeind i{position:absolute;left:50%;transform:translateX(-50%);bottom:8px;width:144px;height:5px;border-radius:3px;background:#000}
+
+/* ---- floating controls ---- */
+.fab{touch-action:none;width:52px;height:52px;border-radius:9999px;background:rgba(255,255,255,.72);padding:4px;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+  border:.5px solid rgba(255,255,255,.55);
+  box-shadow:0 4px 8px rgba(31,35,41,.04),0 2px 20px rgba(31,35,41,.1)}
+/* AIアイコンの実寸は 26.8878×25.9417。Figma書き出しは preserveAspectRatio="none" なので
+   32×32 に指定すると非等比に伸びてぼやける。設計稿と同じ inset で実寸のまま置く。 */
+.aiico{position:relative;display:block;width:32px;height:32px;flex:0 0 32px}
+.aiico img{position:absolute;top:6.19%;right:8.26%;bottom:12.74%;left:7.71%;width:auto;height:auto}
+.ovl{position:absolute;z-index:30}
+#aiToast{position:absolute;left:50%;transform:translateX(-50%);bottom:120px;z-index:60;
+  background:rgba(31,35,41,.9);color:#fff;font-size:13px;padding:10px 16px;border-radius:8px;opacity:0;
+  transition:opacity .18s;pointer-events:none;white-space:nowrap}
+#aiToast.on{opacity:1}
+
+/* A: stack right */
+#ctlA{left:16px;right:16px;top:725px;display:flex;flex-direction:column;gap:16px;align-items:flex-end;
+  pointer-events:none}                       /* 透明な部分でスクロールを邪魔しない */
+#ctlA #aiA,#ctlA .plbtn{pointer-events:auto}
+/* バーは常に存在し、再生ボタンも同じ要素のまま。周りのガラスと中身だけが出入りする。
+   padding-right 0 / gap 6 は、52pxのボタン内の32pxアイコンを設計稿と同じ x372-404 に置くため。 */
+#ctlA .bar{position:relative;width:100%;height:52px;border-radius:9999px;
+  padding:4px 0 4px 12px;display:flex;align-items:center;gap:6px}
+#ctlA .plbtn{position:relative;flex:0 0 52px;width:52px;height:52px;border-radius:9999px;
+  display:flex;align-items:center;justify-content:center;touch-action:none}
+#ctlA .plbtn svg{position:relative;width:32px;height:32px}
+/* 既定（畳んだ状態）＝丸いガラス＋リングだけ / .on（展開）＝横長のガラス＋時間とシーク */
+#ctlA.on .bar .glass{left:0;background:rgba(255,255,255,.8)}
+#ctlA .bar .glass{transition:left var(--adur,0s) cubic-bezier(.2,.85,.25,1),
+  background-color var(--adur,0s) linear}
+/* 畳む時: 中身は先に素早く消えて、そのあと背景が円に縮む。
+   展開時: 背景が広がってから中身が出る。遷移先の状態が持つ transition が使われる。 */
+#ctlA .bar .lg{opacity:0;pointer-events:none;
+  transition:opacity calc(var(--adur,0s) * .3) linear}
+#ctlA.on .bar .lg{opacity:1;pointer-events:auto;
+  transition:opacity calc(var(--adur,0s) * .5) linear calc(var(--adur,0s) * .45)}
+#ctlA #fabRing{transition:opacity calc(var(--adur,0s) * .4) linear calc(var(--adur,0s) * .55)}
+#ctlA.on #fabRing{opacity:0;transition:opacity calc(var(--adur,0s) * .3) linear}
+/* 背景は消さずに左端だけを動かす＝畳んだ時は右端の52px円、展開時は398pxの横長。
+   高さ52・角丸9999なので left を動かすだけで円と横長が正しく行き来する。 */
+#ctlA .bar .glass{position:absolute;left:346px;top:0;right:0;bottom:0;border-radius:9999px;
+  background:rgba(255,255,255,.72);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+  border:.5px solid rgba(255,255,255,.55);
+  box-shadow:0 4px 8px rgba(31,35,41,.04),0 2px 20px rgba(31,35,41,.1)}
+#ctlA .bar .lg{position:relative;flex:1 0 0;min-width:0;display:flex;align-items:center;gap:8px}
+#ctlA .bar .mic{width:24px;height:24px}
+#ctlA .bar .times{flex:1 0 0;min-width:0;display:flex;align-items:center;gap:13.3px}
+
+/* B: bar bottom */
+#ctlB{left:16px;right:16px;top:839px;display:flex;align-items:center;gap:8px;justify-content:flex-end}
+#ctlB .pill{flex:1 0 0;min-width:0;height:52px;border-radius:9999px;background:rgba(255,255,255,.8);
+  padding:4px 14px 4px 10px;display:flex;align-items:center;gap:12px;
+  -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+  border:.5px solid rgba(255,255,255,.55);
+  box-shadow:0 4px 8px rgba(31,35,41,.04),0 2px 20px rgba(31,35,41,.1)}
+#ctlB .pill .lg{flex:1 0 0;min-width:0;display:flex;align-items:center;gap:4px}
+#ctlB .pill .pl{width:32px;height:32px}
+#ctlB .pill .times{flex:1 0 0;min-width:0;display:flex;align-items:center;gap:8px}
+.spd{width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  font-family:"Poppins",system-ui,sans-serif;font-weight:400;font-size:14.7px;line-height:1.5;color:#1f2329}
+
+/* C: centered mini + full panel */
+#ctlC .mini{touch-action:none;position:absolute;left:189px;top:840px;width:52px;height:52px;
+  display:flex;align-items:center;justify-content:center}
+#ctlC .mini .mglass{position:absolute;inset:0;border-radius:9999px;background:#fff;
+  box-shadow:0 4px 4px rgba(31,35,41,.1),0 2px 10px rgba(31,35,41,.1)}
+#ctlC .mini img{position:relative;width:32px;height:32px}
+/* 設計稿 4629:43414: C案のAIボタンは丸ボタンではなく右端に吸着した形。
+   左だけ角丸(305px)・右は角丸なしで画面外へ抜ける。背景は不透明の白＋0.5pxの枠線で、
+   ガラス（背景ぼかし）ではない。padding 12/8、影は drop-shadow 0 4px 10px。
+   幅53/right:-4 は枠線1pxを含めて左端を設計稿の x=381 に合わせるため。 */
+#ctlC .aipeek,#ctlD .aipeek{touch-action:none;position:absolute;right:-4px;top:688px;width:53px;height:48px;
+  padding:8px 8px 8px 12px;display:flex;align-items:center;
+  background:#fff;border:.5px solid #dee0e3;
+  border-radius:305px 0 0 305px;
+  /* drop-shadow(filter) は動かすと Safari で描画の跡が残るので box-shadow で同じ影を出す */
+  box-shadow:0 4px 10px rgba(31,35,39,.05)}
+#ctlC .panel2,#ctlD .panel2{position:absolute;left:0;top:810px;width:430px;height:122px;background:#fff;
+  padding:16px 16px 50px;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center}
+#ctlC .panel2 .prow,#ctlD .panel2 .prow{display:flex;align-items:center;gap:8px;width:100%}
+#ctlC .panel2 .crow,#ctlD .panel2 .crow{display:flex;align-items:center;justify-content:center;gap:64px;width:400px}
+#ctlC .panel2 .crow img.s28,#ctlD .panel2 .crow img.s28{width:28px;height:28px}
+#ctlC .panel2 .crow img.s32,#ctlD .panel2 .crow img.s32{width:32px;height:32px}
+#ctlC .panel2 .crow .pipwrap{width:28px;height:28px;position:relative}
+#ctlC .panel2 .crow .pipwrap img{position:absolute;left:5.18px;top:5.18px;width:20.2px;height:20.2px}
+/* D案: 設計稿 4631:75585。ヘッダー右上の「…」が進捗バーの右端(x=372/28px)に移る */
+#ctlD .panel2 .crow .morewrap{width:28px;height:28px;display:flex;align-items:center;justify-content:center}
+#ctlD .panel2 .crow .morewrap img{width:28px;height:28px}
+#menu.up{top:auto;bottom:130px}
+.spd28{width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  font-family:"Poppins",system-ui,sans-serif;font-weight:500;font-size:17.1px;line-height:1.5;color:#1f2329}
+
+/* time + seek track */
+.tt{font-family:"Hiragino Sans",sans-serif;font-size:12px;line-height:1;color:#929294;white-space:nowrap}
+.seek{flex:1 0 0;min-width:0;height:12px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+.seek .bg{position:relative;width:100%;height:2px;background:#e0e1e2;border-radius:59px}
+.seek .fill{position:absolute;left:0;top:0;height:2px;background:#1f2329;border-radius:3px 0 0 3px}
+.seek .knob{position:absolute;top:50%;width:6px;height:6px;border-radius:50%;background:#1f2329;transform:translate(-50%,-50%)}
+.seek.big .knob{width:8px;height:8px}
+
+/* jump buttons */
+.jump{position:absolute;right:16px;width:52px;height:52px;border-radius:35px;background:#8f959e;
+  border:.5px solid #dee0e3;display:flex;align-items:center;justify-content:center;z-index:31}
+.jump img{width:32px;height:32px}
+#jumpDown{transition:transform var(--jdur,0s) cubic-bezier(.2,.85,.25,1)}
+.jump.down img{transform:scaleY(-1)}
+#jumpUp{top:160px}
+
+/* ⋯ menu */
+#menu{position:absolute;right:12px;top:104px;z-index:70;background:#fff;border-radius:10px;min-width:190px;
+  box-shadow:0 6px 24px rgba(31,35,41,.18);padding:6px;font-size:16px}
+#menu button{display:block;width:100%;text-align:left;padding:12px 14px;border-radius:7px}
+#menu button:active{background:#f2f3f5}
+#scrim{position:absolute;inset:0;z-index:65}
+
+/* ---- 話者編集 sheet ---- */
+#sheetwrap{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.5)}
+.sheet{position:absolute;left:0;bottom:0;width:430px;height:758px;background:#fff;border-radius:8px 8px 0 0;
+  display:flex;flex-direction:column}
+.sheet .hdr{height:60px;padding:20px;display:flex;align-items:center;position:relative;flex:0 0 auto}
+.sheet .hdr img{width:20px;height:20px}
+.sheet .hdr .ti{position:absolute;left:0;right:0;text-align:center;font-size:18px;font-weight:600;
+  font-family:"Hiragino Kaku Gothic Pro","Hiragino Kaku Gothic ProN",sans-serif;color:#1f2329;pointer-events:none}
+.sheet .body{flex:1 0 0;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:12px;padding:8px 0 0}
+.searchwrap{padding:0 16px;flex:0 0 auto}
+.searchfield{background:#f8f9fa;height:40px;border-radius:8px;padding:0 8px;display:flex;align-items:center;gap:8px}
+.searchfield img{width:18px;height:18px}
+.searchfield input{border:0;outline:0;background:none;flex:1;font-size:17px;color:#1f2329;
+  font-family:inherit;line-height:1.5;min-width:0}
+.searchfield input::placeholder{color:#bbbfc4}
+.searchfield button{width:20px;height:20px;flex:0 0 20px}
+.memlist{flex:1 0 0;min-height:0;overflow-y:auto;background:#f8f9fa;padding-top:8px;border-top:.5px solid #dee0e3}
+.memrow{background:#fff;padding:0 16px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.memrow .ava{width:44px;height:44px;border-radius:280px;overflow:hidden;flex:0 0 44px}
+.memrow .ava img{width:44px;height:44px;object-fit:cover}
+/* 設計稿の行は 69px 固定（アバター44 + 上下12.5）。チェックを入れても伸びないよう高さで指定する */
+.memrow .rr{flex:1 0 0;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  height:69px;box-sizing:border-box;padding:0;border-bottom:.5px solid #dee0e3}
+.memrow:last-child .rr{border-bottom:0}
+.memrow .nm{font-family:"Hiragino Kaku Gothic Pro","Hiragino Kaku Gothic ProN",sans-serif;font-size:17px;
+  line-height:16px;color:#1f2329;text-box-trim:trim-both;text-box-edge:cap alphabetic}
+.memrow .badge{background:rgba(22,192,152,.1);border-radius:4px;padding:4px;font-size:12px;color:#16c098;line-height:16px;
+  white-space:nowrap}
+.memrow .ck{width:24px;height:24px;flex:0 0 24px}
+.memrow .nmwrap{display:flex;align-items:center;gap:8px;min-width:0}
+.sheet .foot{flex:0 0 auto;height:78px;background:#fff;border-top:.5px solid #bbbfc4;padding:0 24px 24px 16px;
+  display:flex;align-items:center;justify-content:space-between}
+.sheet .foot.right{justify-content:flex-end;padding-right:24px}
+.bulk{display:flex;align-items:center;gap:8px;font-size:15px;color:#1f2329;cursor:pointer}
+.bulk img,.bulk svg{width:24px;height:24px}
+/* 設計稿: 70×37、文字は中央（左右18・上下12相当） */
+.apply{background:#16c098;border-radius:4px;width:70px;height:37px;box-sizing:border-box;padding:0;
+  display:flex;align-items:center;
+  justify-content:center;color:#fff;font-size:17px;font-weight:600;
+  font-family:"Hiragino Kaku Gothic Pro","Hiragino Kaku Gothic ProN",sans-serif;line-height:1}
+.apply[disabled]{opacity:.5;cursor:default}
+
+/* ---------- notes ---------- */
+#notesWrap{max-width:760px;margin:22px auto 60px;padding:0 16px}
+#notes{background:var(--stage-card);border:1px solid var(--stage-line);border-radius:12px;padding:18px 20px}
+#notes h2{margin:0 0 12px;font-size:15px}
+#notes h2+ul{margin-bottom:22px}
+#notes a{color:var(--accent)}
+#notes h3{margin:18px 0 8px;font-size:13px;color:var(--stage-sub);letter-spacing:.02em}
+#notes ol,#notes ul{margin:0;padding-left:1.3em;font-size:13.5px;line-height:1.75}
+#notes li{margin-bottom:7px}
+#notes code{font-size:12.5px;background:rgba(127,127,127,.14);padding:1px 5px;border-radius:4px}
+#notes .q{color:var(--stage-fg)}
+#notes table{border-collapse:collapse;font-size:13px;width:100%}
+#notes td,#notes th{border-bottom:1px solid var(--stage-line);padding:7px 8px;text-align:left;vertical-align:top}
+#notes th{color:var(--stage-sub);font-weight:600;white-space:nowrap}
+</style>
+<style>
+body{margin:0;height:100dvh;overflow:hidden;background:#000;
+  display:flex;align-items:center;justify-content:center}
+#board{padding:0;visibility:hidden}        /* 倍率が決まるまで出さない */
+#clip{box-shadow:none}
+#phone{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+@media (pointer: coarse){
+  #clip{height:881px}
+  #phone{margin-top:-51px}
+  .statusbar{display:none}
+  .homeind i{visibility:hidden}
+}
+</style>
+<style>
+#gate{position:fixed;inset:0;z-index:9999;background:#0f1417;color:#e8eeec;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans",system-ui,sans-serif;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+  padding:32px 26px;overflow-y:auto;-webkit-user-select:none;user-select:none}
+#gate .mark{width:64px;height:64px;border-radius:16px;background:#16c098;
+  display:flex;align-items:center;justify-content:center;margin-bottom:22px}
+#gate .mark svg{width:26px;height:26px;margin-left:3px}
+#gate h1{margin:0 0 6px;font-size:19px;font-weight:600;letter-spacing:-.01em}
+#gate p{margin:0 0 26px;font-size:13px;line-height:1.7;color:#93a09f;text-align:center;max-width:19em}
+#gate form{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+#gate input{-webkit-appearance:none;appearance:none;width:100%;height:48px;padding:0 15px;
+  background:#1a2124;border:1px solid #2b3437;border-radius:11px;
+  color:#e8eeec;font-size:17px;font-family:inherit;outline:0}
+#gate input:focus{border-color:#16c098}
+#gate button{height:48px;border:0;border-radius:11px;background:#16c098;color:#06231c;
+  font-size:16px;font-weight:600;font-family:inherit;cursor:pointer}
+#gate button:disabled{opacity:.5;cursor:default}
+#gate .msg{min-height:20px;font-size:12.5px;line-height:1.6;text-align:center;color:#93a09f}
+#gate .msg.bad{color:#ff8f7a}
+#gate .foot{margin-top:28px;font-size:11.5px;line-height:1.7;color:#5f6b6a;text-align:center;max-width:22em}
+</style>
+</head>
+<body>
+<div id="chrome" hidden>
+  <div class="row">
+    <div class="seg" id="variantSeg" role="tablist">
+      <button role="tab" data-v="A" aria-selected="true">A案 — 丸ボタン</button>
+      <button role="tab" data-v="B" aria-selected="false">B案 — 常時バー</button>
+      <button role="tab" data-v="C" aria-selected="false">C案 — 中央ボタン</button>
+      <button role="tab" data-v="D" aria-selected="false">D案 — 常時バー（全幅）</button>
+    </div>
+    <button class="chip" id="notesBtn">前提と確認事項</button>
+  </div>
+  <div id="vdesc"></div>
+</div>
+
+<div id="board">
+<div id="clip">
+<div id="phone">
+
+  <div class="statusbar">
+    <div class="clock">9:41</div>
+    <div class="notch"></div>
+    <div class="sysicons">
+      <i><svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="0" y="8" width="3" height="4" rx="1" fill="#000"/><rect x="5" y="6" width="3" height="6" rx="1" fill="#000"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#000"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#000"/></svg></i>
+      <i><svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 10.4 10.6 8.2a3 3 0 0 0-4.2 0L8.5 10.4Z" fill="#000"/><path d="M4.2 6a6.2 6.2 0 0 1 8.6 0" stroke="#000" stroke-width="1.6" stroke-linecap="round"/><path d="M1.6 3.3a9.9 9.9 0 0 1 13.8 0" stroke="#000" stroke-width="1.6" stroke-linecap="round"/></svg></i>
+      <i><svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="#000" stroke-opacity=".35"/><rect x="2" y="2" width="19" height="9" rx="2.2" fill="#000"/><path d="M25 4.5v4a2.1 2.1 0 0 0 0-4Z" fill="#000" fill-opacity=".4"/></svg></i>
+    </div>
+  </div>
+
+  <div class="navrow">
+    <img class="back" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yMC42NjY3IDI0TDEyLjY2NjcgMTZMMjAuNjY2NyA4IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="戻る">
+    <div class="sp"></div>
+    <div class="acts">
+      <img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0xMi4yNTA0IDIyLjE2NjdDMTcuNzI3MiAyMi4xNjY3IDIyLjE2NyAxNy43MjY4IDIyLjE2NyAxMi4yNUMyMi4xNjcgNi43NzMyIDE3LjcyNzIgMi4zMzMzMyAxMi4yNTA0IDIuMzMzMzNDNi43NzM1OCAyLjMzMzMzIDIuMzMzNzEgNi43NzMyIDIuMzMzNzEgMTIuMjVDMi4zMzM3MSAxNy43MjY4IDYuNzczNTggMjIuMTY2NyAxMi4yNTA0IDIyLjE2NjdaIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik0xOS4zNzg2IDE5LjM3OTFMMjQuMzI4MyAyNC4zMjg5IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="検索">
+      <img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIyOTsmIzEzMzsmIzE3NzsmIzIzMDsmIzE1NjsmIzEzNzsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMTYuMzMzMyAzLjVIMjQuNVYxMS42NjY3IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTI0LjUgMTcuMTkzVjIyLjc1QzI0LjUgMjMuNzE2NSAyMy43MTY1IDI0LjUgMjIuNzUgMjQuNUg1LjI1QzQuMjgzNSAyNC41IDMuNSAyMy43MTY1IDMuNSAyMi43NVY1LjI1QzMuNSA0LjI4MzUgNC4yODM1IDMuNSA1LjI1IDMuNUgxMC41IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMyIgZD0iTTE1LjA0OTkgMTIuOTQ5OUwyMy45NzQ5IDQuMDI0OTQiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjc1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt="共有">
+      <img id="moreBtn" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik02Ljk5OTg0IDE1Ljc1QzcuOTY2MzQgMTUuNzUgOC43NDk4NCAxNC45NjY1IDguNzQ5ODQgMTRDOC43NDk4NCAxMy4wMzM1IDcuOTY2MzQgMTIuMjUgNi45OTk4NCAxMi4yNUM2LjAzMzM0IDEyLjI1IDUuMjQ5ODQgMTMuMDMzNSA1LjI0OTg0IDE0QzUuMjQ5ODQgMTQuOTY2NSA2LjAzMzM0IDE1Ljc1IDYuOTk5ODQgMTUuNzVaIiBmaWxsPSIjMUYyMzI5Ii8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTEzLjk5OTggMTUuNzVDMTQuOTY2MyAxNS43NSAxNS43NDk4IDE0Ljk2NjUgMTUuNzQ5OCAxNEMxNS43NDk4IDEzLjAzMzUgMTQuOTY2MyAxMi4yNSAxMy45OTk4IDEyLjI1QzEzLjAzMzMgMTIuMjUgMTIuMjQ5OCAxMy4wMzM1IDEyLjI0OTggMTRDMTIuMjQ5OCAxNC45NjY1IDEzLjAzMzMgMTUuNzUgMTMuOTk5OCAxNS43NVoiIGZpbGw9IiMxRjIzMjkiLz4KPHBhdGggaWQ9IlZlY3Rvcl8zIiBkPSJNMjAuOTk5OCAxNS43NUMyMS45NjYzIDE1Ljc1IDIyLjc0OTggMTQuOTY2NSAyMi43NDk4IDE0QzIyLjc0OTggMTMuMDMzNSAyMS45NjYzIDEyLjI1IDIwLjk5OTggMTIuMjVDMjAuMDMzMyAxMi4yNSAxOS4yNDk4IDEzLjAzMzUgMTkuMjQ5OCAxNEMxOS4yNDk4IDE0Ljk2NjUgMjAuMDMzMyAxNS43NSAyMC45OTk4IDE1Ljc1WiIgZmlsbD0iIzFGMjMyOSIvPgo8L2c+Cjwvc3ZnPgo=" alt="その他">
+    </div>
+  </div>
+
+  <div id="scroller">
+    <div class="titleblock">
+      <h1 id="docTitle">Olaris3リリースとカレンダー連携の実装戦略</h1>
+      <div class="meta">
+        <span><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSIgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzQ1NTBfODA0ODUpIj4KPHBhdGggaWQ9IlZlY3RvciIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik04IDE0LjY2NjdDMTEuNjgxOSAxNC42NjY3IDE0LjY2NjcgMTEuNjgxOSAxNC42NjY3IDhDMTQuNjY2NyA0LjMxODEgMTEuNjgxOSAxLjMzMzMzIDggMS4zMzMzM0M0LjMxODEgMS4zMzMzMyAxLjMzMzMzIDQuMzE4MSAxLjMzMzMzIDhDMS4zMzMzMyAxMS42ODE5IDQuMzE4MSAxNC42NjY3IDggMTQuNjY2N1oiIHN0cm9rZT0iIzY0NkE3MyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTggNy42NjY2N0M4LjkyMDQ3IDcuNjY2NjcgOS42NjY2NyA2LjkyMDQ3IDkuNjY2NjcgNkM5LjY2NjY3IDUuMDc5NTMgOC45MjA0NyA0LjMzMzMzIDggNC4zMzMzM0M3LjA3OTUzIDQuMzMzMzMgNi4zMzMzMyA1LjA3OTUzIDYuMzMzMzMgNkM2LjMzMzMzIDYuOTIwNDcgNy4wNzk1MyA3LjY2NjY3IDggNy42NjY2N1oiIHN0cm9rZT0iIzY0NkE3MyIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzMiIGQ9Ik0zLjM0MDY2IDEyLjc3NzNDMy40NTUyMiAxMS4wNDAyIDQuOTAwNTIgOS42NjY2NyA2LjY2NjY2IDkuNjY2NjdIOS4zMzMzMkMxMS4wOTcxIDkuNjY2NjcgMTIuNTQxIDExLjAzNjYgMTIuNjU4OSAxMi43NzA0IiBzdHJva2U9IiM2NDZBNzMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzQ1NTBfODA0ODUiPgo8cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==" alt="">片岡新太郎</span>
+        <span><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSIgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzQ1NTBfODA0NjQpIj4KPHBhdGggaWQ9IlZlY3RvciIgZD0iTTggMTQuNjY2N0MxMS42ODE5IDE0LjY2NjcgMTQuNjY2NyAxMS42ODE5IDE0LjY2NjcgOEMxNC42NjY3IDQuMzE4MSAxMS42ODE5IDEuMzMzMzMgOCAxLjMzMzMzQzQuMzE4MSAxLjMzMzMzIDEuMzMzMzMgNC4zMTgxIDEuMzMzMzMgOEMxLjMzMzMzIDExLjY4MTkgNC4zMTgxIDE0LjY2NjcgOCAxNC42NjY3WiIgc3Ryb2tlPSIjNjQ2QTczIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTguMDAyNzYgNEw4LjAwMjM2IDguMDAyOTNMMTAuODI4OCAxMC44Mjk0IiBzdHJva2U9IiM2NDZBNzMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzQ1NTBfODA0NjQiPgo8cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==" alt=""><i id="docDate" style="font-style:normal">2026/02/10 07:28</i></span>
+      </div>
+    </div>
+
+    <div class="tabsrow">
+      <div class="tabs" id="tabs">
+        <button class="tab" data-tab="transcript" aria-selected="true"><span class="lb">書き起こし</span><span class="ul"></span></button>
+        <button class="tab" data-tab="summary" aria-selected="false"><span class="lb">要約</span><span class="ul"></span></button>
+        <button class="tab" data-tab="speakers" aria-selected="false"><span class="lb" id="spTabLabel">話者（3）</span><span class="ul"></span></button>
+        <button class="tab" data-tab="log" aria-selected="false"><span class="lb">ログ情報</span><span class="ul"></span></button>
+      </div>
+    </div>
+
+    <div class="panels">
+      <div class="panel on" id="panelTranscript"></div>
+
+      <div class="panel" id="panelSummary">
+        <div class="chips" id="sumChips">
+          <button data-c="topics">トピックス</button>
+          <button data-c="overview" aria-selected="true">概要</button>
+          <button data-c="points">要点一覧</button>
+          <button data-c="qa">Q&amp;A</button>
+          <button data-c="next">ネクストアクション</button>
+        </div>
+        <div class="sumbody" id="sumBody"></div>
+      </div>
+
+      <div class="panel col" id="panelSpeakers"></div>
+
+      <div class="panel col" id="panelLog">
+        <div class="lgrp"><div class="lb">作成者</div>
+          <div class="vl" id="logOwner"></div></div>
+        <div class="lgrp"><div class="lb" id="logJoin">参加者（３名）</div>
+          <div class="vl"><div class="stack" id="logStack"></div></div></div>
+        <div class="lgrp"><div class="lb">グループ</div>
+          <div class="vl"><span>プロダクトデザイン開発推進チーム統括本部</span></div></div>
+        <div class="lgrp"><div class="lb">日時</div><div class="vl"><span id="logDate">2026/02/10 07:28</span></div></div>
+        <div class="lgrp"><div class="lb">時間</div><div class="vl"><span id="logDur">31:08</span></div></div>
+        <div class="lgrp"><div class="lb">関連予定</div>
+          <div class="vl"><div class="evt"><i></i><span>Design Team MTG</span></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- variant A -->
+  <div class="ovl" id="ctlA" hidden>
+    <button class="fab" id="aiA"><span class="aiico"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI2Ljg4NzgiIGhlaWdodD0iMjUuOTQxNyIgdmlld0JveD0iMCAwIDI2Ljg4NzggMjUuOTQxNyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgaWQ9Ikdyb3VwIj4KPGcgaWQ9IlZlY3RvciIgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfaV80NTUwXzgwNTY4KSI+CjxwYXRoIGQ9Ik05LjkyMTYzIDIuMjYzQzkuNzY5NzkgMS45OTg1NSA5LjM2OTIgMi4wNzYyMSA5LjMyNzE4IDIuMzc4MjVMOC41MDIyIDguMzA4NTlDOC4yMjgyNSAxMC4yNzc5IDcuMDU0NjIgMTIuMDA4IDUuMzI2MTQgMTIuOTkwNkwwLjE2MjA3OCAxNS45MjYyQy0wLjEwMjU1MSAxNi4wNzY3IC0wLjAyNzQ3MTEgMTYuNDc2OCAwLjI3MzY5NSAxNi41MjFMNi4xNzgwNyAxNy4zODg4QzguMTIxMDUgMTcuNjc0MyA5LjgyNTM2IDE4LjgzNjEgMTAuODAxMyAyMC41NDAzTDEzLjgwMjIgMjUuNzgwNUMxMy45NTM5IDI2LjA0NTUgMTQuMzU1MyAyNS45Njc2IDE0LjM5NjkgMjUuNjY1MUwxNS4yMDgzIDE5Ljc2MzZDMTUuNDc4NyAxNy43OTczIDE2LjY0NiAxNi4wNjc3IDE4LjM2ODQgMTUuMDgxNEwyMy42MTI3IDEyLjA3ODVDMjMuODc3NiAxMS45MjY4IDIzLjc5OTkgMTEuNTI1NiAyMy40OTc1IDExLjQ4MzhMMTcuNjExNiAxMC42Njk2QzE1LjY1IDEwLjM5ODMgMTMuOTI0NSA5LjIzNDE3IDEyLjkzODQgNy41MTY4NUw5LjkyMTYzIDIuMjYzWiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzQ1NTBfODA1NjgpIi8+CjxwYXRoIGQ9Ik05LjkyMTYzIDIuMjYzQzkuNzY5NzkgMS45OTg1NSA5LjM2OTIgMi4wNzYyMSA5LjMyNzE4IDIuMzc4MjVMOC41MDIyIDguMzA4NTlDOC4yMjgyNSAxMC4yNzc5IDcuMDU0NjIgMTIuMDA4IDUuMzI2MTQgMTIuOTkwNkwwLjE2MjA3OCAxNS45MjYyQy0wLjEwMjU1MSAxNi4wNzY3IC0wLjAyNzQ3MTEgMTYuNDc2OCAwLjI3MzY5NSAxNi41MjFMNi4xNzgwNyAxNy4zODg4QzguMTIxMDUgMTcuNjc0MyA5LjgyNTM2IDE4LjgzNjEgMTAuODAxMyAyMC41NDAzTDEzLjgwMjIgMjUuNzgwNUMxMy45NTM5IDI2LjA0NTUgMTQuMzU1MyAyNS45Njc2IDE0LjM5NjkgMjUuNjY1MUwxNS4yMDgzIDE5Ljc2MzZDMTUuNDc4NyAxNy43OTczIDE2LjY0NiAxNi4wNjc3IDE4LjM2ODQgMTUuMDgxNEwyMy42MTI3IDEyLjA3ODVDMjMuODc3NiAxMS45MjY4IDIzLjc5OTkgMTEuNTI1NiAyMy40OTc1IDExLjQ4MzhMMTcuNjExNiAxMC42Njk2QzE1LjY1IDEwLjM5ODMgMTMuOTI0NSA5LjIzNDE3IDEyLjkzODQgNy41MTY4NUw5LjkyMTYzIDIuMjYzWiIgZmlsbD0iYmxhY2siIGZpbGwtb3BhY2l0eT0iMC41IiBzdHlsZT0ibWl4LWJsZW5kLW1vZGU6b3ZlcmxheSIvPgo8L2c+CjxnIGlkPSJWZWN0b3JfMiIgZmlsdGVyPSJ1cmwoI2ZpbHRlcjFfaV80NTUwXzgwNTY4KSI+CjxwYXRoIGQ9Ik0yMy4xMzI3IDAuMjE4MzhDMjMuMDM1OSAtMC4wNzA3ODAzIDIyLjYyNzggLTAuMDczNDYxMyAyMi41MjcyIDAuMjE0NDAyTDIyLjExNzQgMS4zODY2QzIxLjc4OTQgMi4zMjUwMyAyMS4wNDM4IDMuMDU3NzEgMjAuMDk5OCAzLjM2OTMzTDE4LjkzNDMgMy43NTQwOEMxOC42NDUyIDMuODQ5NSAxOC42NDAxIDQuMjU2NTQgMTguOTI2NyA0LjM1OTJMMjAuMDk3IDQuNzc4NDVDMjEuMDIxNCA1LjEwOTYgMjEuNzQyNiA1Ljg0NjgzIDIyLjA1MzMgNi43NzgyOEwyMi40NTMyIDcuOTc3MDJDMjIuNTQ5OSA4LjI2NjcxIDIyLjk1ODcgOC4yNjkzMSAyMy4wNTkgNy45ODA4N0wyMy40NjI2IDYuODIwNDlDMjMuNzg4NiA1Ljg4MzE2IDI0LjUzMSA1LjE1MDEzIDI1LjQ3MjQgNC44MzYxTDI2LjY2OTEgNC40MzY5NEMyNi45NTg2IDQuMzQwMzUgMjYuOTYxNCAzLjkzMTc0IDI2LjY3MzIgMy44MzEyM0wyNS41MTY3IDMuNDI3OTdDMjQuNTgxOCAzLjEwMTk1IDIzLjg1MDQgMi4zNjE1IDIzLjUzNiAxLjQyMjYxTDIzLjEzMjcgMC4yMTgzOFoiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcl80NTUwXzgwNTY4KSIvPgo8cGF0aCBkPSJNMjMuMTMyNyAwLjIxODM4QzIzLjAzNTkgLTAuMDcwNzgwMyAyMi42Mjc4IC0wLjA3MzQ2MTMgMjIuNTI3MiAwLjIxNDQwMkwyMi4xMTc0IDEuMzg2NkMyMS43ODk0IDIuMzI1MDMgMjEuMDQzOCAzLjA1NzcxIDIwLjA5OTggMy4zNjkzM0wxOC45MzQzIDMuNzU0MDhDMTguNjQ1MiAzLjg0OTUgMTguNjQwMSA0LjI1NjU0IDE4LjkyNjcgNC4zNTkyTDIwLjA5NyA0Ljc3ODQ1QzIxLjAyMTQgNS4xMDk2IDIxLjc0MjYgNS44NDY4MyAyMi4wNTMzIDYuNzc4MjhMMjIuNDUzMiA3Ljk3NzAyQzIyLjU0OTkgOC4yNjY3MSAyMi45NTg3IDguMjY5MzEgMjMuMDU5IDcuOTgwODdMMjMuNDYyNiA2LjgyMDQ5QzIzLjc4ODYgNS44ODMxNiAyNC41MzEgNS4xNTAxMyAyNS40NzI0IDQuODM2MUwyNi42NjkxIDQuNDM2OTRDMjYuOTU4NiA0LjM0MDM1IDI2Ljk2MTQgMy45MzE3NCAyNi42NzMyIDMuODMxMjNMMjUuNTE2NyAzLjQyNzk3QzI0LjU4MTggMy4xMDE5NSAyMy44NTA0IDIuMzYxNSAyMy41MzYgMS40MjI2MUwyMy4xMzI3IDAuMjE4MzhaIiBmaWxsPSJibGFjayIgZmlsbC1vcGFjaXR5PSIwLjUiIHN0eWxlPSJtaXgtYmxlbmQtbW9kZTpvdmVybGF5Ii8+CjwvZz4KPC9nPgo8ZGVmcz4KPGZpbHRlciBpZD0iZmlsdGVyMF9pXzQ1NTBfODA1NjgiIHg9IjAiIHk9IjIuMTAyMSIgd2lkdGg9IjIzLjc3MzkiIGhlaWdodD0iMjQuODM5NiIgZmlsdGVyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgo8ZmVGbG9vZCBmbG9vZC1vcGFjaXR5PSIwIiByZXN1bHQ9IkJhY2tncm91bmRJbWFnZUZpeCIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluPSJTb3VyY2VHcmFwaGljIiBpbjI9IkJhY2tncm91bmRJbWFnZUZpeCIgcmVzdWx0PSJzaGFwZSIvPgo8ZmVDb2xvck1hdHJpeCBpbj0iU291cmNlQWxwaGEiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAxMjcgMCIgcmVzdWx0PSJoYXJkQWxwaGEiLz4KPGZlT2Zmc2V0IGR5PSIxIi8+CjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjEiLz4KPGZlQ29tcG9zaXRlIGluMj0iaGFyZEFscGhhIiBvcGVyYXRvcj0iYXJpdGhtZXRpYyIgazI9Ii0xIiBrMz0iMSIvPgo8ZmVDb2xvck1hdHJpeCB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMC4xIDAiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbjI9InNoYXBlIiByZXN1bHQ9ImVmZmVjdDFfaW5uZXJTaGFkb3dfNDU1MF84MDU2OCIvPgo8L2ZpbHRlcj4KPGZpbHRlciBpZD0iZmlsdGVyMV9pXzQ1NTBfODA1NjgiIHg9IjE4LjcxNDYiIHk9IjAiIHdpZHRoPSI4LjE3MzIxIiBoZWlnaHQ9IjkuMTk1NzUiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0ic2hhcGUiLz4KPGZlQ29sb3JNYXRyaXggaW49IlNvdXJjZUFscGhhIiB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMTI3IDAiIHJlc3VsdD0iaGFyZEFscGhhIi8+CjxmZU9mZnNldCBkeT0iMSIvPgo8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxIi8+CjxmZUNvbXBvc2l0ZSBpbjI9ImhhcmRBbHBoYSIgb3BlcmF0b3I9ImFyaXRobWV0aWMiIGsyPSItMSIgazM9IjEiLz4KPGZlQ29sb3JNYXRyaXggdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAuMSAwIi8+CjxmZUJsZW5kIG1vZGU9Im5vcm1hbCIgaW4yPSJzaGFwZSIgcmVzdWx0PSJlZmZlY3QxX2lubmVyU2hhZG93XzQ1NTBfODA1NjgiLz4KPC9maWx0ZXI+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl80NTUwXzgwNTY4IiB4MT0iNC40MDI1OCIgeTE9IjMuNzA2NjkiIHgyPSIyMC4zNTMzIiB5Mj0iMjMuMDIwMyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjN0FEM0Y4Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzdCRjFBNiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MV9saW5lYXJfNDU1MF84MDU2OCIgeDE9IjIwLjIyODEiIHkxPSIwLjU1MTYzNyIgeDI9IjI1LjcxMTgiIHkyPSI3LjE5MTQxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiM3QUQzRjgiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0JGMUE2Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==" alt="AIチャット"></span></button>
+    <div class="bar" id="barA">
+      <i class="glass"></i>
+      <div class="lg">
+        <img class="mic" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0xNS40OTk5IDcuNTk3NTlDMTUuNDk5OSA1LjY2NDU5IDEzLjkzMjkgNC4wOTc1OSAxMS45OTk5IDQuMDk3NTlDMTAuMDY2OSA0LjA5NzU5IDguNDk5ODYgNS42NjQ1OSA4LjQ5OTg2IDcuNTk3NTlWMTIuOTI2OUM4LjQ5OTg2IDE0Ljg1OTkgMTAuMDY2OSAxNi40MjY5IDExLjk5OTkgMTYuNDI2OUMxMy45MzI5IDE2LjQyNjkgMTUuNDk5OSAxNC44NTk5IDE1LjQ5OTkgMTIuOTI2OVY3LjU5NzU5WiIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik00LjUgMTIuNDI2N0M0LjUgMTYuNTY4OCA3Ljg1Nzg1IDE5LjkyNjcgMTIgMTkuOTI2N0MxNi4xNDIxIDE5LjkyNjcgMTkuNSAxNi41Njg4IDE5LjUgMTIuNDI2NyIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="">
+        <div class="times">
+          <span class="tt" data-cur>04:29</span>
+          <div class="seek big" data-seek-track><div class="bg"><div class="fill"></div><div class="knob"></div></div></div>
+          <span class="tt" data-tot>31:08</span>
+        </div>
+      </div>
+      <button class="plbtn" id="plA" aria-label="再生">
+      <svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">
+          <g id="fabRing">
+            <circle cx="16" cy="16" r="15.2" fill="none" stroke="#EFF0F1" stroke-width="1.6"></circle>
+            <circle id="fabArc" cx="16" cy="16" r="15.2" fill="none" stroke="#1F2329" stroke-width="1.6"
+                    stroke-linecap="round" transform="rotate(-90 16 16)"
+                    stroke-dasharray="95.504" stroke-dashoffset="95.504"></circle>
+          </g>
+          <path id="fabPlay" fill="#1F2329" d="M21.2759 13.8499C22.498 14.5555 23.1091 14.9083 23.3141 15.3689C23.493 15.7706 23.493 16.2294 23.3141 16.6311C23.1091 17.0917 22.498 17.4445 21.2759 18.1501L15.2242 21.6441C14.002 22.3497 13.391 22.7025 12.8895 22.6498C12.4522 22.6038 12.0549 22.3744 11.7964 22.0186C11.5 21.6107 11.5 20.9052 11.5 19.494L11.5 12.506C11.5 11.0948 11.5 10.3893 11.7964 9.98136C12.0549 9.62557 12.4522 9.39618 12.8895 9.35021C13.391 9.29751 14.002 9.65031 15.2242 10.3559L21.2759 13.8499Z"></path>
+          <g id="fabPause" hidden stroke="#1F2329" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.6667 11V21"></path><path d="M19.3334 11V21"></path>
+          </g>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- variant B -->
+  <div class="ovl" id="ctlB" hidden>
+    <div class="pill">
+      <div class="lg">
+        <img class="pl" data-toggle src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSAxMDAwMDAxNzQ1Ij4KPHBhdGggaWQ9IlBvbHlnb24gNyIgZD0iTTIxLjI3NTkgMTMuODQ5OUMyMi40OTggMTQuNTU1NSAyMy4xMDkxIDE0LjkwODMgMjMuMzE0MSAxNS4zNjg5QzIzLjQ5MyAxNS43NzA2IDIzLjQ5MyAxNi4yMjk0IDIzLjMxNDEgMTYuNjMxMUMyMy4xMDkxIDE3LjA5MTcgMjIuNDk4IDE3LjQ0NDUgMjEuMjc1OSAxOC4xNTAxTDE1LjIyNDEgMjEuNjQ0MUMxNC4wMDIgMjIuMzQ5NyAxMy4zOTA5IDIyLjcwMjUgMTIuODg5NSAyMi42NDk4QzEyLjQ1MjIgMjIuNjAzOCAxMi4wNTQ4IDIyLjM3NDQgMTEuNzk2NCAyMi4wMTg2QzExLjUgMjEuNjEwNyAxMS41IDIwLjkwNTIgMTEuNSAxOS40OTRMMTEuNSAxMi41MDZDMTEuNSAxMS4wOTQ4IDExLjUgMTAuMzg5MyAxMS43OTY0IDkuOTgxMzZDMTIuMDU0OCA5LjYyNTU3IDEyLjQ1MjIgOS4zOTYxOCAxMi44ODk1IDkuMzUwMjFDMTMuMzkwOSA5LjI5NzUxIDE0LjAwMiA5LjY1MDMxIDE1LjIyNDEgMTAuMzU1OUwyMS4yNzU5IDEzLjg0OTlaIiBmaWxsPSIjMUYyMzI5Ii8+CjwvZz4KPC9zdmc+Cg==" alt="再生">
+        <div class="times">
+          <span class="tt" data-cur>04:29</span>
+          <div class="seek" data-seek-track><div class="bg"><div class="fill"></div><div class="knob"></div></div></div>
+          <span class="tt" data-tot>31:08</span>
+        </div>
+      </div>
+      <button class="spd" data-spd>1.0x</button>
+    </div>
+    <button class="fab" id="aiB"><span class="aiico"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI2Ljg4NzgiIGhlaWdodD0iMjUuOTQxNyIgdmlld0JveD0iMCAwIDI2Ljg4NzggMjUuOTQxNyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgaWQ9Ikdyb3VwIj4KPGcgaWQ9IlZlY3RvciIgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfaV80NTUwXzgwNTY4KSI+CjxwYXRoIGQ9Ik05LjkyMTYzIDIuMjYzQzkuNzY5NzkgMS45OTg1NSA5LjM2OTIgMi4wNzYyMSA5LjMyNzE4IDIuMzc4MjVMOC41MDIyIDguMzA4NTlDOC4yMjgyNSAxMC4yNzc5IDcuMDU0NjIgMTIuMDA4IDUuMzI2MTQgMTIuOTkwNkwwLjE2MjA3OCAxNS45MjYyQy0wLjEwMjU1MSAxNi4wNzY3IC0wLjAyNzQ3MTEgMTYuNDc2OCAwLjI3MzY5NSAxNi41MjFMNi4xNzgwNyAxNy4zODg4QzguMTIxMDUgMTcuNjc0MyA5LjgyNTM2IDE4LjgzNjEgMTAuODAxMyAyMC41NDAzTDEzLjgwMjIgMjUuNzgwNUMxMy45NTM5IDI2LjA0NTUgMTQuMzU1MyAyNS45Njc2IDE0LjM5NjkgMjUuNjY1MUwxNS4yMDgzIDE5Ljc2MzZDMTUuNDc4NyAxNy43OTczIDE2LjY0NiAxNi4wNjc3IDE4LjM2ODQgMTUuMDgxNEwyMy42MTI3IDEyLjA3ODVDMjMuODc3NiAxMS45MjY4IDIzLjc5OTkgMTEuNTI1NiAyMy40OTc1IDExLjQ4MzhMMTcuNjExNiAxMC42Njk2QzE1LjY1IDEwLjM5ODMgMTMuOTI0NSA5LjIzNDE3IDEyLjkzODQgNy41MTY4NUw5LjkyMTYzIDIuMjYzWiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzQ1NTBfODA1NjgpIi8+CjxwYXRoIGQ9Ik05LjkyMTYzIDIuMjYzQzkuNzY5NzkgMS45OTg1NSA5LjM2OTIgMi4wNzYyMSA5LjMyNzE4IDIuMzc4MjVMOC41MDIyIDguMzA4NTlDOC4yMjgyNSAxMC4yNzc5IDcuMDU0NjIgMTIuMDA4IDUuMzI2MTQgMTIuOTkwNkwwLjE2MjA3OCAxNS45MjYyQy0wLjEwMjU1MSAxNi4wNzY3IC0wLjAyNzQ3MTEgMTYuNDc2OCAwLjI3MzY5NSAxNi41MjFMNi4xNzgwNyAxNy4zODg4QzguMTIxMDUgMTcuNjc0MyA5LjgyNTM2IDE4LjgzNjEgMTAuODAxMyAyMC41NDAzTDEzLjgwMjIgMjUuNzgwNUMxMy45NTM5IDI2LjA0NTUgMTQuMzU1MyAyNS45Njc2IDE0LjM5NjkgMjUuNjY1MUwxNS4yMDgzIDE5Ljc2MzZDMTUuNDc4NyAxNy43OTczIDE2LjY0NiAxNi4wNjc3IDE4LjM2ODQgMTUuMDgxNEwyMy42MTI3IDEyLjA3ODVDMjMuODc3NiAxMS45MjY4IDIzLjc5OTkgMTEuNTI1NiAyMy40OTc1IDExLjQ4MzhMMTcuNjExNiAxMC42Njk2QzE1LjY1IDEwLjM5ODMgMTMuOTI0NSA5LjIzNDE3IDEyLjkzODQgNy41MTY4NUw5LjkyMTYzIDIuMjYzWiIgZmlsbD0iYmxhY2siIGZpbGwtb3BhY2l0eT0iMC41IiBzdHlsZT0ibWl4LWJsZW5kLW1vZGU6b3ZlcmxheSIvPgo8L2c+CjxnIGlkPSJWZWN0b3JfMiIgZmlsdGVyPSJ1cmwoI2ZpbHRlcjFfaV80NTUwXzgwNTY4KSI+CjxwYXRoIGQ9Ik0yMy4xMzI3IDAuMjE4MzhDMjMuMDM1OSAtMC4wNzA3ODAzIDIyLjYyNzggLTAuMDczNDYxMyAyMi41MjcyIDAuMjE0NDAyTDIyLjExNzQgMS4zODY2QzIxLjc4OTQgMi4zMjUwMyAyMS4wNDM4IDMuMDU3NzEgMjAuMDk5OCAzLjM2OTMzTDE4LjkzNDMgMy43NTQwOEMxOC42NDUyIDMuODQ5NSAxOC42NDAxIDQuMjU2NTQgMTguOTI2NyA0LjM1OTJMMjAuMDk3IDQuNzc4NDVDMjEuMDIxNCA1LjEwOTYgMjEuNzQyNiA1Ljg0NjgzIDIyLjA1MzMgNi43NzgyOEwyMi40NTMyIDcuOTc3MDJDMjIuNTQ5OSA4LjI2NjcxIDIyLjk1ODcgOC4yNjkzMSAyMy4wNTkgNy45ODA4N0wyMy40NjI2IDYuODIwNDlDMjMuNzg4NiA1Ljg4MzE2IDI0LjUzMSA1LjE1MDEzIDI1LjQ3MjQgNC44MzYxTDI2LjY2OTEgNC40MzY5NEMyNi45NTg2IDQuMzQwMzUgMjYuOTYxNCAzLjkzMTc0IDI2LjY3MzIgMy44MzEyM0wyNS41MTY3IDMuNDI3OTdDMjQuNTgxOCAzLjEwMTk1IDIzLjg1MDQgMi4zNjE1IDIzLjUzNiAxLjQyMjYxTDIzLjEzMjcgMC4yMTgzOFoiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcl80NTUwXzgwNTY4KSIvPgo8cGF0aCBkPSJNMjMuMTMyNyAwLjIxODM4QzIzLjAzNTkgLTAuMDcwNzgwMyAyMi42Mjc4IC0wLjA3MzQ2MTMgMjIuNTI3MiAwLjIxNDQwMkwyMi4xMTc0IDEuMzg2NkMyMS43ODk0IDIuMzI1MDMgMjEuMDQzOCAzLjA1NzcxIDIwLjA5OTggMy4zNjkzM0wxOC45MzQzIDMuNzU0MDhDMTguNjQ1MiAzLjg0OTUgMTguNjQwMSA0LjI1NjU0IDE4LjkyNjcgNC4zNTkyTDIwLjA5NyA0Ljc3ODQ1QzIxLjAyMTQgNS4xMDk2IDIxLjc0MjYgNS44NDY4MyAyMi4wNTMzIDYuNzc4MjhMMjIuNDUzMiA3Ljk3NzAyQzIyLjU0OTkgOC4yNjY3MSAyMi45NTg3IDguMjY5MzEgMjMuMDU5IDcuOTgwODdMMjMuNDYyNiA2LjgyMDQ5QzIzLjc4ODYgNS44ODMxNiAyNC41MzEgNS4xNTAxMyAyNS40NzI0IDQuODM2MUwyNi42NjkxIDQuNDM2OTRDMjYuOTU4NiA0LjM0MDM1IDI2Ljk2MTQgMy45MzE3NCAyNi42NzMyIDMuODMxMjNMMjUuNTE2NyAzLjQyNzk3QzI0LjU4MTggMy4xMDE5NSAyMy44NTA0IDIuMzYxNSAyMy41MzYgMS40MjI2MUwyMy4xMzI3IDAuMjE4MzhaIiBmaWxsPSJibGFjayIgZmlsbC1vcGFjaXR5PSIwLjUiIHN0eWxlPSJtaXgtYmxlbmQtbW9kZTpvdmVybGF5Ii8+CjwvZz4KPC9nPgo8ZGVmcz4KPGZpbHRlciBpZD0iZmlsdGVyMF9pXzQ1NTBfODA1NjgiIHg9IjAiIHk9IjIuMTAyMSIgd2lkdGg9IjIzLjc3MzkiIGhlaWdodD0iMjQuODM5NiIgZmlsdGVyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgo8ZmVGbG9vZCBmbG9vZC1vcGFjaXR5PSIwIiByZXN1bHQ9IkJhY2tncm91bmRJbWFnZUZpeCIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluPSJTb3VyY2VHcmFwaGljIiBpbjI9IkJhY2tncm91bmRJbWFnZUZpeCIgcmVzdWx0PSJzaGFwZSIvPgo8ZmVDb2xvck1hdHJpeCBpbj0iU291cmNlQWxwaGEiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAxMjcgMCIgcmVzdWx0PSJoYXJkQWxwaGEiLz4KPGZlT2Zmc2V0IGR5PSIxIi8+CjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjEiLz4KPGZlQ29tcG9zaXRlIGluMj0iaGFyZEFscGhhIiBvcGVyYXRvcj0iYXJpdGhtZXRpYyIgazI9Ii0xIiBrMz0iMSIvPgo8ZmVDb2xvck1hdHJpeCB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMC4xIDAiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbjI9InNoYXBlIiByZXN1bHQ9ImVmZmVjdDFfaW5uZXJTaGFkb3dfNDU1MF84MDU2OCIvPgo8L2ZpbHRlcj4KPGZpbHRlciBpZD0iZmlsdGVyMV9pXzQ1NTBfODA1NjgiIHg9IjE4LjcxNDYiIHk9IjAiIHdpZHRoPSI4LjE3MzIxIiBoZWlnaHQ9IjkuMTk1NzUiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0ic2hhcGUiLz4KPGZlQ29sb3JNYXRyaXggaW49IlNvdXJjZUFscGhhIiB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMTI3IDAiIHJlc3VsdD0iaGFyZEFscGhhIi8+CjxmZU9mZnNldCBkeT0iMSIvPgo8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxIi8+CjxmZUNvbXBvc2l0ZSBpbjI9ImhhcmRBbHBoYSIgb3BlcmF0b3I9ImFyaXRobWV0aWMiIGsyPSItMSIgazM9IjEiLz4KPGZlQ29sb3JNYXRyaXggdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAuMSAwIi8+CjxmZUJsZW5kIG1vZGU9Im5vcm1hbCIgaW4yPSJzaGFwZSIgcmVzdWx0PSJlZmZlY3QxX2lubmVyU2hhZG93XzQ1NTBfODA1NjgiLz4KPC9maWx0ZXI+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl80NTUwXzgwNTY4IiB4MT0iNC40MDI1OCIgeTE9IjMuNzA2NjkiIHgyPSIyMC4zNTMzIiB5Mj0iMjMuMDIwMyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjN0FEM0Y4Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzdCRjFBNiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MV9saW5lYXJfNDU1MF84MDU2OCIgeDE9IjIwLjIyODEiIHkxPSIwLjU1MTYzNyIgeDI9IjI1LjcxMTgiIHkyPSI3LjE5MTQxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiM3QUQzRjgiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0JGMUE2Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==" alt="AIチャット"></span></button>
+  </div>
+
+  <!-- variant C -->
+  <div class="ovl" id="ctlC" hidden style="left:0;right:0;top:0;bottom:0;pointer-events:none">
+    <button class="aipeek" id="aiC" style="pointer-events:auto"><span class="aiico"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI2Ljg4NzgiIGhlaWdodD0iMjUuOTQxNyIgdmlld0JveD0iMCAwIDI2Ljg4NzggMjUuOTQxNyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgaWQ9Ikdyb3VwIj4KPGcgaWQ9IlZlY3RvciIgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfaV80NTUwXzgwNTY4KSI+CjxwYXRoIGQ9Ik05LjkyMTYzIDIuMjYzQzkuNzY5NzkgMS45OTg1NSA5LjM2OTIgMi4wNzYyMSA5LjMyNzE4IDIuMzc4MjVMOC41MDIyIDguMzA4NTlDOC4yMjgyNSAxMC4yNzc5IDcuMDU0NjIgMTIuMDA4IDUuMzI2MTQgMTIuOTkwNkwwLjE2MjA3OCAxNS45MjYyQy0wLjEwMjU1MSAxNi4wNzY3IC0wLjAyNzQ3MTEgMTYuNDc2OCAwLjI3MzY5NSAxNi41MjFMNi4xNzgwNyAxNy4zODg4QzguMTIxMDUgMTcuNjc0MyA5LjgyNTM2IDE4LjgzNjEgMTAuODAxMyAyMC41NDAzTDEzLjgwMjIgMjUuNzgwNUMxMy45NTM5IDI2LjA0NTUgMTQuMzU1MyAyNS45Njc2IDE0LjM5NjkgMjUuNjY1MUwxNS4yMDgzIDE5Ljc2MzZDMTUuNDc4NyAxNy43OTczIDE2LjY0NiAxNi4wNjc3IDE4LjM2ODQgMTUuMDgxNEwyMy42MTI3IDEyLjA3ODVDMjMuODc3NiAxMS45MjY4IDIzLjc5OTkgMTEuNTI1NiAyMy40OTc1IDExLjQ4MzhMMTcuNjExNiAxMC42Njk2QzE1LjY1IDEwLjM5ODMgMTMuOTI0NSA5LjIzNDE3IDEyLjkzODQgNy41MTY4NUw5LjkyMTYzIDIuMjYzWiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzQ1NTBfODA1NjgpIi8+CjxwYXRoIGQ9Ik05LjkyMTYzIDIuMjYzQzkuNzY5NzkgMS45OTg1NSA5LjM2OTIgMi4wNzYyMSA5LjMyNzE4IDIuMzc4MjVMOC41MDIyIDguMzA4NTlDOC4yMjgyNSAxMC4yNzc5IDcuMDU0NjIgMTIuMDA4IDUuMzI2MTQgMTIuOTkwNkwwLjE2MjA3OCAxNS45MjYyQy0wLjEwMjU1MSAxNi4wNzY3IC0wLjAyNzQ3MTEgMTYuNDc2OCAwLjI3MzY5NSAxNi41MjFMNi4xNzgwNyAxNy4zODg4QzguMTIxMDUgMTcuNjc0MyA5LjgyNTM2IDE4LjgzNjEgMTAuODAxMyAyMC41NDAzTDEzLjgwMjIgMjUuNzgwNUMxMy45NTM5IDI2LjA0NTUgMTQuMzU1MyAyNS45Njc2IDE0LjM5NjkgMjUuNjY1MUwxNS4yMDgzIDE5Ljc2MzZDMTUuNDc4NyAxNy43OTczIDE2LjY0NiAxNi4wNjc3IDE4LjM2ODQgMTUuMDgxNEwyMy42MTI3IDEyLjA3ODVDMjMuODc3NiAxMS45MjY4IDIzLjc5OTkgMTEuNTI1NiAyMy40OTc1IDExLjQ4MzhMMTcuNjExNiAxMC42Njk2QzE1LjY1IDEwLjM5ODMgMTMuOTI0NSA5LjIzNDE3IDEyLjkzODQgNy41MTY4NUw5LjkyMTYzIDIuMjYzWiIgZmlsbD0iYmxhY2siIGZpbGwtb3BhY2l0eT0iMC41IiBzdHlsZT0ibWl4LWJsZW5kLW1vZGU6b3ZlcmxheSIvPgo8L2c+CjxnIGlkPSJWZWN0b3JfMiIgZmlsdGVyPSJ1cmwoI2ZpbHRlcjFfaV80NTUwXzgwNTY4KSI+CjxwYXRoIGQ9Ik0yMy4xMzI3IDAuMjE4MzhDMjMuMDM1OSAtMC4wNzA3ODAzIDIyLjYyNzggLTAuMDczNDYxMyAyMi41MjcyIDAuMjE0NDAyTDIyLjExNzQgMS4zODY2QzIxLjc4OTQgMi4zMjUwMyAyMS4wNDM4IDMuMDU3NzEgMjAuMDk5OCAzLjM2OTMzTDE4LjkzNDMgMy43NTQwOEMxOC42NDUyIDMuODQ5NSAxOC42NDAxIDQuMjU2NTQgMTguOTI2NyA0LjM1OTJMMjAuMDk3IDQuNzc4NDVDMjEuMDIxNCA1LjEwOTYgMjEuNzQyNiA1Ljg0NjgzIDIyLjA1MzMgNi43NzgyOEwyMi40NTMyIDcuOTc3MDJDMjIuNTQ5OSA4LjI2NjcxIDIyLjk1ODcgOC4yNjkzMSAyMy4wNTkgNy45ODA4N0wyMy40NjI2IDYuODIwNDlDMjMuNzg4NiA1Ljg4MzE2IDI0LjUzMSA1LjE1MDEzIDI1LjQ3MjQgNC44MzYxTDI2LjY2OTEgNC40MzY5NEMyNi45NTg2IDQuMzQwMzUgMjYuOTYxNCAzLjkzMTc0IDI2LjY3MzIgMy44MzEyM0wyNS41MTY3IDMuNDI3OTdDMjQuNTgxOCAzLjEwMTk1IDIzLjg1MDQgMi4zNjE1IDIzLjUzNiAxLjQyMjYxTDIzLjEzMjcgMC4yMTgzOFoiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcl80NTUwXzgwNTY4KSIvPgo8cGF0aCBkPSJNMjMuMTMyNyAwLjIxODM4QzIzLjAzNTkgLTAuMDcwNzgwMyAyMi42Mjc4IC0wLjA3MzQ2MTMgMjIuNTI3MiAwLjIxNDQwMkwyMi4xMTc0IDEuMzg2NkMyMS43ODk0IDIuMzI1MDMgMjEuMDQzOCAzLjA1NzcxIDIwLjA5OTggMy4zNjkzM0wxOC45MzQzIDMuNzU0MDhDMTguNjQ1MiAzLjg0OTUgMTguNjQwMSA0LjI1NjU0IDE4LjkyNjcgNC4zNTkyTDIwLjA5NyA0Ljc3ODQ1QzIxLjAyMTQgNS4xMDk2IDIxLjc0MjYgNS44NDY4MyAyMi4wNTMzIDYuNzc4MjhMMjIuNDUzMiA3Ljk3NzAyQzIyLjU0OTkgOC4yNjY3MSAyMi45NTg3IDguMjY5MzEgMjMuMDU5IDcuOTgwODdMMjMuNDYyNiA2LjgyMDQ5QzIzLjc4ODYgNS44ODMxNiAyNC41MzEgNS4xNTAxMyAyNS40NzI0IDQuODM2MUwyNi42NjkxIDQuNDM2OTRDMjYuOTU4NiA0LjM0MDM1IDI2Ljk2MTQgMy45MzE3NCAyNi42NzMyIDMuODMxMjNMMjUuNTE2NyAzLjQyNzk3QzI0LjU4MTggMy4xMDE5NSAyMy44NTA0IDIuMzYxNSAyMy41MzYgMS40MjI2MUwyMy4xMzI3IDAuMjE4MzhaIiBmaWxsPSJibGFjayIgZmlsbC1vcGFjaXR5PSIwLjUiIHN0eWxlPSJtaXgtYmxlbmQtbW9kZTpvdmVybGF5Ii8+CjwvZz4KPC9nPgo8ZGVmcz4KPGZpbHRlciBpZD0iZmlsdGVyMF9pXzQ1NTBfODA1NjgiIHg9IjAiIHk9IjIuMTAyMSIgd2lkdGg9IjIzLjc3MzkiIGhlaWdodD0iMjQuODM5NiIgZmlsdGVyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgo8ZmVGbG9vZCBmbG9vZC1vcGFjaXR5PSIwIiByZXN1bHQ9IkJhY2tncm91bmRJbWFnZUZpeCIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluPSJTb3VyY2VHcmFwaGljIiBpbjI9IkJhY2tncm91bmRJbWFnZUZpeCIgcmVzdWx0PSJzaGFwZSIvPgo8ZmVDb2xvck1hdHJpeCBpbj0iU291cmNlQWxwaGEiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAxMjcgMCIgcmVzdWx0PSJoYXJkQWxwaGEiLz4KPGZlT2Zmc2V0IGR5PSIxIi8+CjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjEiLz4KPGZlQ29tcG9zaXRlIGluMj0iaGFyZEFscGhhIiBvcGVyYXRvcj0iYXJpdGhtZXRpYyIgazI9Ii0xIiBrMz0iMSIvPgo8ZmVDb2xvck1hdHJpeCB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMC4xIDAiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbjI9InNoYXBlIiByZXN1bHQ9ImVmZmVjdDFfaW5uZXJTaGFkb3dfNDU1MF84MDU2OCIvPgo8L2ZpbHRlcj4KPGZpbHRlciBpZD0iZmlsdGVyMV9pXzQ1NTBfODA1NjgiIHg9IjE4LjcxNDYiIHk9IjAiIHdpZHRoPSI4LjE3MzIxIiBoZWlnaHQ9IjkuMTk1NzUiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0ic2hhcGUiLz4KPGZlQ29sb3JNYXRyaXggaW49IlNvdXJjZUFscGhhIiB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMTI3IDAiIHJlc3VsdD0iaGFyZEFscGhhIi8+CjxmZU9mZnNldCBkeT0iMSIvPgo8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxIi8+CjxmZUNvbXBvc2l0ZSBpbjI9ImhhcmRBbHBoYSIgb3BlcmF0b3I9ImFyaXRobWV0aWMiIGsyPSItMSIgazM9IjEiLz4KPGZlQ29sb3JNYXRyaXggdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAuMSAwIi8+CjxmZUJsZW5kIG1vZGU9Im5vcm1hbCIgaW4yPSJzaGFwZSIgcmVzdWx0PSJlZmZlY3QxX2lubmVyU2hhZG93XzQ1NTBfODA1NjgiLz4KPC9maWx0ZXI+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl80NTUwXzgwNTY4IiB4MT0iNC40MDI1OCIgeTE9IjMuNzA2NjkiIHgyPSIyMC4zNTMzIiB5Mj0iMjMuMDIwMyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjN0FEM0Y4Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzdCRjFBNiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MV9saW5lYXJfNDU1MF84MDU2OCIgeDE9IjIwLjIyODEiIHkxPSIwLjU1MTYzNyIgeDI9IjI1LjcxMTgiIHkyPSI3LjE5MTQxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiM3QUQzRjgiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0JGMUE2Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==" alt="AIチャット"></span></button>
+    <button class="mini" id="miniC" style="pointer-events:auto"><i class="mglass"></i><img id="miniCIcon" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSAxMDAwMDAxNzQ0Ij4KPHBhdGggaWQ9IlBvbHlnb24gNyIgZD0iTTIzLjAzNDUgMTMuMTMzMkMyNC42NjQgMTQuMDc0IDI1LjQ3ODcgMTQuNTQ0MyAyNS43NTIyIDE1LjE1ODVDMjUuOTkwNyAxNS42OTQxIDI1Ljk5MDcgMTYuMzA1OSAyNS43NTIyIDE2Ljg0MTVDMjUuNDc4NyAxNy40NTU3IDI0LjY2NCAxNy45MjYgMjMuMDM0NSAxOC44NjY4TDE0Ljk2NTUgMjMuNTI1NUMxMy4zMzYgMjQuNDY2MyAxMi41MjEzIDI0LjkzNjcgMTEuODUyNyAyNC44NjY0QzExLjI2OTUgMjQuODA1MSAxMC43Mzk4IDI0LjQ5OTIgMTAuMzk1MSAyNC4wMjQ5QzEwIDIzLjQ4MSAxMCAyMi41NDAyIDEwIDIwLjY1ODZMMTAgMTEuMzQxNEMxMCA5LjQ1OTc5IDEwIDguNTE5IDEwLjM5NTEgNy45NzUxNEMxMC43Mzk4IDcuNTAwNzYgMTEuMjY5NSA3LjE5NDkxIDExLjg1MjcgNy4xMzM2MkMxMi41MjEzIDcuMDYzMzUgMTMuMzM2IDcuNTMzNzQgMTQuOTY1NSA4LjQ3NDU0TDIzLjAzNDUgMTMuMTMzMloiIGZpbGw9IiMxRjIzMjkiLz4KPC9nPgo8L3N2Zz4K" alt="再生"></button>
+    <div class="panel2" id="panel2C" hidden style="pointer-events:auto">
+      <div class="prow">
+        <span class="tt" data-cur>04:29</span>
+        <div class="seek" data-seek-track><div class="bg"><div class="fill"></div><div class="knob"></div></div></div>
+        <span class="tt" data-tot>31:08</span>
+      </div>
+      <div class="crow">
+        <button class="spd28" data-spd>1x</button>
+        <img class="s28" data-nudge="-15" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSAxMDAwMDAxNzEwIj4KPHBhdGggaWQ9IlZlY3RvciIgZD0iTTExLjM4MzggMTIuNzAxNEwxMS4zODI5IDEyLjcwMUMxMS4zNjQzIDEyLjI4ODEgMTEuMDIzOCAxMS45NTkgMTAuNjA2MyAxMS45NTlDMTAuNDM3OCAxMS45NTg3IDEwLjI3MzkgMTIuMDEzNSAxMC4xMzkzIDEyLjExNDlMMTAuMTM3MiAxMi4xMTM5QzkuNzIyNzIgMTIuNDgyNSA5LjE5MTgxIDEyLjgwNjggOC43MjQ5NyAxMi45Nzk4QzguNDc2NDMgMTMuMDYxOCA4LjI5NyAxMy4yOTU4IDguMjk3IDEzLjU3MThDOC4yOTcgMTMuOTE2MiA4LjU3NjEzIDE0LjE5NTMgOC45MjA0NyAxNC4xOTUzQzkuMDAyMTMgMTQuMTk1MyA5LjA4MDAxIDE0LjE3OTQgOS4xNTE0OSAxNC4xNTA5QzkuNDAxMSAxNC4wNjEzIDkuNjY5NTYgMTMuOTQ2IDkuOTAxODkgMTMuODIzMlYxOS40MDk1SDkuOTAyMDlMOS45MDIwNCAxOS40MTE4QzkuOTAyMDQgMTkuODIxIDEwLjIzMzcgMjAuMTUyNyAxMC42NDI5IDIwLjE1MjdDMTEuMDUyMSAyMC4xNTI3IDExLjM4MzggMTkuODIxIDExLjM4MzggMTkuNDExOEwxMS4zODM3IDE5LjQwOTVIMTEuMzgzOFYxMi43MDE0Wk0xNS40ODM3IDE4Ljg3MTZDMTQuNjc4MyAxOC44NzE2IDE0LjM0MyAxOC4zODM4IDE0LjIwMzkgMTguMDAxNEgxNC4yMDM4QzE0LjExNzUgMTcuNjk0MiAxMy44MzU1IDE3LjQ2ODkgMTMuNTAwNiAxNy40Njg5QzEzLjA5NzEgMTcuNDY4OSAxMi43NzAxIDE3Ljc5NiAxMi43NzAxIDE4LjE5OTRDMTIuNzcwMSAxOC4zMDI3IDEyLjc5MTYgMTguNDAxIDEyLjgzMDMgMTguNDkwMUMxMy4yMTQ5IDE5LjUzMzMgMTQuMTczNCAyMC4xNTk2IDE1LjQ0OSAyMC4xNTk2QzE2LjM3MjggMjAuMTU5NiAxNy4xMjUxIDE5Ljg0MzIgMTcuNjI0NSAxOS4yNDQ3QzE4LjA2NDQgMTguNzE3MyAxOC4yOTcgMTcuOTk0MiAxOC4yOTcgMTcuMTUzNEMxOC4yOTcgMTUuNDgyNyAxNy4zMDkxIDE0LjQwMzIgMTUuNzgwMyAxNC40MDMyQzE1LjI4MTYgMTQuNDAzMiAxNC44NTQ0IDE0LjUwMzIgMTQuNTAzNiAxNC43MDEyQzE0LjU3NzMgMTQuMjU4IDE0LjY2NCAxMy43MDE2IDE0LjcxNyAxMy4yODczSDE3LjIyNlYxMy4yODY3QzE3LjU4MTMgMTMuMjczNiAxNy44NjU0IDEyLjk4MTYgMTcuODY1NCAxMi42MjMxQzE3Ljg2NTQgMTIuMjY0NiAxNy41ODEzIDExLjk3MjYgMTcuMjI2IDExLjk1OTZWMTEuOTU5SDE0LjA0NzJMMTQuMDQ2OCAxMS45NTkzQzEzLjcyMDEgMTEuOTY2MiAxMy40NTIzIDEyLjIxMiAxMy40MTExIDEyLjUyOTJMMTMuNDExMSAxMi41MjkzQzEzLjMwMDUgMTMuNDE3MiAxMy4xMDE2IDE0Ljg2NjkgMTIuOTIyMSAxNS44MTlMMTIuOTIyOCAxNS44MTkzQzEyLjkxNDkgMTUuODYzNCAxMi45MTA5IDE1LjkwODEgMTIuOTEwOCAxNS45NTI4QzEyLjkxMDggMTYuMzcxIDEzLjI0OTggMTYuNzEgMTMuNjY4IDE2LjcxQzEzLjk0NzQgMTYuNzEgMTQuMTkxMiAxNi41NTg2IDE0LjMyMjQgMTYuMzMzNUwxNC4zMjI4IDE2LjMzMzZDMTQuNTUxOSAxNS45MzgzIDE0Ljg3NSAxNS43MTUxIDE1LjU2NTIgMTUuNzE1MUMxNS45OTE2IDE1LjcxNTEgMTYuMzExNyAxNS44NTMyIDE2LjUxNjkgMTYuMTI1N0MxNi43MDc2IDE2LjM3OSAxNi44MDg0IDE2Ljc2MDUgMTYuODA4NCAxNy4yMjkxQzE2LjgwODQgMTcuNzQ2MyAxNi42OTE4IDE4LjE2NzEgMTYuNDcxMSAxOC40NDYxQzE2LjI0NzggMTguNzI4NCAxNS45MTU2IDE4Ljg3MTYgMTUuNDgzNyAxOC44NzE2WiIgZmlsbD0iIzFGMjMyOSIvPgo8cGF0aCBpZD0iRWxsaXBzZSAxMiIgZD0iTTEzLjkwOTYgNC4yOTkzOEMxNi40ODg2IDQuMzI0MiAxOC45ODQ0IDUuMjE1MjQgMjAuOTk2IDYuODI5MzRDMjMuMDA3NiA4LjQ0MzQ0IDI0LjQxODIgMTAuNjg2OSAyNS4wMDEyIDEzLjE5OTNDMjUuNTg0MyAxNS43MTE2IDI1LjMwNTggMTguMzQ3IDI0LjIxMDYgMjAuNjgyMUMyMy4xMTU1IDIzLjAxNzEgMjEuMjY3MiAyNC45MTYzIDE4Ljk2MjcgMjYuMDc0M0MxNi42NTgyIDI3LjIzMjQgMTQuMDMxMyAyNy41ODIyIDExLjUwNCAyNy4wNjc1QzguOTc2NzkgMjYuNTUyOSA2LjY5NTkxIDI1LjIwMzYgNS4wMjc4NiAyMy4yMzY1QzMuMzU5ODEgMjEuMjY5NCAyLjQwMTQzIDE4Ljc5ODcgMi4zMDY2OCAxNi4yMjEzQzIuMjI1OCAxNC4wMjExIDIuNzc4MjggMTEuODUyMyAzLjg4NjcyIDkuOTY4QzQuMjAyNjEgOS40MzEwMiA0LjkxMzYgOS4zMjI3MyA1LjQxNzA3IDkuNjg5NjlDNS45MjA1NCAxMC4wNTY2IDYuMDI0MzcgMTAuNzU5NiA1LjcyMTQyIDExLjMwNEM0LjkwMzk0IDEyLjc3MyA0LjQ5ODk5IDE0LjQ0NDIgNC41NjEyNyAxNi4xMzg0QzQuNjM3NDMgMTguMjEwMiA1LjQwNzggMjAuMTk2MiA2Ljc0ODYgMjEuNzc3M0M4LjA4OTQxIDIzLjM1ODUgOS45MjI4MSAyNC40NDMxIDExLjk1NDMgMjQuODU2OEMxMy45ODU3IDI1LjI3MDUgMTYuMDk3MiAyNC45ODkzIDE3Ljk0OTYgMjQuMDU4NEMxOS44MDIgMjMuMTI3NiAyMS4yODc3IDIxLjYwMSAyMi4xNjggMTkuNzI0MUMyMy4wNDgzIDE3Ljg0NzEgMjMuMjcyMiAxNS43Mjg3IDIyLjgwMzUgMTMuNzA5M0MyMi4zMzQ5IDExLjY4OTggMjEuMjAxIDkuODg2NDUgMTkuNTg0MSA4LjU4OTAyQzE3Ljk2NzEgNy4yOTE1OCAxNS45NjA5IDYuNTc1MzQgMTMuODg3OSA2LjU1NTM5TDEzLjkwOTYgNC4yOTkzOFoiIGZpbGw9IiMxRjIzMjkiLz4KPHBhdGggaWQ9IlBvbHlnb24gNiIgZD0iTTkuMDgzMTUgNS4zNzQwOUM4LjgxMDUyIDUuMTk5MiA4LjgxMDUyIDQuODAwOCA5LjA4MzE0IDQuNjI1OTFMMTMuODE1NiAxLjU5MDA1QzE0LjExMTQgMS40MDAzIDE0LjUgMS42MTI3MSAxNC41IDEuOTY0MTRMMTQuNSA4LjAzNTg2QzE0LjUgOC4zODcyOSAxNC4xMTE0IDguNTk5NyAxMy44MTU2IDguNDA5OTRMOS4wODMxNSA1LjM3NDA5WiIgZmlsbD0iIzFGMjMyOSIvPgo8L2c+Cjwvc3ZnPgo=" alt="15秒戻る">
+        <img class="s32" data-toggle src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSAxMDAwMDAxNzQ0Ij4KPHBhdGggaWQ9IlBvbHlnb24gNyIgZD0iTTIzLjAzNDUgMTMuMTMzMkMyNC42NjQgMTQuMDc0IDI1LjQ3ODcgMTQuNTQ0MyAyNS43NTIyIDE1LjE1ODVDMjUuOTkwNyAxNS42OTQxIDI1Ljk5MDcgMTYuMzA1OSAyNS43NTIyIDE2Ljg0MTVDMjUuNDc4NyAxNy40NTU3IDI0LjY2NCAxNy45MjYgMjMuMDM0NSAxOC44NjY4TDE0Ljk2NTUgMjMuNTI1NUMxMy4zMzYgMjQuNDY2MyAxMi41MjEzIDI0LjkzNjcgMTEuODUyNyAyNC44NjY0QzExLjI2OTUgMjQuODA1MSAxMC43Mzk4IDI0LjQ5OTIgMTAuMzk1MSAyNC4wMjQ5QzEwIDIzLjQ4MSAxMCAyMi41NDAyIDEwIDIwLjY1ODZMMTAgMTEuMzQxNEMxMCA5LjQ1OTc5IDEwIDguNTE5IDEwLjM5NTEgNy45NzUxNEMxMC43Mzk4IDcuNTAwNzYgMTEuMjY5NSA3LjE5NDkxIDExLjg1MjcgNy4xMzM2MkMxMi41MjEzIDcuMDYzMzUgMTMuMzM2IDcuNTMzNzQgMTQuOTY1NSA4LjQ3NDU0TDIzLjAzNDUgMTMuMTMzMloiIGZpbGw9IiMxRjIzMjkiLz4KPC9nPgo8L3N2Zz4K" alt="再生">
+        <img class="s28" data-nudge="15" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSAxMDAwMDAxNzExIj4KPHBhdGggaWQ9IlZlY3RvciIgZD0iTTExLjM4MzggMTIuNzAxNEwxMS4zODI5IDEyLjcwMUMxMS4zNjQzIDEyLjI4ODEgMTEuMDIzOCAxMS45NTkgMTAuNjA2MyAxMS45NTlDMTAuNDM3OCAxMS45NTg3IDEwLjI3MzkgMTIuMDEzNSAxMC4xMzkzIDEyLjExNDlMMTAuMTM3MiAxMi4xMTM5QzkuNzIyNzIgMTIuNDgyNSA5LjE5MTgxIDEyLjgwNjggOC43MjQ5NyAxMi45Nzk4QzguNDc2NDMgMTMuMDYxOCA4LjI5NyAxMy4yOTU4IDguMjk3IDEzLjU3MThDOC4yOTcgMTMuOTE2MiA4LjU3NjEzIDE0LjE5NTMgOC45MjA0NyAxNC4xOTUzQzkuMDAyMTMgMTQuMTk1MyA5LjA4MDAxIDE0LjE3OTQgOS4xNTE0OSAxNC4xNTA5QzkuNDAxMSAxNC4wNjEzIDkuNjY5NTYgMTMuOTQ2IDkuOTAxODkgMTMuODIzMlYxOS40MDk1SDkuOTAyMDlMOS45MDIwNCAxOS40MTE4QzkuOTAyMDQgMTkuODIxIDEwLjIzMzcgMjAuMTUyNyAxMC42NDI5IDIwLjE1MjdDMTEuMDUyMSAyMC4xNTI3IDExLjM4MzggMTkuODIxIDExLjM4MzggMTkuNDExOEwxMS4zODM3IDE5LjQwOTVIMTEuMzgzOFYxMi43MDE0Wk0xNS40ODM3IDE4Ljg3MTZDMTQuNjc4MyAxOC44NzE2IDE0LjM0MyAxOC4zODM4IDE0LjIwMzkgMTguMDAxNEgxNC4yMDM4QzE0LjExNzUgMTcuNjk0MiAxMy44MzU1IDE3LjQ2ODkgMTMuNTAwNiAxNy40Njg5QzEzLjA5NzEgMTcuNDY4OSAxMi43NzAxIDE3Ljc5NiAxMi43NzAxIDE4LjE5OTRDMTIuNzcwMSAxOC4zMDI3IDEyLjc5MTYgMTguNDAxIDEyLjgzMDMgMTguNDkwMUMxMy4yMTQ5IDE5LjUzMzMgMTQuMTczNCAyMC4xNTk2IDE1LjQ0OSAyMC4xNTk2QzE2LjM3MjggMjAuMTU5NiAxNy4xMjUxIDE5Ljg0MzIgMTcuNjI0NSAxOS4yNDQ3QzE4LjA2NDQgMTguNzE3MyAxOC4yOTcgMTcuOTk0MiAxOC4yOTcgMTcuMTUzNEMxOC4yOTcgMTUuNDgyNyAxNy4zMDkxIDE0LjQwMzIgMTUuNzgwMyAxNC40MDMyQzE1LjI4MTYgMTQuNDAzMiAxNC44NTQ0IDE0LjUwMzIgMTQuNTAzNiAxNC43MDEyQzE0LjU3NzMgMTQuMjU4IDE0LjY2NCAxMy43MDE2IDE0LjcxNyAxMy4yODczSDE3LjIyNlYxMy4yODY3QzE3LjU4MTMgMTMuMjczNiAxNy44NjU0IDEyLjk4MTYgMTcuODY1NCAxMi42MjMxQzE3Ljg2NTQgMTIuMjY0NiAxNy41ODEzIDExLjk3MjYgMTcuMjI2IDExLjk1OTZWMTEuOTU5SDE0LjA0NzJMMTQuMDQ2OCAxMS45NTkzQzEzLjcyMDEgMTEuOTY2MiAxMy40NTIzIDEyLjIxMiAxMy40MTExIDEyLjUyOTJMMTMuNDExMSAxMi41MjkzQzEzLjMwMDUgMTMuNDE3MiAxMy4xMDE2IDE0Ljg2NjkgMTIuOTIyMSAxNS44MTlMMTIuOTIyOCAxNS44MTkzQzEyLjkxNDkgMTUuODYzNCAxMi45MTA5IDE1LjkwODEgMTIuOTEwOCAxNS45NTI4QzEyLjkxMDggMTYuMzcxIDEzLjI0OTggMTYuNzEgMTMuNjY4IDE2LjcxQzEzLjk0NzQgMTYuNzEgMTQuMTkxMiAxNi41NTg2IDE0LjMyMjQgMTYuMzMzNUwxNC4zMjI4IDE2LjMzMzZDMTQuNTUxOSAxNS45MzgzIDE0Ljg3NSAxNS43MTUxIDE1LjU2NTIgMTUuNzE1MUMxNS45OTE2IDE1LjcxNTEgMTYuMzExNyAxNS44NTMyIDE2LjUxNjkgMTYuMTI1N0MxNi43MDc2IDE2LjM3OSAxNi44MDg0IDE2Ljc2MDUgMTYuODA4NCAxNy4yMjkxQzE2LjgwODQgMTcuNzQ2MyAxNi42OTE4IDE4LjE2NzEgMTYuNDcxMSAxOC40NDYxQzE2LjI0NzggMTguNzI4NCAxNS45MTU2IDE4Ljg3MTYgMTUuNDgzNyAxOC44NzE2WiIgZmlsbD0iIzFGMjMyOSIvPgo8cGF0aCBpZD0iRWxsaXBzZSAxMiIgZD0iTTEzLjY4ODIgNC4yOTkzOEMxMS4xMDkyIDQuMzI0MiA4LjYxMzQ0IDUuMjE1MjQgNi42MDE4NCA2LjgyOTM0QzQuNTkwMjQgOC40NDM0NCAzLjE3OTYxIDEwLjY4NjkgMi41OTY2IDEzLjE5OTNDMi4wMTM1OCAxNS43MTE2IDIuMjkyMDMgMTguMzQ3IDMuMzg3MiAyMC42ODIxQzQuNDgyMzcgMjMuMDE3MSA2LjMzMDY4IDI0LjkxNjMgOC42MzUxOCAyNi4wNzQzQzEwLjkzOTcgMjcuMjMyNCAxMy41NjY2IDI3LjU4MjIgMTYuMDkzOCAyNy4wNjc1QzE4LjYyMTEgMjYuNTUyOSAyMC45MDE5IDI1LjIwMzYgMjIuNTcgMjMuMjM2NUMyNC4yMzggMjEuMjY5NCAyNS4xOTY0IDE4Ljc5ODcgMjUuMjkxMiAxNi4yMjEzQzI1LjM3MiAxNC4wMjExIDI0LjgxOTYgMTEuODUyMyAyMy43MTExIDkuOTY4QzIzLjM5NTIgOS40MzEwMiAyMi42ODQyIDkuMzIyNzMgMjIuMTgwOCA5LjY4OTY5QzIxLjY3NzMgMTAuMDU2NiAyMS41NzM1IDEwLjc1OTYgMjEuODc2NCAxMS4zMDRDMjIuNjkzOSAxMi43NzMgMjMuMDk4OSAxNC40NDQyIDIzLjAzNjYgMTYuMTM4NEMyMi45NjA0IDE4LjIxMDIgMjIuMTkwMSAyMC4xOTYyIDIwLjg0OTIgMjEuNzc3M0MxOS41MDg0IDIzLjM1ODUgMTcuNjc1IDI0LjQ0MzEgMTUuNjQzNiAyNC44NTY4QzEzLjYxMjIgMjUuMjcwNSAxMS41MDA2IDI0Ljk4OTMgOS42NDgyMiAyNC4wNTg0QzcuNzk1ODMgMjMuMTI3NiA2LjMxMDEzIDIxLjYwMSA1LjQyOTgyIDE5LjcyNDFDNC41NDk1IDE3Ljg0NzEgNC4zMjU2OCAxNS43Mjg3IDQuNzk0MzEgMTMuNzA5M0M1LjI2Mjk1IDExLjY4OTggNi4zOTY4MyA5Ljg4NjQ1IDguMDEzNzkgOC41ODkwMkM5LjYzMDc1IDcuMjkxNTggMTEuNjM2OSA2LjU3NTM0IDEzLjcwOTkgNi41NTUzOUwxMy42ODgyIDQuMjk5MzhaIiBmaWxsPSIjMUYyMzI5Ii8+CjxwYXRoIGlkPSJQb2x5Z29uIDYiIGQ9Ik0xOC40MTY5IDUuMzc4NTNDMTguNjg5NSA1LjIwMzY1IDE4LjY4OTUgNC44MDUyNCAxOC40MTY5IDQuNjMwMzZMMTMuNjg0NCAxLjU5NDVDMTMuMzg4NiAxLjQwNDc0IDEzIDEuNjE3MTUgMTMgMS45Njg1OUwxMyA4LjA0MDNDMTMgOC4zOTE3NCAxMy4zODg2IDguNjA0MTUgMTMuNjg0NCA4LjQxNDM5TDE4LjQxNjkgNS4zNzg1M1oiIGZpbGw9IiMxRjIzMjkiLz4KPC9nPgo8L3N2Zz4K" alt="15秒進む">
+        <button class="pipwrap" id="pipC"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwLjE5NjEiIGhlaWdodD0iMjAuMTk2MSIgdmlld0JveD0iMCAwIDIwLjE5NjEgMjAuMTk2MSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgaWQ9IkZyYW1lIDEwMDAwMDE3NzgiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMS43MDE3OSAxNy4yNzk4SDE2LjM2MzRDMTYuODY5NSAxNy4yNzk4IDE3LjI3OTggMTYuODY5NSAxNy4yNzk4IDE2LjM2MzRWMS43MDE3OUMxNy4yNzk4IDEuMTk1NzEgMTYuODY5NSAwLjc4NTQ0MyAxNi4zNjM0IDAuNzg1NDQzSDEuNzAxNzlDMS4xOTU3MSAwLjc4NTQ0MyAwLjc4NTQ0MyAxLjE5NTcxIDAuNzg1NDQzIDEuNzAxNzlWMTYuMzYzNEMwLjc4NTQ0MyAxNi44Njk1IDEuMTk1NzEgMTcuMjc5OCAxLjcwMTc5IDE3LjI3OThaIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41NzA4OSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xOC4xOTYxIDE3LjI3OThDMTguMTk2MSAxNy43ODU5IDE3Ljc4NTkgMTguMTk2MSAxNy4yNzk4IDE4LjE5NjFIMTEuNzgxN1YxMS43ODE3SDE4LjE5NjFWMTcuMjc5OFoiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMyIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xOC4xOTYxIDE3LjI3OTdDMTguMTk2MSAxNy43ODU4IDE3Ljc4NTkgMTguMTk2MSAxNy4yNzk4IDE4LjE5NjFIMTEuNzgxN1YxMS43ODE2SDE4LjE5NjFWMTcuMjc5N1oiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjU3MDg5IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl80IiBkPSJNNC40NTA5MSA0LjQ1MDgyTDkuMDMyNjYgOS4wMzI1N001LjgyNTQ0IDkuMDMyNTdIOS4wMzI2NlY1LjgyNTM1IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41NzA4OSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="縮小"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- variant D: 進捗バーを常時表示。C案の展開状態と同じで、右上の「…」が右下に来る -->
+  <div class="ovl" id="ctlD" hidden style="left:0;right:0;top:0;bottom:0;pointer-events:none">
+    <button class="aipeek" id="aiD" style="pointer-events:auto"><span class="aiico"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI2Ljg4NzgiIGhlaWdodD0iMjUuOTQxNyIgdmlld0JveD0iMCAwIDI2Ljg4NzggMjUuOTQxNyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgaWQ9Ikdyb3VwIj4KPGcgaWQ9IlZlY3RvciIgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfaV80NTUwXzgwNTY4KSI+CjxwYXRoIGQ9Ik05LjkyMTYzIDIuMjYzQzkuNzY5NzkgMS45OTg1NSA5LjM2OTIgMi4wNzYyMSA5LjMyNzE4IDIuMzc4MjVMOC41MDIyIDguMzA4NTlDOC4yMjgyNSAxMC4yNzc5IDcuMDU0NjIgMTIuMDA4IDUuMzI2MTQgMTIuOTkwNkwwLjE2MjA3OCAxNS45MjYyQy0wLjEwMjU1MSAxNi4wNzY3IC0wLjAyNzQ3MTEgMTYuNDc2OCAwLjI3MzY5NSAxNi41MjFMNi4xNzgwNyAxNy4zODg4QzguMTIxMDUgMTcuNjc0MyA5LjgyNTM2IDE4LjgzNjEgMTAuODAxMyAyMC41NDAzTDEzLjgwMjIgMjUuNzgwNUMxMy45NTM5IDI2LjA0NTUgMTQuMzU1MyAyNS45Njc2IDE0LjM5NjkgMjUuNjY1MUwxNS4yMDgzIDE5Ljc2MzZDMTUuNDc4NyAxNy43OTczIDE2LjY0NiAxNi4wNjc3IDE4LjM2ODQgMTUuMDgxNEwyMy42MTI3IDEyLjA3ODVDMjMuODc3NiAxMS45MjY4IDIzLjc5OTkgMTEuNTI1NiAyMy40OTc1IDExLjQ4MzhMMTcuNjExNiAxMC42Njk2QzE1LjY1IDEwLjM5ODMgMTMuOTI0NSA5LjIzNDE3IDEyLjkzODQgNy41MTY4NUw5LjkyMTYzIDIuMjYzWiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzQ1NTBfODA1NjgpIi8+CjxwYXRoIGQ9Ik05LjkyMTYzIDIuMjYzQzkuNzY5NzkgMS45OTg1NSA5LjM2OTIgMi4wNzYyMSA5LjMyNzE4IDIuMzc4MjVMOC41MDIyIDguMzA4NTlDOC4yMjgyNSAxMC4yNzc5IDcuMDU0NjIgMTIuMDA4IDUuMzI2MTQgMTIuOTkwNkwwLjE2MjA3OCAxNS45MjYyQy0wLjEwMjU1MSAxNi4wNzY3IC0wLjAyNzQ3MTEgMTYuNDc2OCAwLjI3MzY5NSAxNi41MjFMNi4xNzgwNyAxNy4zODg4QzguMTIxMDUgMTcuNjc0MyA5LjgyNTM2IDE4LjgzNjEgMTAuODAxMyAyMC41NDAzTDEzLjgwMjIgMjUuNzgwNUMxMy45NTM5IDI2LjA0NTUgMTQuMzU1MyAyNS45Njc2IDE0LjM5NjkgMjUuNjY1MUwxNS4yMDgzIDE5Ljc2MzZDMTUuNDc4NyAxNy43OTczIDE2LjY0NiAxNi4wNjc3IDE4LjM2ODQgMTUuMDgxNEwyMy42MTI3IDEyLjA3ODVDMjMuODc3NiAxMS45MjY4IDIzLjc5OTkgMTEuNTI1NiAyMy40OTc1IDExLjQ4MzhMMTcuNjExNiAxMC42Njk2QzE1LjY1IDEwLjM5ODMgMTMuOTI0NSA5LjIzNDE3IDEyLjkzODQgNy41MTY4NUw5LjkyMTYzIDIuMjYzWiIgZmlsbD0iYmxhY2siIGZpbGwtb3BhY2l0eT0iMC41IiBzdHlsZT0ibWl4LWJsZW5kLW1vZGU6b3ZlcmxheSIvPgo8L2c+CjxnIGlkPSJWZWN0b3JfMiIgZmlsdGVyPSJ1cmwoI2ZpbHRlcjFfaV80NTUwXzgwNTY4KSI+CjxwYXRoIGQ9Ik0yMy4xMzI3IDAuMjE4MzhDMjMuMDM1OSAtMC4wNzA3ODAzIDIyLjYyNzggLTAuMDczNDYxMyAyMi41MjcyIDAuMjE0NDAyTDIyLjExNzQgMS4zODY2QzIxLjc4OTQgMi4zMjUwMyAyMS4wNDM4IDMuMDU3NzEgMjAuMDk5OCAzLjM2OTMzTDE4LjkzNDMgMy43NTQwOEMxOC42NDUyIDMuODQ5NSAxOC42NDAxIDQuMjU2NTQgMTguOTI2NyA0LjM1OTJMMjAuMDk3IDQuNzc4NDVDMjEuMDIxNCA1LjEwOTYgMjEuNzQyNiA1Ljg0NjgzIDIyLjA1MzMgNi43NzgyOEwyMi40NTMyIDcuOTc3MDJDMjIuNTQ5OSA4LjI2NjcxIDIyLjk1ODcgOC4yNjkzMSAyMy4wNTkgNy45ODA4N0wyMy40NjI2IDYuODIwNDlDMjMuNzg4NiA1Ljg4MzE2IDI0LjUzMSA1LjE1MDEzIDI1LjQ3MjQgNC44MzYxTDI2LjY2OTEgNC40MzY5NEMyNi45NTg2IDQuMzQwMzUgMjYuOTYxNCAzLjkzMTc0IDI2LjY3MzIgMy44MzEyM0wyNS41MTY3IDMuNDI3OTdDMjQuNTgxOCAzLjEwMTk1IDIzLjg1MDQgMi4zNjE1IDIzLjUzNiAxLjQyMjYxTDIzLjEzMjcgMC4yMTgzOFoiIGZpbGw9InVybCgjcGFpbnQxX2xpbmVhcl80NTUwXzgwNTY4KSIvPgo8cGF0aCBkPSJNMjMuMTMyNyAwLjIxODM4QzIzLjAzNTkgLTAuMDcwNzgwMyAyMi42Mjc4IC0wLjA3MzQ2MTMgMjIuNTI3MiAwLjIxNDQwMkwyMi4xMTc0IDEuMzg2NkMyMS43ODk0IDIuMzI1MDMgMjEuMDQzOCAzLjA1NzcxIDIwLjA5OTggMy4zNjkzM0wxOC45MzQzIDMuNzU0MDhDMTguNjQ1MiAzLjg0OTUgMTguNjQwMSA0LjI1NjU0IDE4LjkyNjcgNC4zNTkyTDIwLjA5NyA0Ljc3ODQ1QzIxLjAyMTQgNS4xMDk2IDIxLjc0MjYgNS44NDY4MyAyMi4wNTMzIDYuNzc4MjhMMjIuNDUzMiA3Ljk3NzAyQzIyLjU0OTkgOC4yNjY3MSAyMi45NTg3IDguMjY5MzEgMjMuMDU5IDcuOTgwODdMMjMuNDYyNiA2LjgyMDQ5QzIzLjc4ODYgNS44ODMxNiAyNC41MzEgNS4xNTAxMyAyNS40NzI0IDQuODM2MUwyNi42NjkxIDQuNDM2OTRDMjYuOTU4NiA0LjM0MDM1IDI2Ljk2MTQgMy45MzE3NCAyNi42NzMyIDMuODMxMjNMMjUuNTE2NyAzLjQyNzk3QzI0LjU4MTggMy4xMDE5NSAyMy44NTA0IDIuMzYxNSAyMy41MzYgMS40MjI2MUwyMy4xMzI3IDAuMjE4MzhaIiBmaWxsPSJibGFjayIgZmlsbC1vcGFjaXR5PSIwLjUiIHN0eWxlPSJtaXgtYmxlbmQtbW9kZTpvdmVybGF5Ii8+CjwvZz4KPC9nPgo8ZGVmcz4KPGZpbHRlciBpZD0iZmlsdGVyMF9pXzQ1NTBfODA1NjgiIHg9IjAiIHk9IjIuMTAyMSIgd2lkdGg9IjIzLjc3MzkiIGhlaWdodD0iMjQuODM5NiIgZmlsdGVyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgo8ZmVGbG9vZCBmbG9vZC1vcGFjaXR5PSIwIiByZXN1bHQ9IkJhY2tncm91bmRJbWFnZUZpeCIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluPSJTb3VyY2VHcmFwaGljIiBpbjI9IkJhY2tncm91bmRJbWFnZUZpeCIgcmVzdWx0PSJzaGFwZSIvPgo8ZmVDb2xvck1hdHJpeCBpbj0iU291cmNlQWxwaGEiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAxMjcgMCIgcmVzdWx0PSJoYXJkQWxwaGEiLz4KPGZlT2Zmc2V0IGR5PSIxIi8+CjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjEiLz4KPGZlQ29tcG9zaXRlIGluMj0iaGFyZEFscGhhIiBvcGVyYXRvcj0iYXJpdGhtZXRpYyIgazI9Ii0xIiBrMz0iMSIvPgo8ZmVDb2xvck1hdHJpeCB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMC4xIDAiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbjI9InNoYXBlIiByZXN1bHQ9ImVmZmVjdDFfaW5uZXJTaGFkb3dfNDU1MF84MDU2OCIvPgo8L2ZpbHRlcj4KPGZpbHRlciBpZD0iZmlsdGVyMV9pXzQ1NTBfODA1NjgiIHg9IjE4LjcxNDYiIHk9IjAiIHdpZHRoPSI4LjE3MzIxIiBoZWlnaHQ9IjkuMTk1NzUiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0ic2hhcGUiLz4KPGZlQ29sb3JNYXRyaXggaW49IlNvdXJjZUFscGhhIiB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMTI3IDAiIHJlc3VsdD0iaGFyZEFscGhhIi8+CjxmZU9mZnNldCBkeT0iMSIvPgo8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxIi8+CjxmZUNvbXBvc2l0ZSBpbjI9ImhhcmRBbHBoYSIgb3BlcmF0b3I9ImFyaXRobWV0aWMiIGsyPSItMSIgazM9IjEiLz4KPGZlQ29sb3JNYXRyaXggdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAuMSAwIi8+CjxmZUJsZW5kIG1vZGU9Im5vcm1hbCIgaW4yPSJzaGFwZSIgcmVzdWx0PSJlZmZlY3QxX2lubmVyU2hhZG93XzQ1NTBfODA1NjgiLz4KPC9maWx0ZXI+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl80NTUwXzgwNTY4IiB4MT0iNC40MDI1OCIgeTE9IjMuNzA2NjkiIHgyPSIyMC4zNTMzIiB5Mj0iMjMuMDIwMyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjN0FEM0Y4Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzdCRjFBNiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MV9saW5lYXJfNDU1MF84MDU2OCIgeDE9IjIwLjIyODEiIHkxPSIwLjU1MTYzNyIgeDI9IjI1LjcxMTgiIHkyPSI3LjE5MTQxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiM3QUQzRjgiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjN0JGMUE2Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==" alt="AIチャット"></span></button>
+    <div class="panel2" id="panel2D" style="pointer-events:auto">
+      <div class="prow">
+        <span class="tt" data-cur>04:29</span>
+        <div class="seek" data-seek-track><div class="bg"><div class="fill"></div><div class="knob"></div></div></div>
+        <span class="tt" data-tot>31:08</span>
+      </div>
+      <div class="crow">
+        <button class="spd28" data-spd>1x</button>
+        <img class="s28" data-nudge="-15" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSAxMDAwMDAxNzEwIj4KPHBhdGggaWQ9IlZlY3RvciIgZD0iTTExLjM4MzggMTIuNzAxNEwxMS4zODI5IDEyLjcwMUMxMS4zNjQzIDEyLjI4ODEgMTEuMDIzOCAxMS45NTkgMTAuNjA2MyAxMS45NTlDMTAuNDM3OCAxMS45NTg3IDEwLjI3MzkgMTIuMDEzNSAxMC4xMzkzIDEyLjExNDlMMTAuMTM3MiAxMi4xMTM5QzkuNzIyNzIgMTIuNDgyNSA5LjE5MTgxIDEyLjgwNjggOC43MjQ5NyAxMi45Nzk4QzguNDc2NDMgMTMuMDYxOCA4LjI5NyAxMy4yOTU4IDguMjk3IDEzLjU3MThDOC4yOTcgMTMuOTE2MiA4LjU3NjEzIDE0LjE5NTMgOC45MjA0NyAxNC4xOTUzQzkuMDAyMTMgMTQuMTk1MyA5LjA4MDAxIDE0LjE3OTQgOS4xNTE0OSAxNC4xNTA5QzkuNDAxMSAxNC4wNjEzIDkuNjY5NTYgMTMuOTQ2IDkuOTAxODkgMTMuODIzMlYxOS40MDk1SDkuOTAyMDlMOS45MDIwNCAxOS40MTE4QzkuOTAyMDQgMTkuODIxIDEwLjIzMzcgMjAuMTUyNyAxMC42NDI5IDIwLjE1MjdDMTEuMDUyMSAyMC4xNTI3IDExLjM4MzggMTkuODIxIDExLjM4MzggMTkuNDExOEwxMS4zODM3IDE5LjQwOTVIMTEuMzgzOFYxMi43MDE0Wk0xNS40ODM3IDE4Ljg3MTZDMTQuNjc4MyAxOC44NzE2IDE0LjM0MyAxOC4zODM4IDE0LjIwMzkgMTguMDAxNEgxNC4yMDM4QzE0LjExNzUgMTcuNjk0MiAxMy44MzU1IDE3LjQ2ODkgMTMuNTAwNiAxNy40Njg5QzEzLjA5NzEgMTcuNDY4OSAxMi43NzAxIDE3Ljc5NiAxMi43NzAxIDE4LjE5OTRDMTIuNzcwMSAxOC4zMDI3IDEyLjc5MTYgMTguNDAxIDEyLjgzMDMgMTguNDkwMUMxMy4yMTQ5IDE5LjUzMzMgMTQuMTczNCAyMC4xNTk2IDE1LjQ0OSAyMC4xNTk2QzE2LjM3MjggMjAuMTU5NiAxNy4xMjUxIDE5Ljg0MzIgMTcuNjI0NSAxOS4yNDQ3QzE4LjA2NDQgMTguNzE3MyAxOC4yOTcgMTcuOTk0MiAxOC4yOTcgMTcuMTUzNEMxOC4yOTcgMTUuNDgyNyAxNy4zMDkxIDE0LjQwMzIgMTUuNzgwMyAxNC40MDMyQzE1LjI4MTYgMTQuNDAzMiAxNC44NTQ0IDE0LjUwMzIgMTQuNTAzNiAxNC43MDEyQzE0LjU3NzMgMTQuMjU4IDE0LjY2NCAxMy43MDE2IDE0LjcxNyAxMy4yODczSDE3LjIyNlYxMy4yODY3QzE3LjU4MTMgMTMuMjczNiAxNy44NjU0IDEyLjk4MTYgMTcuODY1NCAxMi42MjMxQzE3Ljg2NTQgMTIuMjY0NiAxNy41ODEzIDExLjk3MjYgMTcuMjI2IDExLjk1OTZWMTEuOTU5SDE0LjA0NzJMMTQuMDQ2OCAxMS45NTkzQzEzLjcyMDEgMTEuOTY2MiAxMy40NTIzIDEyLjIxMiAxMy40MTExIDEyLjUyOTJMMTMuNDExMSAxMi41MjkzQzEzLjMwMDUgMTMuNDE3MiAxMy4xMDE2IDE0Ljg2NjkgMTIuOTIyMSAxNS44MTlMMTIuOTIyOCAxNS44MTkzQzEyLjkxNDkgMTUuODYzNCAxMi45MTA5IDE1LjkwODEgMTIuOTEwOCAxNS45NTI4QzEyLjkxMDggMTYuMzcxIDEzLjI0OTggMTYuNzEgMTMuNjY4IDE2LjcxQzEzLjk0NzQgMTYuNzEgMTQuMTkxMiAxNi41NTg2IDE0LjMyMjQgMTYuMzMzNUwxNC4zMjI4IDE2LjMzMzZDMTQuNTUxOSAxNS45MzgzIDE0Ljg3NSAxNS43MTUxIDE1LjU2NTIgMTUuNzE1MUMxNS45OTE2IDE1LjcxNTEgMTYuMzExNyAxNS44NTMyIDE2LjUxNjkgMTYuMTI1N0MxNi43MDc2IDE2LjM3OSAxNi44MDg0IDE2Ljc2MDUgMTYuODA4NCAxNy4yMjkxQzE2LjgwODQgMTcuNzQ2MyAxNi42OTE4IDE4LjE2NzEgMTYuNDcxMSAxOC40NDYxQzE2LjI0NzggMTguNzI4NCAxNS45MTU2IDE4Ljg3MTYgMTUuNDgzNyAxOC44NzE2WiIgZmlsbD0iIzFGMjMyOSIvPgo8cGF0aCBpZD0iRWxsaXBzZSAxMiIgZD0iTTEzLjkwOTYgNC4yOTkzOEMxNi40ODg2IDQuMzI0MiAxOC45ODQ0IDUuMjE1MjQgMjAuOTk2IDYuODI5MzRDMjMuMDA3NiA4LjQ0MzQ0IDI0LjQxODIgMTAuNjg2OSAyNS4wMDEyIDEzLjE5OTNDMjUuNTg0MyAxNS43MTE2IDI1LjMwNTggMTguMzQ3IDI0LjIxMDYgMjAuNjgyMUMyMy4xMTU1IDIzLjAxNzEgMjEuMjY3MiAyNC45MTYzIDE4Ljk2MjcgMjYuMDc0M0MxNi42NTgyIDI3LjIzMjQgMTQuMDMxMyAyNy41ODIyIDExLjUwNCAyNy4wNjc1QzguOTc2NzkgMjYuNTUyOSA2LjY5NTkxIDI1LjIwMzYgNS4wMjc4NiAyMy4yMzY1QzMuMzU5ODEgMjEuMjY5NCAyLjQwMTQzIDE4Ljc5ODcgMi4zMDY2OCAxNi4yMjEzQzIuMjI1OCAxNC4wMjExIDIuNzc4MjggMTEuODUyMyAzLjg4NjcyIDkuOTY4QzQuMjAyNjEgOS40MzEwMiA0LjkxMzYgOS4zMjI3MyA1LjQxNzA3IDkuNjg5NjlDNS45MjA1NCAxMC4wNTY2IDYuMDI0MzcgMTAuNzU5NiA1LjcyMTQyIDExLjMwNEM0LjkwMzk0IDEyLjc3MyA0LjQ5ODk5IDE0LjQ0NDIgNC41NjEyNyAxNi4xMzg0QzQuNjM3NDMgMTguMjEwMiA1LjQwNzggMjAuMTk2MiA2Ljc0ODYgMjEuNzc3M0M4LjA4OTQxIDIzLjM1ODUgOS45MjI4MSAyNC40NDMxIDExLjk1NDMgMjQuODU2OEMxMy45ODU3IDI1LjI3MDUgMTYuMDk3MiAyNC45ODkzIDE3Ljk0OTYgMjQuMDU4NEMxOS44MDIgMjMuMTI3NiAyMS4yODc3IDIxLjYwMSAyMi4xNjggMTkuNzI0MUMyMy4wNDgzIDE3Ljg0NzEgMjMuMjcyMiAxNS43Mjg3IDIyLjgwMzUgMTMuNzA5M0MyMi4zMzQ5IDExLjY4OTggMjEuMjAxIDkuODg2NDUgMTkuNTg0MSA4LjU4OTAyQzE3Ljk2NzEgNy4yOTE1OCAxNS45NjA5IDYuNTc1MzQgMTMuODg3OSA2LjU1NTM5TDEzLjkwOTYgNC4yOTkzOFoiIGZpbGw9IiMxRjIzMjkiLz4KPHBhdGggaWQ9IlBvbHlnb24gNiIgZD0iTTkuMDgzMTUgNS4zNzQwOUM4LjgxMDUyIDUuMTk5MiA4LjgxMDUyIDQuODAwOCA5LjA4MzE0IDQuNjI1OTFMMTMuODE1NiAxLjU5MDA1QzE0LjExMTQgMS40MDAzIDE0LjUgMS42MTI3MSAxNC41IDEuOTY0MTRMMTQuNSA4LjAzNTg2QzE0LjUgOC4zODcyOSAxNC4xMTE0IDguNTk5NyAxMy44MTU2IDguNDA5OTRMOS4wODMxNSA1LjM3NDA5WiIgZmlsbD0iIzFGMjMyOSIvPgo8L2c+Cjwvc3ZnPgo=" alt="15秒戻る">
+        <img class="s32" data-toggle src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSAxMDAwMDAxNzQ0Ij4KPHBhdGggaWQ9IlBvbHlnb24gNyIgZD0iTTIzLjAzNDUgMTMuMTMzMkMyNC42NjQgMTQuMDc0IDI1LjQ3ODcgMTQuNTQ0MyAyNS43NTIyIDE1LjE1ODVDMjUuOTkwNyAxNS42OTQxIDI1Ljk5MDcgMTYuMzA1OSAyNS43NTIyIDE2Ljg0MTVDMjUuNDc4NyAxNy40NTU3IDI0LjY2NCAxNy45MjYgMjMuMDM0NSAxOC44NjY4TDE0Ljk2NTUgMjMuNTI1NUMxMy4zMzYgMjQuNDY2MyAxMi41MjEzIDI0LjkzNjcgMTEuODUyNyAyNC44NjY0QzExLjI2OTUgMjQuODA1MSAxMC43Mzk4IDI0LjQ5OTIgMTAuMzk1MSAyNC4wMjQ5QzEwIDIzLjQ4MSAxMCAyMi41NDAyIDEwIDIwLjY1ODZMMTAgMTEuMzQxNEMxMCA5LjQ1OTc5IDEwIDguNTE5IDEwLjM5NTEgNy45NzUxNEMxMC43Mzk4IDcuNTAwNzYgMTEuMjY5NSA3LjE5NDkxIDExLjg1MjcgNy4xMzM2MkMxMi41MjEzIDcuMDYzMzUgMTMuMzM2IDcuNTMzNzQgMTQuOTY1NSA4LjQ3NDU0TDIzLjAzNDUgMTMuMTMzMloiIGZpbGw9IiMxRjIzMjkiLz4KPC9nPgo8L3N2Zz4K" alt="再生">
+        <img class="s28" data-nudge="15" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSAxMDAwMDAxNzExIj4KPHBhdGggaWQ9IlZlY3RvciIgZD0iTTExLjM4MzggMTIuNzAxNEwxMS4zODI5IDEyLjcwMUMxMS4zNjQzIDEyLjI4ODEgMTEuMDIzOCAxMS45NTkgMTAuNjA2MyAxMS45NTlDMTAuNDM3OCAxMS45NTg3IDEwLjI3MzkgMTIuMDEzNSAxMC4xMzkzIDEyLjExNDlMMTAuMTM3MiAxMi4xMTM5QzkuNzIyNzIgMTIuNDgyNSA5LjE5MTgxIDEyLjgwNjggOC43MjQ5NyAxMi45Nzk4QzguNDc2NDMgMTMuMDYxOCA4LjI5NyAxMy4yOTU4IDguMjk3IDEzLjU3MThDOC4yOTcgMTMuOTE2MiA4LjU3NjEzIDE0LjE5NTMgOC45MjA0NyAxNC4xOTUzQzkuMDAyMTMgMTQuMTk1MyA5LjA4MDAxIDE0LjE3OTQgOS4xNTE0OSAxNC4xNTA5QzkuNDAxMSAxNC4wNjEzIDkuNjY5NTYgMTMuOTQ2IDkuOTAxODkgMTMuODIzMlYxOS40MDk1SDkuOTAyMDlMOS45MDIwNCAxOS40MTE4QzkuOTAyMDQgMTkuODIxIDEwLjIzMzcgMjAuMTUyNyAxMC42NDI5IDIwLjE1MjdDMTEuMDUyMSAyMC4xNTI3IDExLjM4MzggMTkuODIxIDExLjM4MzggMTkuNDExOEwxMS4zODM3IDE5LjQwOTVIMTEuMzgzOFYxMi43MDE0Wk0xNS40ODM3IDE4Ljg3MTZDMTQuNjc4MyAxOC44NzE2IDE0LjM0MyAxOC4zODM4IDE0LjIwMzkgMTguMDAxNEgxNC4yMDM4QzE0LjExNzUgMTcuNjk0MiAxMy44MzU1IDE3LjQ2ODkgMTMuNTAwNiAxNy40Njg5QzEzLjA5NzEgMTcuNDY4OSAxMi43NzAxIDE3Ljc5NiAxMi43NzAxIDE4LjE5OTRDMTIuNzcwMSAxOC4zMDI3IDEyLjc5MTYgMTguNDAxIDEyLjgzMDMgMTguNDkwMUMxMy4yMTQ5IDE5LjUzMzMgMTQuMTczNCAyMC4xNTk2IDE1LjQ0OSAyMC4xNTk2QzE2LjM3MjggMjAuMTU5NiAxNy4xMjUxIDE5Ljg0MzIgMTcuNjI0NSAxOS4yNDQ3QzE4LjA2NDQgMTguNzE3MyAxOC4yOTcgMTcuOTk0MiAxOC4yOTcgMTcuMTUzNEMxOC4yOTcgMTUuNDgyNyAxNy4zMDkxIDE0LjQwMzIgMTUuNzgwMyAxNC40MDMyQzE1LjI4MTYgMTQuNDAzMiAxNC44NTQ0IDE0LjUwMzIgMTQuNTAzNiAxNC43MDEyQzE0LjU3NzMgMTQuMjU4IDE0LjY2NCAxMy43MDE2IDE0LjcxNyAxMy4yODczSDE3LjIyNlYxMy4yODY3QzE3LjU4MTMgMTMuMjczNiAxNy44NjU0IDEyLjk4MTYgMTcuODY1NCAxMi42MjMxQzE3Ljg2NTQgMTIuMjY0NiAxNy41ODEzIDExLjk3MjYgMTcuMjI2IDExLjk1OTZWMTEuOTU5SDE0LjA0NzJMMTQuMDQ2OCAxMS45NTkzQzEzLjcyMDEgMTEuOTY2MiAxMy40NTIzIDEyLjIxMiAxMy40MTExIDEyLjUyOTJMMTMuNDExMSAxMi41MjkzQzEzLjMwMDUgMTMuNDE3MiAxMy4xMDE2IDE0Ljg2NjkgMTIuOTIyMSAxNS44MTlMMTIuOTIyOCAxNS44MTkzQzEyLjkxNDkgMTUuODYzNCAxMi45MTA5IDE1LjkwODEgMTIuOTEwOCAxNS45NTI4QzEyLjkxMDggMTYuMzcxIDEzLjI0OTggMTYuNzEgMTMuNjY4IDE2LjcxQzEzLjk0NzQgMTYuNzEgMTQuMTkxMiAxNi41NTg2IDE0LjMyMjQgMTYuMzMzNUwxNC4zMjI4IDE2LjMzMzZDMTQuNTUxOSAxNS45MzgzIDE0Ljg3NSAxNS43MTUxIDE1LjU2NTIgMTUuNzE1MUMxNS45OTE2IDE1LjcxNTEgMTYuMzExNyAxNS44NTMyIDE2LjUxNjkgMTYuMTI1N0MxNi43MDc2IDE2LjM3OSAxNi44MDg0IDE2Ljc2MDUgMTYuODA4NCAxNy4yMjkxQzE2LjgwODQgMTcuNzQ2MyAxNi42OTE4IDE4LjE2NzEgMTYuNDcxMSAxOC40NDYxQzE2LjI0NzggMTguNzI4NCAxNS45MTU2IDE4Ljg3MTYgMTUuNDgzNyAxOC44NzE2WiIgZmlsbD0iIzFGMjMyOSIvPgo8cGF0aCBpZD0iRWxsaXBzZSAxMiIgZD0iTTEzLjY4ODIgNC4yOTkzOEMxMS4xMDkyIDQuMzI0MiA4LjYxMzQ0IDUuMjE1MjQgNi42MDE4NCA2LjgyOTM0QzQuNTkwMjQgOC40NDM0NCAzLjE3OTYxIDEwLjY4NjkgMi41OTY2IDEzLjE5OTNDMi4wMTM1OCAxNS43MTE2IDIuMjkyMDMgMTguMzQ3IDMuMzg3MiAyMC42ODIxQzQuNDgyMzcgMjMuMDE3MSA2LjMzMDY4IDI0LjkxNjMgOC42MzUxOCAyNi4wNzQzQzEwLjkzOTcgMjcuMjMyNCAxMy41NjY2IDI3LjU4MjIgMTYuMDkzOCAyNy4wNjc1QzE4LjYyMTEgMjYuNTUyOSAyMC45MDE5IDI1LjIwMzYgMjIuNTcgMjMuMjM2NUMyNC4yMzggMjEuMjY5NCAyNS4xOTY0IDE4Ljc5ODcgMjUuMjkxMiAxNi4yMjEzQzI1LjM3MiAxNC4wMjExIDI0LjgxOTYgMTEuODUyMyAyMy43MTExIDkuOTY4QzIzLjM5NTIgOS40MzEwMiAyMi42ODQyIDkuMzIyNzMgMjIuMTgwOCA5LjY4OTY5QzIxLjY3NzMgMTAuMDU2NiAyMS41NzM1IDEwLjc1OTYgMjEuODc2NCAxMS4zMDRDMjIuNjkzOSAxMi43NzMgMjMuMDk4OSAxNC40NDQyIDIzLjAzNjYgMTYuMTM4NEMyMi45NjA0IDE4LjIxMDIgMjIuMTkwMSAyMC4xOTYyIDIwLjg0OTIgMjEuNzc3M0MxOS41MDg0IDIzLjM1ODUgMTcuNjc1IDI0LjQ0MzEgMTUuNjQzNiAyNC44NTY4QzEzLjYxMjIgMjUuMjcwNSAxMS41MDA2IDI0Ljk4OTMgOS42NDgyMiAyNC4wNTg0QzcuNzk1ODMgMjMuMTI3NiA2LjMxMDEzIDIxLjYwMSA1LjQyOTgyIDE5LjcyNDFDNC41NDk1IDE3Ljg0NzEgNC4zMjU2OCAxNS43Mjg3IDQuNzk0MzEgMTMuNzA5M0M1LjI2Mjk1IDExLjY4OTggNi4zOTY4MyA5Ljg4NjQ1IDguMDEzNzkgOC41ODkwMkM5LjYzMDc1IDcuMjkxNTggMTEuNjM2OSA2LjU3NTM0IDEzLjcwOTkgNi41NTUzOUwxMy42ODgyIDQuMjk5MzhaIiBmaWxsPSIjMUYyMzI5Ii8+CjxwYXRoIGlkPSJQb2x5Z29uIDYiIGQ9Ik0xOC40MTY5IDUuMzc4NTNDMTguNjg5NSA1LjIwMzY1IDE4LjY4OTUgNC44MDUyNCAxOC40MTY5IDQuNjMwMzZMMTMuNjg0NCAxLjU5NDVDMTMuMzg4NiAxLjQwNDc0IDEzIDEuNjE3MTUgMTMgMS45Njg1OUwxMyA4LjA0MDNDMTMgOC4zOTE3NCAxMy4zODg2IDguNjA0MTUgMTMuNjg0NCA4LjQxNDM5TDE4LjQxNjkgNS4zNzg1M1oiIGZpbGw9IiMxRjIzMjkiLz4KPC9nPgo8L3N2Zz4K" alt="15秒進む">
+        <button class="morewrap" id="moreD"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik02Ljk5OTg0IDE1Ljc1QzcuOTY2MzQgMTUuNzUgOC43NDk4NCAxNC45NjY1IDguNzQ5ODQgMTRDOC43NDk4NCAxMy4wMzM1IDcuOTY2MzQgMTIuMjUgNi45OTk4NCAxMi4yNUM2LjAzMzM0IDEyLjI1IDUuMjQ5ODQgMTMuMDMzNSA1LjI0OTg0IDE0QzUuMjQ5ODQgMTQuOTY2NSA2LjAzMzM0IDE1Ljc1IDYuOTk5ODQgMTUuNzVaIiBmaWxsPSIjMUYyMzI5Ii8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTEzLjk5OTggMTUuNzVDMTQuOTY2MyAxNS43NSAxNS43NDk4IDE0Ljk2NjUgMTUuNzQ5OCAxNEMxNS43NDk4IDEzLjAzMzUgMTQuOTY2MyAxMi4yNSAxMy45OTk4IDEyLjI1QzEzLjAzMzMgMTIuMjUgMTIuMjQ5OCAxMy4wMzM1IDEyLjI0OTggMTRDMTIuMjQ5OCAxNC45NjY1IDEzLjAzMzMgMTUuNzUgMTMuOTk5OCAxNS43NVoiIGZpbGw9IiMxRjIzMjkiLz4KPHBhdGggaWQ9IlZlY3Rvcl8zIiBkPSJNMjAuOTk5OCAxNS43NUMyMS45NjYzIDE1Ljc1IDIyLjc0OTggMTQuOTY2NSAyMi43NDk4IDE0QzIyLjc0OTggMTMuMDMzNSAyMS45NjYzIDEyLjI1IDIwLjk5OTggMTIuMjVDMjAuMDMzMyAxMi4yNSAxOS4yNDk4IDEzLjAzMzUgMTkuMjQ5OCAxNEMxOS4yNDk4IDE0Ljk2NjUgMjAuMDMzMyAxNS43NSAyMC45OTk4IDE1Ljc1WiIgZmlsbD0iIzFGMjMyOSIvPgo8L2c+Cjwvc3ZnPgo=" alt="その他"></button>
+      </div>
+    </div>
+  </div>
+
+  <button class="jump" id="jumpUp" hidden><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik04IDE2TDE2IDhMMjQgMTYiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTggMjRMMTYgMTZMMjQgMjQiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="再生位置へ"></button>
+  <button class="jump down" id="jumpDown" hidden><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik04IDE2TDE2IDhMMjQgMTYiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTggMjRMMTYgMTZMMjQgMjQiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="再生位置へ"></button>
+
+  <audio id="au" preload="auto" playsinline></audio>
+  <div id="aiToast">AIチャットは今回の検討範囲外です</div>
+
+  <div class="homeind"><i></i></div>
+
+  <div id="scrim" hidden></div>
+  <div id="menu" hidden><button id="menuEdit">話者を編集</button></div>
+
+  <div id="sheetwrap" hidden>
+    <div class="sheet">
+      <div class="hdr"><img id="sheetClose" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0zLjMzMzMzIDMuMzMzMzNMMTYuNjY2NyAxNi42NjY3IiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTMuMzMzMzMgMTYuNjY2N0wxNi42NjY3IDMuMzMzMzMiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjc1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt="閉じる"><div class="ti">話者編集</div></div>
+      <div class="body">
+        <div class="searchwrap">
+          <div class="searchfield"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiB2aWV3Qm94PSIwIDAgMTggMTgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik03Ljg3NTI5IDE0LjI1QzExLjM5NjEgMTQuMjUgMTQuMjUwMyAxMS4zOTU4IDE0LjI1MDMgNy44NzQ5NkMxNC4yNTAzIDQuMzU0MTYgMTEuMzk2MSAxLjQ5OTk2IDcuODc1MjkgMS40OTk5NkM0LjM1NDQ5IDEuNDk5OTYgMS41MDAyOSA0LjM1NDE2IDEuNTAwMjkgNy44NzQ5NkMxLjUwMDI5IDExLjM5NTggNC4zNTQ0OSAxNC4yNSA3Ljg3NTI5IDE0LjI1WiIgc3Ryb2tlPSIjOEY5NTlFIiBzdHJva2Utd2lkdGg9IjEuMTI1IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTkuOTk2ODQgNS4zNzg2NkM5LjQ1Mzk1IDQuODM1NzcgOC43MDM5NSA0LjUgNy44NzU1IDQuNUM3LjA0NzA5IDQuNSA2LjI5NzA5IDQuODM1NzcgNS43NTQyIDUuMzc4NjYiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLXdpZHRoPSIxLjEyNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMyIgZD0iTTEyLjQ1NzYgMTIuNDU4MkwxNS42Mzk2IDE1LjY0MDIiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLXdpZHRoPSIxLjEyNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt=""><input id="memSearch" placeholder="検索"><button id="memClear" hidden aria-label="消去"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="9" fill="#dee0e3"/><path d="M7 7l6 6M13 7l-6 6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg></button></div>
+        </div>
+        <div class="memlist" id="memlist"></div>
+      </div>
+      <div class="foot" id="sheetFoot">
+        <button class="bulk" id="bulkBtn"></button>
+        <button class="apply" id="applyBtn" disabled>適用</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<div id="notesWrap" hidden><div id="notes">
+  <h2 style="color:#c0392b">共有前に確認</h2>
+  <ul><li>この原型には<b>実際の会議の音声と書き起こしがそのまま入っています</b>（社内の実名・ClickUpの費用・リリース運用の課題など）。
+  Artifactは既定で非公開ですが、<b>リンクを渡した人は会議をそのまま聞けます</b>。社外や広い範囲に共有する場合は、ダミーデータ版に差し替えます。</li></ul>
+  <h2>音声の状態</h2>
+  <ul><li id="auState">読み込み中…</li></ul>
+  <h2>スマホで全画面デモするリンク</h2>
+  <ul>
+    <li><a href="https://claude.ai/code/artifact/2892a51a-a2e8-4fef-93f5-bbfb5fc23652">A案 — 右下の丸ボタン</a></li>
+    <li><a href="https://claude.ai/code/artifact/b3b9cd79-e91e-4bc1-9070-5f0a1ea43d22">B案 — 下部の常時バー</a></li>
+    <li><a href="https://claude.ai/code/artifact/3de2c1ac-a616-4a73-b898-cd2548011f19">C案 — 下部中央の丸ボタン</a></li>
+  </ul>
+  <h2>この原型の前提 / 設計稿に無くて仮置きした点</h2>
+  <h3>3案の違い（下部の再生コントロール）</h3>
+  <table>
+    <tr><th>案</th><th>常態</th><th>展開時</th><th>該当画板</th></tr>
+    <tr><td>A</td><td>右下に丸ボタン（52px, 白75%）＋その上にAIボタン</td><td>同じ位置が横長バーに変化（マイク／時間／シーク／再生）</td><td>4251:39039 ほか</td></tr>
+    <tr><td>B</td><td>下部に常時バー（再生／時間／シーク／1.0x）＋右にAIボタン</td><td>展開状態の画板が無い</td><td>4311:40558 ほか</td></tr>
+    <tr><td>C</td><td>下部中央に丸ボタン（白・不透明）／AIボタンは右端に半分だけ</td><td>画面下いっぱいのパネル（1x／±15秒／再生／縮小）</td><td>4322:46238 ほか</td></tr>
+  </table>
+  <h3>設計稿の注記（Figma annotation そのまま）</h3>
+  <ul>
+    <li>A案のバー：<span class="q">長押し／左スワイプ／素早く上下にスワイプ：再生コントロールを表示する</span></li>
+    <li>C案のパネル：<span class="q">長押し／タップ／素早く上下にスワイプ：再生コントロールを表示する / 上下にスワイプしてコンテンツを閲覧すると、元の状態に戻る。</span></li>
+  </ul>
+  <h3>確認したいこと</h3>
+  <ol>
+    <li><b>C案の「タップ」</b>が再生／一時停止と衝突します。今回は<b>タップ＝再生／一時停止、長押し・スワイプ＝コントロール展開</b>で実装しました（A案と揃えています）。C案はタップでも展開させたい、で合っていますか。</li>
+    <li><b>B案の展開コントロール</b>（1x・±15秒・縮小）の画板がありません。今回はB案のみ非対応にしています。B案では速度以外は触れない、という理解で合っていますか。</li>
+    <li><b>話者タブが2種類</b>あります（<code>4314:44892</code> のフラットな一覧／<code>4415:44240</code> の「相手側・自分側」＋鉛筆＋個別再生）。新しい後者を採用しました。</li>
+    <li><b>編集モードへの入口と出口</b>が設計稿にありません。今回は右上 <code>⋯</code> に「話者を編集」を仮置きし、同じ場所から終了できるようにしています。</li>
+    <li><b>時刻の矛盾</b>：バーは 04:29 なのにハイライトは 02:19 の発言です。原型では 02:19 を初期位置にしました（バーの表示は再生に追従します）。</li>
+    <li><b>再生中バブルの表現</b>：設計稿では A の再生中バブルの背景が通常時と同じ <code>#e7f2fe</code> だったので、<b>枠 <code>#1a85ff</code>＋文字色＋太字だけ</b>で表しています。自分側（緑）にも同じ青枠が付きます。B（<code>#eceffe</code>）や自分側でもこの見せ方でよいか確認したいです。</li><li><b>話者ごとのバブル色</b>が A＝<code>#e7f2fe</code>／B＝<code>#eceffe</code> と別々で、相手側が3人以上のときの3色目以降が未定義です。今回は実際に相手側が4人いたので、<code>#f1ecfe</code>（紫）と <code>#e7f6fe</code>（水色）を同系で足しました。<b>正式な色を決めてください。</b>また自分側のアバターは設計稿では顔写真ですが、今回は写真が無いので文字アバターにしています。</li>
+    <li><b>コントロールの出し入れはスクロールの向き</b>で決めています（ご指示どおり）。
+    開いた時点では出ていて、<b>下へスクロール（先を読み進める）と隠れ、上へスクロール（前を見返す）と出ます</b>。
+    畳まれている丸ボタンをタップすると、再生／一時停止と同時に出し直します。
+    設計稿の注記は「素早く上下にスワイプ」でしたが、速さではなく向きで振り分ける形に変えています。</li>
+    <li><b>話者を割り当てた後のアバター</b>が未定義です。今回はメンバーの写真に差し替えています（文字丸のままにする案もあります）。</li>
+  </ol>
+  <h3>原型の作り</h3>
+  <ul>
+    <li><b>音声・書き起こし・話者は実データです</b>（2026/08/07 10:00「ClickUpからNotionへのドキュメント移行計画」26分23秒／189発言）。
+    話者は指示どおり <b>D を B に、E を 片岡新太郎 に統合</b>して3人にしています（B 33%／Yoichizono 13%／片岡新太郎 54%）。
+    <b>時刻だけは推定です。</b>書き起こしにタイムスタンプが無かったので、音声から発話区間を427個検出し、
+    「どの発言がどの発話区間に対応するか」を単調な対応付けとしてDPで解いています
+    （書き起こしに載っていない相槌や重なりは全体の9%として飛ばす）。数秒のずれは残ります。
+    YOMELからタイムスタンプ付きでエクスポートできればそれを流し込んで完全に一致させられます。</li>
+    <li><b>再生中バブルの枠と文字の色は話者ごとに変えました</b>が、今は仮の色です
+    （B <code>#4f5bf0</code>／Yoichizono <code>#1a85ff</code>／片岡新太郎 <code>#12907f</code>）。色が決まったら差し替えます。</li>
+    <li><b>要約タブは6カテゴリを縦一本に並べ、チップを押すとその位置までスクロール</b>する形にしました。
+    そのためチップの行はタブの下に貼り付いたままにしています（設計稿では一緒にスクロールして消えます）。
+    スクロールすると今いるカテゴリのチップが選択状態になります。
+    トピックス14件／要点一覧7件／Q&amp;A 4件／ネクストアクション4件／決定事項5件を、それぞれ時間順に並べて時刻から頭出しできます。
+    <b>中身はYOMELのAI出力ではなく私が書き起こしから書いたもの</b>で、Q&amp;Aと決定事項の体裁も設計稿に無いので仮置きです。</li>
+    <li>話者タブの帯とパーセント（C 51%／B 27%／Yoichizono 14%／E 5%／D 2%）も、この割り当てから計算した実データです。
+    <b>録音した本人＝C</b> と判断して自分側に置いています。</li>
+    <li><b>要約タブの中身はYOMELのAI出力ではなく、私が書き起こしから書いたものです。</b>実物のAI出力に差し替えられます。
+    「ネクストアクション」の見せ方は設計稿に無いので、概要・要点一覧と同じ体裁で仮置きしました。</li>
+    <li>バブルをタップするとその位置に飛びます（設計稿には無い操作ですが、3案の比較に必要なので入れています）。</li>
+
+    <li>タイトル・日時・時間・作成者・参加者数はすべて録音のものです。ログ情報の「グループ」と「関連予定」だけ設計稿のダミーが残っています。</li>
+    <li>「◯か所の「A」を一括変更」の件数は実データから計算しています（設計稿は26か所）。</li>
+    <li>話者編集シートのメンバー名は設計稿の実データそのままです。<b>公開URLに置く場合は差し替えが必要です。</b></li>
+  </ul>
+</div></div>
+<script type="text/plain" id="audioData"></script>
+<div id="gate">
+  <div class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5 20 12 6 20.5Z" fill="#fff"/></svg></div>
+  <h1>YOMEL 詳細画面 原型</h1>
+  <p>社内の検討用です。パスワードを入れてください。</p>
+  <form id="gateForm" autocomplete="off">
+    <input id="gatePw" type="password" inputmode="text" autocapitalize="off" autocorrect="off"
+           spellcheck="false" placeholder="パスワード" aria-label="パスワード">
+    <button type="submit" id="gateGo">開く</button>
+    <div class="msg" id="gateMsg" role="status"></div>
+  </form>
+  <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
+</div>
+<script>window.__LOCK="A";</script>
+<script src="gate.js"></script>
+</body>
+</html>

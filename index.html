@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="YOMEL 原型">
+<meta name="theme-color" content="#000000">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="app.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>YOMEL 詳細画面 原型</title>
+<style>
+body{margin:0;min-height:100dvh;background:#0f1417;color:#e8eeec;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans",system-ui,sans-serif;
+  display:flex;flex-direction:column;justify-content:center;gap:12px;padding:34px 22px}
+h1{font-size:19px;margin:0 0 6px;font-weight:600}
+.lead{margin:0 0 20px;font-size:13px;line-height:1.75;color:#93a09f}
+#picker a{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;
+  background:#1a2124;border:1px solid #2b3437;border-radius:14px;padding:17px 19px;margin-bottom:11px}
+#picker a:active{background:#20282b}
+#picker b{font-size:16.5px;font-weight:600;display:block}
+#picker span{font-size:12.5px;color:#93a09f;display:block;margin-top:3px;line-height:1.55}
+#picker i{flex:0 0 34px;height:34px;border-radius:10px;background:rgba(22,192,152,.14);color:#2fd6ae;
+  display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:600;font-size:15px}
+small{display:block;margin-top:12px;font-size:11.5px;line-height:1.8;color:#5f6b6a}
+</style>
+<style>
+#gate{position:fixed;inset:0;z-index:9999;background:#0f1417;color:#e8eeec;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans",system-ui,sans-serif;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+  padding:32px 26px;overflow-y:auto;-webkit-user-select:none;user-select:none}
+#gate .mark{width:64px;height:64px;border-radius:16px;background:#16c098;
+  display:flex;align-items:center;justify-content:center;margin-bottom:22px}
+#gate .mark svg{width:26px;height:26px;margin-left:3px}
+#gate h1{margin:0 0 6px;font-size:19px;font-weight:600;letter-spacing:-.01em}
+#gate p{margin:0 0 26px;font-size:13px;line-height:1.7;color:#93a09f;text-align:center;max-width:19em}
+#gate form{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+#gate input{-webkit-appearance:none;appearance:none;width:100%;height:48px;padding:0 15px;
+  background:#1a2124;border:1px solid #2b3437;border-radius:11px;
+  color:#e8eeec;font-size:17px;font-family:inherit;outline:0}
+#gate input:focus{border-color:#16c098}
+#gate button{height:48px;border:0;border-radius:11px;background:#16c098;color:#06231c;
+  font-size:16px;font-weight:600;font-family:inherit;cursor:pointer}
+#gate button:disabled{opacity:.5;cursor:default}
+#gate .msg{min-height:20px;font-size:12.5px;line-height:1.6;text-align:center;color:#93a09f}
+#gate .msg.bad{color:#ff8f7a}
+#gate .foot{margin-top:28px;font-size:11.5px;line-height:1.7;color:#5f6b6a;text-align:center;max-width:22em}
+</style>
+</head>
+<body>
+<div id="picker" hidden>
+  <h1>YOMEL 詳細画面 原型</h1>
+  <p class="lead">下部の再生コントロールだけが違う4案です。再生ボタンを押すと実際の録音が鳴り、
+  書き起こしがその位置で光ります。音が出ないときはマナーモードを解除してください。</p>
+  <a href="a.html"><i>A</i><div><b>A案 — 丸ボタン</b><span>既定は右下の横長バー。下スクロールで丸ボタンに畳む</span></div></a>
+  <a href="b.html"><i>B</i><div><b>B案 — 常時バー</b><span>横長バーが出たまま。畳まれない</span></div></a>
+  <a href="c.html"><i>C</i><div><b>C案 — 中央ボタン</b><span>既定は全幅パネル。下スクロールで中央の丸ボタンに畳む</span></div></a>
+  <a href="d.html"><i>D</i><div><b>D案 — 常時バー（全幅）</b><span>全幅パネルが常時表示。「…」は右下</span></div></a>
+  <small>共有ボタン → ホーム画面に追加 で、Safari の枠が無い全画面で起動します。</small>
+</div>
+<div id="gate">
+  <div class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5 20 12 6 20.5Z" fill="#fff"/></svg></div>
+  <h1>YOMEL 詳細画面 原型</h1>
+  <p>社内の検討用です。パスワードを入れてください。</p>
+  <form id="gateForm" autocomplete="off">
+    <input id="gatePw" type="password" inputmode="text" autocapitalize="off" autocorrect="off"
+           spellcheck="false" placeholder="パスワード" aria-label="パスワード">
+    <button type="submit" id="gateGo">開く</button>
+    <div class="msg" id="gateMsg" role="status"></div>
+  </form>
+  <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
+</div>
+<script>window.__AFTER_UNLOCK="reveal";</script>
+<script src="gate.js"></script>
+</body>
+</html>

@@ -12,6 +12,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="app.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
 <title>YOMEL 詳細画面 A案</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap">
 <style>
@@ -389,7 +390,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
   padding:32px 26px;overflow-y:auto;-webkit-user-select:none;user-select:none}
 #gate .mark{width:64px;height:64px;border-radius:16px;background:#16c098;
-  display:flex;align-items:center;justify-content:center;margin-bottom:22px}
+  display:flex;align-items:center;justify-content:center;margin-bottom:22px;flex:0 0 auto}
 #gate .mark svg{width:26px;height:26px;margin-left:3px}
 #gate h1{margin:0 0 6px;font-size:19px;font-weight:600;letter-spacing:-.01em}
 #gate p{margin:0 0 26px;font-size:13px;line-height:1.7;color:#93a09f;text-align:center;max-width:19em}
@@ -404,6 +405,12 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
 #gate .msg{min-height:20px;font-size:12.5px;line-height:1.6;text-align:center;color:#93a09f}
 #gate .msg.bad{color:#ff8f7a}
 #gate .foot{margin-top:28px;font-size:11.5px;line-height:1.7;color:#5f6b6a;text-align:center;max-width:22em}
+/* パスワードを保存済み＝聞く必要が無い時は、アイコンだけの起動画面にする */
+#gate.silent h1,#gate.silent p,#gate.silent .foot,
+#gate.silent input,#gate.silent button{display:none}
+#gate.silent .mark{margin-bottom:18px;animation:gpulse 1.5s ease-in-out infinite}
+@keyframes gpulse{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){ #gate.silent .mark{animation:none} }
 </style>
 </head>
 <body>
@@ -675,7 +682,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </ul>
 </div></div>
 <script type="text/plain" id="audioData"></script>
-<div id="gate">
+<div id="gate" class="silent">
   <div class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5 20 12 6 20.5Z" fill="#fff"/></svg></div>
   <h1>YOMEL 詳細画面 原型</h1>
   <p>社内の検討用です。パスワードを入れてください。</p>

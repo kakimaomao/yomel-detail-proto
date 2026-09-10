@@ -508,7 +508,9 @@ function followCurrent(){
   followIdx = act.i;
   if(userAt){
     if(Date.now() - userAt < FOLLOW_WAIT) return;
-    if(lineSeen(act.i) < 24) return;              /* 高亮が見えていないなら連れ戻さない */
+    /* 話者だけの再生中は発言が離れた場所へ飛ぶので、見えているかは問わずに追いかける。
+       通常の再生では、画面の外まで読み進めた人を連れ戻さないために見えている時だけ追う。 */
+    if(!S.solo && lineSeen(act.i) < 24) return;
   }
   centerLine(act.i);
 }

@@ -501,6 +501,26 @@ function centerLine(i, ms){
   quietScroll();                                  /* この動きでコントロールを畳まない */
   smoothTo(target, ms || 420);
 }
+/* 進捗バーを動かしている間は、その位置の発言が中央に見えるよう内容も一緒に動かす。
+   自動追従と違って戻る方向にも動かし、指に遅れないよう即座に合わせる。 */
+function trackLine(i){
+  if(S.tab !== "transcript") return;
+  var el = $('#panelTranscript .bb[data-line="'+i+'"]'); if(!el) return;
+  var sc = $("#scroller");
+  var pr = phone.getBoundingClientRect(), k = pr.width / 430;
+  var r = el.getBoundingClientRect();
+  var elTop = (r.top - pr.top) / k, elH = r.height / k;
+  var visTop = tabsBottom(), visBottom = controlTop();
+  var want = visTop + Math.max(12, (visBottom - visTop - elH) / 2);
+  var thr = $(".titleblock").offsetHeight;
+  var max = Math.max(0, sc.scrollHeight - sc.clientHeight);
+  var target = sc.scrollTop + (elTop - want);
+  if(sc.scrollTop >= thr - 1) target = Math.max(target, thr);   /* 貼り付いていたら外さない */
+  stopSmooth();
+  quietScroll();                                  /* この動きでコントロールを畳まない */
+  sc.scrollTop = Math.max(0, Math.min(target, max));
+  followIdx = i;                                  /* 直後の自動追従で二重に動かさない */
+}
 function followCurrent(){
   if(S.tab !== "transcript" || !S.playing) return;
   var act = activeLine(); if(!act) return;
@@ -763,6 +783,8 @@ $$("[data-seek-track]").forEach(function(tr){
   function at(clientX){
     var r = tr.getBoundingClientRect();
     seek((clientX - r.left) / r.width * DUR);
+    var act = activeLine();
+    if(act) trackLine(act.i);                     /* 内容も一緒に動かす */
   }
   tr.addEventListener("pointerdown", function(e){
     e.stopPropagation(); tr.setPointerCapture(e.pointerId); at(e.clientX);

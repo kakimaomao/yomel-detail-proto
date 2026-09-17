@@ -1015,7 +1015,12 @@ $("#scroller").addEventListener("scroll", function(){
   syncChips();
 }, {passive:true});
 /* 指やホイールで触った時点で自前スクロールは譲り、自動追従も止める */
-function userTouch(){ userAt = Date.now(); stopSmooth(); }
+function userTouch(){
+  userAt = Date.now(); stopSmooth();
+  /* 検索中に内容を触ったらキーボードを閉じる。iOSの入力補助バー（∧∨と完了）は
+     Webからは消せないので、出ている時間を短くする。 */
+  if(SE && SE.on && document.activeElement === $("#seInput")) $("#seInput").blur();
+}
 ["touchstart","touchmove","wheel","pointerdown"].forEach(function(ev){
   $("#scroller").addEventListener(ev, userTouch, {passive:true});
 });

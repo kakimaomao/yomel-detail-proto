@@ -450,6 +450,32 @@ body.nostatus .homeind i{visibility:hidden}
 .sset .r img{width:20px;height:20px}
 .sgrp{display:flex;flex-direction:column;gap:12px}
 
+/* ---- 検索（設計稿 4837:52961 / 4837:53132） ---- */
+#searchBar{position:absolute;left:0;top:0;width:430px;height:123px;background:#fff;z-index:36;
+  display:flex;flex-direction:column;justify-content:flex-end;padding:0 16px 12px}
+#searchBar .row{display:flex;align-items:center;gap:8px;width:398px;padding-right:8px;height:40px}
+#searchBar .fld{flex:1 0 0;min-width:0;height:40px;background:#f8f9fa;border-radius:8px;padding:0 8px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px}
+#searchBar .fld .l{flex:1 0 0;min-width:0;display:flex;align-items:center;gap:8px}
+#searchBar .fld .l img{width:18px;height:18px;flex:0 0 18px}
+#searchBar .fld input{flex:1 0 0;min-width:0;border:0;outline:0;background:none;
+  font-family:inherit;font-size:17px;line-height:normal;color:#1f2329;font-weight:300}
+#searchBar .fld input::placeholder{color:#bbbfc4}
+#searchBar .fld .r{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+#searchBar .fld .r img{width:20px;height:20px}
+#searchBar .fld .r .cnt{font-size:17px;line-height:1.5;color:#8f959e;font-weight:300;white-space:nowrap}
+#searchBar .cancel{font-size:17px;line-height:1.5;color:#646a73;font-weight:300;white-space:nowrap}
+/* 検索中は見出しとタブを隠して、書き起こしだけを出す */
+#phone.searching .navrow,#phone.searching .titleblock,#phone.searching .tabsrow{display:none}
+#phone.searching #scroller{top:135px}
+#searchNav{position:absolute;left:0;top:762px;width:430px;height:48px;background:#fff;z-index:34;
+  display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:8px 16px}
+#searchNav button{width:32px;height:32px}
+#searchNav img{width:32px;height:32px}
+#searchNav button[disabled]{opacity:.3}
+mark.hit{background:rgba(26,133,255,.18);color:inherit;border-radius:2px}
+mark.hit.now{background:#ffd60a}
+
 /* ---- 他のグループへ移動（設計稿 4848:89630） ---- */
 #grpWrap{position:absolute;inset:0;z-index:84;background:rgba(0,0,0,.5)}
 .grplist{padding:0 16px;overflow-y:auto}
@@ -611,7 +637,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
     <img class="back" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yMC42NjY3IDI0TDEyLjY2NjcgMTZMMjAuNjY2NyA4IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="戻る">
     <div class="sp"></div>
     <div class="acts">
-      <img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0xMi4yNTA0IDIyLjE2NjdDMTcuNzI3MiAyMi4xNjY3IDIyLjE2NyAxNy43MjY4IDIyLjE2NyAxMi4yNUMyMi4xNjcgNi43NzMyIDE3LjcyNzIgMi4zMzMzMyAxMi4yNTA0IDIuMzMzMzNDNi43NzM1OCAyLjMzMzMzIDIuMzMzNzEgNi43NzMyIDIuMzMzNzEgMTIuMjVDMi4zMzM3MSAxNy43MjY4IDYuNzczNTggMjIuMTY2NyAxMi4yNTA0IDIyLjE2NjdaIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik0xOS4zNzg2IDE5LjM3OTFMMjQuMzI4MyAyNC4zMjg5IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="検索">
+      <img id="searchBtn" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0xMi4yNTA0IDIyLjE2NjdDMTcuNzI3MiAyMi4xNjY3IDIyLjE2NyAxNy43MjY4IDIyLjE2NyAxMi4yNUMyMi4xNjcgNi43NzMyIDE3LjcyNzIgMi4zMzMzMyAxMi4yNTA0IDIuMzMzMzNDNi43NzM1OCAyLjMzMzMzIDIuMzMzNzEgNi43NzMyIDIuMzMzNzEgMTIuMjVDMi4zMzM3MSAxNy43MjY4IDYuNzczNTggMjIuMTY2NyAxMi4yNTA0IDIyLjE2NjdaIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik0xOS4zNzg2IDE5LjM3OTFMMjQuMzI4MyAyNC4zMjg5IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="検索">
       <img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIyOTsmIzEzMzsmIzE3NzsmIzIzMDsmIzE1NjsmIzEzNzsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMTYuMzMzMyAzLjVIMjQuNVYxMS42NjY3IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTI0LjUgMTcuMTkzVjIyLjc1QzI0LjUgMjMuNzE2NSAyMy43MTY1IDI0LjUgMjIuNzUgMjQuNUg1LjI1QzQuMjgzNSAyNC41IDMuNSAyMy43MTY1IDMuNSAyMi43NVY1LjI1QzMuNSA0LjI4MzUgNC4yODM1IDMuNSA1LjI1IDMuNUgxMC41IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMyIgZD0iTTE1LjA0OTkgMTIuOTQ5OUwyMy45NzQ5IDQuMDI0OTQiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjc1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt="共有">
       <img id="moreBtn" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik02Ljk5OTg0IDE1Ljc1QzcuOTY2MzQgMTUuNzUgOC43NDk4NCAxNC45NjY1IDguNzQ5ODQgMTRDOC43NDk4NCAxMy4wMzM1IDcuOTY2MzQgMTIuMjUgNi45OTk4NCAxMi4yNUM2LjAzMzM0IDEyLjI1IDUuMjQ5ODQgMTMuMDMzNSA1LjI0OTg0IDE0QzUuMjQ5ODQgMTQuOTY2NSA2LjAzMzM0IDE1Ljc1IDYuOTk5ODQgMTUuNzVaIiBmaWxsPSIjMUYyMzI5Ii8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTEzLjk5OTggMTUuNzVDMTQuOTY2MyAxNS43NSAxNS43NDk4IDE0Ljk2NjUgMTUuNzQ5OCAxNEMxNS43NDk4IDEzLjAzMzUgMTQuOTY2MyAxMi4yNSAxMy45OTk4IDEyLjI1QzEzLjAzMzMgMTIuMjUgMTIuMjQ5OCAxMy4wMzM1IDEyLjI0OTggMTRDMTIuMjQ5OCAxNC45NjY1IDEzLjAzMzMgMTUuNzUgMTMuOTk5OCAxNS43NVoiIGZpbGw9IiMxRjIzMjkiLz4KPHBhdGggaWQ9IlZlY3Rvcl8zIiBkPSJNMjAuOTk5OCAxNS43NUMyMS45NjYzIDE1Ljc1IDIyLjc0OTggMTQuOTY2NSAyMi43NDk4IDE0QzIyLjc0OTggMTMuMDMzNSAyMS45NjYzIDEyLjI1IDIwLjk5OTggMTIuMjVDMjAuMDMzMyAxMi4yNSAxOS4yNDk4IDEzLjAzMzUgMTkuMjQ5OCAxNEMxOS4yNDk4IDE0Ljk2NjUgMjAuMDMzMyAxNS43NSAyMC45OTk4IDE1Ljc1WiIgZmlsbD0iIzFGMjMyOSIvPgo8L2c+Cjwvc3ZnPgo=" alt="その他">
     </div>
@@ -783,6 +809,20 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
 
   <div id="scrim" hidden></div>
 
+  <div id="searchBar" hidden>
+    <div class="row">
+      <div class="fld">
+        <span class="l"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiB2aWV3Qm94PSIwIDAgMTggMTgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik03Ljg3NTI5IDE0LjI1QzExLjM5NjEgMTQuMjUgMTQuMjUwMyAxMS4zOTU4IDE0LjI1MDMgNy44NzQ5NkMxNC4yNTAzIDQuMzU0MTYgMTEuMzk2MSAxLjQ5OTk2IDcuODc1MjkgMS40OTk5NkM0LjM1NDQ5IDEuNDk5OTYgMS41MDAyOSA0LjM1NDE2IDEuNTAwMjkgNy44NzQ5NkMxLjUwMDI5IDExLjM5NTggNC4zNTQ0OSAxNC4yNSA3Ljg3NTI5IDE0LjI1WiIgc3Ryb2tlPSIjOEY5NTlFIiBzdHJva2Utd2lkdGg9IjEuMTI1IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTkuOTk2ODQgNS4zNzg2NkM5LjQ1Mzk1IDQuODM1NzcgOC43MDM5NSA0LjUgNy44NzU1IDQuNUM3LjA0NzA5IDQuNSA2LjI5NzA5IDQuODM1NzcgNS43NTQyIDUuMzc4NjYiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLXdpZHRoPSIxLjEyNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMyIgZD0iTTEyLjQ1NzYgMTIuNDU4MkwxNS42Mzk2IDE1LjY0MDIiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLXdpZHRoPSIxLjEyNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt=""><input id="seInput" placeholder="キーワードを検索" aria-label="キーワードを検索"></span>
+        <span class="r"><button id="seClear" hidden aria-label="消去"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0xMCAxOC4zMzMzQzE0LjYwMjQgMTguMzMzMyAxOC4zMzMzIDE0LjYwMjQgMTguMzMzMyAxMEMxOC4zMzMzIDUuMzk3NjIgMTQuNjAyNCAxLjY2NjY3IDEwIDEuNjY2NjdDNS4zOTc2MiAxLjY2NjY3IDEuNjY2NjcgNS4zOTc2MiAxLjY2NjY3IDEwQzEuNjY2NjcgMTQuNjAyNCA1LjM5NzYyIDE4LjMzMzMgMTAgMTguMzMzM1oiIGZpbGw9IiNCQkJGQzQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNMTMuMDAwNiA3LjAwMDA5TDcuMDAwNTggMTMuMDAwMSIgc3Ryb2tlPSIjRjhGOUZBIiBzdHJva2Utd2lkdGg9IjEuMjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzMiIGQ9Ik03LjAwMDU4IDcuMDAwMDlMMTMuMDAwNiAxMy4wMDAxIiBzdHJva2U9IiNGOEY5RkEiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt=""></button><span class="cnt" id="seCount"></span></span>
+      </div>
+      <button class="cancel" id="seCancel">キャンセル</button>
+    </div>
+  </div>
+  <div id="searchNav" hidden>
+    <button id="sePrev" aria-label="前の一致"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik04LjY2NjY3IDIwTDE2LjY2NjcgMTJMMjQuNjY2NyAyMCIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt=""></button>
+    <button id="seNext" aria-label="次の一致"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yNCAxMkwxNiAyMEw4IDEyIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt=""></button>
+  </div>
+
   <div id="grpWrap" hidden>
     <div class="sheet">
       <div class="hdr"><img id="grpClose" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0zLjMzMzMzIDMuMzMzMzNMMTYuNjY2NyAxNi42NjY3IiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTMuMzMzMzMgMTYuNjY2N0wxNi42NjY3IDMuMzMzMzMiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjc1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt="閉じる"><div class="ti">他のグループへ移動</div></div>
@@ -953,7 +993,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="A";window.__APPV="132e0b1c";</script>
-<script src="gate.js?v=132e0b1c"></script>
+<script>window.__LOCK="A";window.__APPV="0f8d0e11";</script>
+<script src="gate.js?v=0f8d0e11"></script>
 </body>
 </html>

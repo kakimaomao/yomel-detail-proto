@@ -347,6 +347,55 @@ body.nostatus .homeind i{visibility:hidden}
 .mtile:active,.mrow:active,.mdel button:active{background:#eceef0}
 #scrim{position:absolute;inset:0;z-index:65}
 
+/* ---- 共有・出力・コピーのシート（設計稿 4824:45641 / 4824:47233 / 4824:47820） ---- */
+#subWrap{position:absolute;inset:0;z-index:82;background:rgba(0,0,0,.5)}
+.ssheet{position:absolute;left:0;bottom:0;width:430px;background:#f2f3f5;border-radius:8px 8px 0 0;
+  display:flex;flex-direction:column}
+.shead{padding:20px;border-bottom:1px solid #dee0e3;display:flex;align-items:center;position:relative}
+.shead .x{width:20px;height:20px;flex:0 0 20px}
+.shead .x img{width:20px;height:20px;display:block}
+.shead h3{position:absolute;left:0;right:0;margin:0;text-align:center;pointer-events:none;
+  font-family:"Hiragino Kaku Gothic Pro","Hiragino Kaku Gothic ProN",sans-serif;
+  font-weight:600;font-size:18px;line-height:1;color:#1f2329}
+.sbody{padding:20px 16px 48px;display:flex;flex-direction:column;gap:20px}
+.scard{background:#fff;border-radius:12px;padding-left:16px}
+.srow{display:flex;gap:12px;height:64px;align-items:center;width:100%;text-align:left}
+.srow>img{width:24px;height:24px;flex:0 0 24px}
+.srow .tx{flex:1 0 0;min-width:0;height:100%;display:flex;align-items:center;gap:8px;padding-right:16px;
+  border-bottom:.5px solid rgba(31,35,41,.15);
+  font-size:18px;line-height:1.5;color:#1f2329;font-weight:300}
+.scard .srow:last-child .tx{border-bottom:0}
+.srow .tx>.lbl{flex:1 0 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srow .tx img.ch{width:24px;height:24px;flex:0 0 24px}
+.srow:active{background:rgba(31,35,41,.04)}
+/* iOS風スイッチ 51×31 */
+.sw{width:51px;height:31px;flex:0 0 51px;border-radius:999px;background:#e2e4e5;position:relative;
+  transition:background .2s}
+.sw i{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;
+  box-shadow:0 2px 5px rgba(0,0,0,.2);transition:transform .2s cubic-bezier(.2,.9,.3,1)}
+.sw.on{background:#16c098}
+.sw.on i{transform:translateX(20px)}
+/* 閲覧できる人のアバター */
+.faces{display:flex;gap:4px;flex:0 0 auto}
+.faces>*{width:32px;height:32px;border-radius:59px;border:1.143px solid #fff;box-sizing:content-box;
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#fff;overflow:hidden}
+.faces img{width:32px;height:32px;object-fit:cover;border-radius:59px}
+.faces .more{background:#e2e4e5;color:#8f959e;font-size:14px;font-weight:300}
+/* 全幅のボタン */
+.sfull{width:100%;height:64px;background:#fff;border-radius:12px;
+  font-size:18px;line-height:1.5;font-weight:600;color:#16c098}
+.sfull.solid{background:#16c098;color:#fff}
+.sfull:active{opacity:.85}
+/* 出力の設定 */
+.slabel{padding:0 20px;font-family:"Hiragino Kaku Gothic Pro","Hiragino Kaku Gothic ProN",sans-serif;
+  font-weight:600;font-size:18px;line-height:1;color:#8f959e}
+.sset{background:#fff;border-radius:12px;padding:2px 20px}
+.sset .r{height:56px;display:flex;align-items:center;justify-content:space-between}
+.sset .r b{font-size:18px;line-height:1.5;color:#1f2329;font-weight:300}
+.sset .r span{display:flex;align-items:center;gap:12px;font-size:17px;line-height:1.5;color:#646a73;font-weight:300}
+.sset .r img{width:20px;height:20px}
+.sgrp{display:flex;flex-direction:column;gap:12px}
+
 /* ---- タイトル変更ダイアログ（設計稿 4805:44783） ---- */
 #dlgWrap{position:absolute;inset:0;z-index:85;background:rgba(0,0,0,.5)}
 .dlg{position:absolute;left:40px;top:375.25px;width:350px;background:#fff;border-radius:8px;overflow:hidden;
@@ -661,6 +710,16 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   <div class="homeind"><i></i></div>
 
   <div id="scrim" hidden></div>
+
+  <div id="subWrap" hidden>
+    <div class="ssheet">
+      <div class="shead">
+        <button class="x" data-sub="close"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0zLjMzMzMzIDMuMzMzMzNMMTYuNjY2NyAxNi42NjY3IiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTMuMzMzMzMgMTYuNjY2N0wxNi42NjY3IDMuMzMzMzMiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjc1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt="閉じる"></button>
+        <h3 id="subTitle"></h3>
+      </div>
+      <div class="sbody" id="subBody"></div>
+    </div>
+  </div>
 
   <div id="dlgWrap" hidden>
     <div class="dlg">

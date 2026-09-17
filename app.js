@@ -138,6 +138,7 @@ function renderTranscript(){
 }
 
 /* ---------- speakers tab ---------- */
+var spDrag = null;      /* ドラッグ中の話者id。その行には必ずつまみを出す */
 function sprowHTML(id){
   var sp = SPK[id];
   var act = activeLine();
@@ -151,7 +152,7 @@ function sprowHTML(id){
     return '<i style="left:'+(s[0]*100).toFixed(3)+'%;width:'+Math.max(s[1]*100, 0.35).toFixed(3)
          + '%;background:'+sp.seg+'"></i>';
   }).join("");
-  var ph = (isCur || soloed)
+  var ph = (isCur || soloed || spDrag === id)
     ? '<i class="ph" style="left:'+(S.pos/DUR*100).toFixed(3)+'%;border-color:'+sp.seg+'"></i>' : "";
   return '<div class="sprow" data-sp="'+id+'">'
     + '<div class="top">'
@@ -271,7 +272,9 @@ function paintTimes(){
     tr.querySelector(".knob").style.left = (r*100)+"%";
   });
   var RING = 95.504;                              /* 2πr, r=15.2 = 設計稿の輪と同じ位置 */
-  $("#fabArc").setAttribute("stroke-dashoffset", (RING * (1 - S.pos / DUR)).toFixed(2));
+  var off = (RING * (1 - S.pos / DUR)).toFixed(2);
+  $("#fabArc").setAttribute("stroke-dashoffset", off);     /* A案の丸ボタン */
+  $("#mArc").setAttribute("stroke-dashoffset", off);       /* C案の畳んだ丸ボタン */
   $$("[data-spd]").forEach(function(el){
     el.textContent = (el.classList.contains("spd28") ? (S.speed===1?"1x":S.speed+"x") : S.speed.toFixed(1)+"x");
   });
@@ -284,7 +287,7 @@ function paintPlayIcons(){
   var p = S.playing;
   svgShow($("#fabPlay"), !p);      /* SVG は .hidden が属性に反映されないので属性で操作する */
   svgShow($("#fabPause"), p);
-  $("#miniCIcon").src = p ? A_ASSETS.pauseCmini : A_ASSETS.playCmini;
+  svgShow($("#mPlay"), !p); svgShow($("#mPause"), p);
   var bPl = $("#ctlB [data-toggle]"); if(bPl) bPl.src = p ? A_ASSETS.pauseB : A_ASSETS.playB;
   $$("#panel2C [data-toggle], #panel2D [data-toggle]").forEach(function(el){
     el.src = p ? A_ASSETS.pauseCpanel : A_ASSETS.playCpanel;
@@ -774,9 +777,35 @@ function spkLineSp(grp){ return LINES[+grp.getAttribute("data-pen-line")].sp; }
 $("#panelSpeakers").addEventListener("click", function(e){
   var pen = e.target.closest("[data-editsp]");
   if(pen){ openSheet("bulk", pen.getAttribute("data-editsp"), null); return; }
+  if(e.target.closest(".track")) return;              /* バーのドラッグは下で処理する */
   var row = e.target.closest(".sprow");
   if(row && e.target.closest(".right")) toggleSolo(row.getAttribute("data-sp"));
 });
+/* 話者ごとのバーもつまんで動かせる。再生中は行ごと描き直されるので、
+   つかんだ要素を持ち続けず、話者idから毎回引き直す。 */
+(function(){
+  function seekAt(clientX){
+    var tr = document.querySelector('#panelSpeakers .sprow[data-sp="' + spDrag + '"] .track');
+    if(!tr) return;
+    var r = tr.getBoundingClientRect();
+    var f = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+    if(S.solo === spDrag) seekRaw(f * DUR);           /* 同じ話者なら solo のまま */
+    else seek(f * DUR);
+  }
+  $("#panelSpeakers").addEventListener("pointerdown", function(e){
+    var tr = e.target.closest(".track"); if(!tr) return;
+    var row = tr.closest(".sprow"); if(!row) return;
+    e.preventDefault();
+    spDrag = row.getAttribute("data-sp");
+    seekAt(e.clientX);
+  });
+  document.addEventListener("pointermove", function(e){
+    if(spDrag) seekAt(e.clientX);
+  });
+  function end(){ if(spDrag){ spDrag = null; paint(); } }
+  document.addEventListener("pointerup", end);
+  document.addEventListener("pointercancel", end);
+})();
 
 /* seek tracks */
 $$("[data-seek-track]").forEach(function(tr){

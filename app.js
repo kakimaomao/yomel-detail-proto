@@ -298,6 +298,7 @@ function paintTimes(){
   var off = (RING * (1 - S.pos / DUR)).toFixed(2);
   $("#fabArc").setAttribute("stroke-dashoffset", off);     /* A案の丸ボタン */
   $("#mArc").setAttribute("stroke-dashoffset", off);       /* C案の畳んだ丸ボタン */
+  $("#eArc").setAttribute("stroke-dashoffset", off);       /* 編集モードの丸ボタン */
   $$("[data-spd]").forEach(function(el){
     el.textContent = (el.classList.contains("spd28") ? (S.speed===1?"1x":S.speed+"x") : S.speed.toFixed(1)+"x");
   });
@@ -311,6 +312,7 @@ function paintPlayIcons(){
   svgShow($("#fabPlay"), !p);      /* SVG は .hidden が属性に反映されないので属性で操作する */
   svgShow($("#fabPause"), p);
   svgShow($("#mPlay"), !p); svgShow($("#mPause"), p);
+  svgShow($("#ePlay"), !p); svgShow($("#ePause"), p);
   var bPl = $("#ctlB [data-toggle]"); if(bPl) bPl.src = p ? A_ASSETS.pauseB : A_ASSETS.playB;
   $$("#panel2C [data-toggle], #panel2D [data-toggle]").forEach(function(el){
     el.src = p ? A_ASSETS.pauseCpanel : A_ASSETS.playCpanel;

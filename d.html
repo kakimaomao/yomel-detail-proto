@@ -193,6 +193,11 @@ body.nostatus .homeind i{visibility:hidden}
 .stack>*{border:1px solid #fff;border-radius:52px;margin-right:-4px}
 .stack>*:last-child{margin-right:0}
 .evt{display:flex;align-items:center;gap:8px}
+.lgrp .vl .pen16{width:16px;height:16px;flex:0 0 16px}
+/* 設計稿 4720:44641: タグは薄い灰色の角丸4、13px */
+.tagrow{display:flex;align-items:center;gap:8px;height:28px}
+.tagrow .chip{background:rgba(31,35,41,.05);border-radius:4px;padding:4px 6px;
+  font-size:13px;line-height:normal;color:#1f2329;font-weight:300;white-space:nowrap}
 .evt i{width:8px;height:8px;border-radius:2px;background:#336df3}
 .evt span{color:#336df3;font-size:17px}
 
@@ -640,10 +645,17 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
           <div class="vl" id="logOwner"></div></div>
         <div class="lgrp"><div class="lb" id="logJoin">参加者（３名）</div>
           <div class="vl"><div class="stack" id="logStack"></div></div></div>
+        <div class="lgrp"><div class="lb">日時</div>
+          <div class="vl"><span id="logDate">2026/02/10 07:28</span></div></div>
         <div class="lgrp"><div class="lb">グループ</div>
-          <div class="vl"><span>プロダクトデザイン開発推進チーム統括本部</span></div></div>
-        <div class="lgrp"><div class="lb">日時</div><div class="vl"><span id="logDate">2026/02/10 07:28</span></div></div>
-        <div class="lgrp"><div class="lb">時間</div><div class="vl"><span id="logDur">31:08</span></div></div>
+          <div class="vl"><span>プロダクトデザイン開発推進チーム統括本部</span>
+            <img class="pen16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yLjMzMzQgMTRIMTQuMzMzNCIgc3Ryb2tlPSIjOEY5NTlFIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNMy42NjY2IDguOTA2NjNWMTEuMzMzM0g2LjEwNTY3TDEyLjk5OTkgNC40MzYwM0wxMC41NjUgMkwzLjY2NjYgOC45MDY2M1oiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt="編集"></div></div>
+        <div class="lgrp"><div class="lb">タグ</div>
+          <div class="vl"><span class="tagrow"><span class="chip">オンライン相談会</span><span class="chip">社内会議</span></span>
+            <img class="pen16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yLjMzMzQgMTRIMTQuMzMzNCIgc3Ryb2tlPSIjOEY5NTlFIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNMy42NjY2IDguOTA2NjNWMTEuMzMzM0g2LjEwNTY3TDEyLjk5OTkgNC40MzYwM0wxMC41NjUgMkwzLjY2NjYgOC45MDY2M1oiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt="編集"></div></div>
+        <div class="lgrp"><div class="lb">ステータス</div>
+          <div class="vl"><span>商談中</span>
+            <img class="pen16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yLjMzMzQgMTRIMTQuMzMzNCIgc3Ryb2tlPSIjOEY5NTlFIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNMy42NjY2IDguOTA2NjNWMTEuMzMzM0g2LjEwNTY3TDEyLjk5OTkgNC40MzYwM0wxMC41NjUgMkwzLjY2NjYgOC45MDY2M1oiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt="編集"></div></div>
         <div class="lgrp"><div class="lb">関連予定</div>
           <div class="vl"><div class="evt"><i></i><span>Design Team MTG</span></div></div></div>
       </div>
@@ -918,7 +930,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="D";window.__APPV="e3cf9744";</script>
-<script src="gate.js?v=e3cf9744"></script>
+<script>window.__LOCK="D";window.__APPV="b2feb4a1";</script>
+<script src="gate.js?v=b2feb4a1"></script>
 </body>
 </html>

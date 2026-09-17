@@ -1235,7 +1235,6 @@ if("scrollRestoration" in history) history.scrollRestoration = "manual";
 $("#docTitle").textContent = DATA.title;
 $("#docDate").textContent = DATA.datetime;
 $("#logDate").textContent = DATA.datetime;
-$("#logDur").textContent = fmt(DUR);
 S.pos = 0;                    /* 開いた時点では未再生。進捗バーは先頭 */
 renderTranscript(); renderSpeakers(); renderSummary(); syncChips();
 $("#scroller").scrollTop = 0;

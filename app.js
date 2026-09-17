@@ -71,7 +71,15 @@ function spkOf(line){ return line.ov || SPK[line.sp]; }
 /* ---------- board scaling ---------- */
 var phone = $("#phone"), board = $("#board"), clip = $("#clip");
 function boardH(){ return document.body.classList.contains("nostatus") ? 881 : 932; }
+var scaledOnce = false;
+function textFocused(){
+  var a = document.activeElement;
+  return !!a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA" || a.isContentEditable);
+}
 function rescale(){
+  /* 文字を入力している間は倍率を触らない。ホーム画面から起動した時は
+     ソフトキーボードで innerHeight まで縮むので、画板ごと小さくなってしまう。 */
+  if(scaledOnce && textFocused()) return;
   var H = boardH();
   var vw = window.innerWidth, vh = window.innerHeight;
   if(window.visualViewport){
@@ -95,7 +103,10 @@ function rescale(){
   clip.style.transform = "scale("+k+")";
   board.style.height = (H*k)+"px";
   board.style.visibility = "visible";
+  scaledOnce = true;
 }
+/* 入力欄から離れたら倍率を測り直す */
+document.addEventListener("focusout", function(){ setTimeout(rescale, 60); });
 window.addEventListener("resize", rescale);
 window.addEventListener("orientationchange", function(){ setTimeout(rescale, 250); });
 if(window.visualViewport) window.visualViewport.addEventListener("resize", rescale);
@@ -1037,7 +1048,7 @@ function edPaintBar(){
     $("#eTitle").textContent = "";
     bar.innerHTML = '<button data-ebar="split"><img src="'+A_ASSETS.edSplit+'" alt=""><span>分割</span></button>'
                   + '<button data-ebar="del1"><img src="'+A_ASSETS.edTrash+'" alt=""><span>削除</span></button>';
-    bar.style.padding = "0 100px 20px";
+    bar.style.padding = "0 132px 20px";   /* 設計稿 4824:50886: 2つの時は左右132 */
     bar.hidden = false;
   } else if(c > 0){
     $("#eTitle").textContent = c + "件選択中";

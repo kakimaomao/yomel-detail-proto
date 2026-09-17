@@ -450,6 +450,17 @@ body.nostatus .homeind i{visibility:hidden}
 .sset .r img{width:20px;height:20px}
 .sgrp{display:flex;flex-direction:column;gap:12px}
 
+/* ---- 他のグループへ移動（設計稿 4848:89630） ---- */
+#grpWrap{position:absolute;inset:0;z-index:84;background:rgba(0,0,0,.5)}
+.grplist{padding:0 16px;overflow-y:auto}
+.grow{display:flex;align-items:center;gap:8px;height:60px;width:100%;text-align:left;
+  border-bottom:.5px solid #dee0e3}
+.grplist .grow:last-child{border-bottom:0}
+.grow img{width:20px;height:20px;flex:0 0 20px}
+.grow span{flex:1 0 0;min-width:0;font-size:17px;line-height:1.5;color:#1f2329;font-weight:300;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grow:active{background:#f8f9fa}
+
 /* ---- タイトル変更ダイアログ（設計稿 4805:44783） ---- */
 #dlgWrap{position:absolute;inset:0;z-index:85;background:rgba(0,0,0,.5)}
 .dlg{position:absolute;left:40px;top:375.25px;width:350px;background:#fff;border-radius:8px;overflow:hidden;
@@ -648,7 +659,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
         <div class="lgrp"><div class="lb">日時</div>
           <div class="vl"><span id="logDate">2026/02/10 07:28</span></div></div>
         <div class="lgrp"><div class="lb">グループ</div>
-          <div class="vl"><span>プロダクトデザイン開発推進チーム統括本部</span>
+          <div class="vl"><span id="logGroup">プロダクトデザイン開発推進チーム統括本部</span>
             <img class="pen16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yLjMzMzQgMTRIMTQuMzMzNCIgc3Ryb2tlPSIjOEY5NTlFIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNMy42NjY2IDguOTA2NjNWMTEuMzMzM0g2LjEwNTY3TDEyLjk5OTkgNC40MzYwM0wxMC41NjUgMkwzLjY2NjYgOC45MDY2M1oiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt="編集"></div></div>
         <div class="lgrp"><div class="lb">タグ</div>
           <div class="vl"><span class="tagrow"><span class="chip">オンライン相談会</span><span class="chip">社内会議</span></span>
@@ -771,6 +782,18 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   <div class="homeind"><i></i></div>
 
   <div id="scrim" hidden></div>
+
+  <div id="grpWrap" hidden>
+    <div class="sheet">
+      <div class="hdr"><img id="grpClose" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0zLjMzMzMzIDMuMzMzMzNMMTYuNjY2NyAxNi42NjY3IiBzdHJva2U9IiMzMzMzMzMiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTMuMzMzMzMgMTYuNjY2N0wxNi42NjY3IDMuMzMzMzMiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjc1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt="閉じる"><div class="ti">他のグループへ移動</div></div>
+      <div class="body">
+        <div class="searchwrap">
+          <div class="searchfield"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE4IiBoZWlnaHQ9IjE4IiB2aWV3Qm94PSIwIDAgMTggMTgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik03Ljg3NTI5IDE0LjI1QzExLjM5NjEgMTQuMjUgMTQuMjUwMyAxMS4zOTU4IDE0LjI1MDMgNy44NzQ5NkMxNC4yNTAzIDQuMzU0MTYgMTEuMzk2MSAxLjQ5OTk2IDcuODc1MjkgMS40OTk5NkM0LjM1NDQ5IDEuNDk5OTYgMS41MDAyOSA0LjM1NDE2IDEuNTAwMjkgNy44NzQ5NkMxLjUwMDI5IDExLjM5NTggNC4zNTQ0OSAxNC4yNSA3Ljg3NTI5IDE0LjI1WiIgc3Ryb2tlPSIjOEY5NTlFIiBzdHJva2Utd2lkdGg9IjEuMTI1IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTkuOTk2ODQgNS4zNzg2NkM5LjQ1Mzk1IDQuODM1NzcgOC43MDM5NSA0LjUgNy44NzU1IDQuNUM3LjA0NzA5IDQuNSA2LjI5NzA5IDQuODM1NzcgNS43NTQyIDUuMzc4NjYiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLXdpZHRoPSIxLjEyNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMyIgZD0iTTEyLjQ1NzYgMTIuNDU4MkwxNS42Mzk2IDE1LjY0MDIiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLXdpZHRoPSIxLjEyNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt=""><input id="grpSearch" placeholder="検索"></div>
+        </div>
+        <div class="grplist" id="grpList"></div>
+      </div>
+    </div>
+  </div>
 
   <div id="editWrap" hidden>
     <div class="ehead">
@@ -930,7 +953,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="A";window.__APPV="b2feb4a1";</script>
-<script src="gate.js?v=b2feb4a1"></script>
+<script>window.__LOCK="A";window.__APPV="132e0b1c";</script>
+<script src="gate.js?v=132e0b1c"></script>
 </body>
 </html>

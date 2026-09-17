@@ -290,7 +290,7 @@ body.nostatus .homeind i{visibility:hidden}
 /* D案: 設計稿 4631:75585。ヘッダー右上の「…」が進捗バーの右端(x=372/28px)に移る */
 #ctlD .panel2 .crow .morewrap{width:28px;height:28px;display:flex;align-items:center;justify-content:center}
 #ctlD .panel2 .crow .morewrap img{width:28px;height:28px}
-#menu.up{top:auto;bottom:130px}
+
 .spd28{width:28px;height:28px;display:flex;align-items:center;justify-content:center;
   font-family:"Poppins",system-ui,sans-serif;font-weight:500;font-size:17.1px;line-height:1.5;color:#1f2329}
 
@@ -311,11 +311,58 @@ body.nostatus .homeind i{visibility:hidden}
 #jumpUp{top:160px}
 
 /* ⋯ menu */
-#menu{position:absolute;right:12px;top:104px;z-index:70;background:#fff;border-radius:10px;min-width:190px;
-  box-shadow:0 6px 24px rgba(31,35,41,.18);padding:6px;font-size:16px}
-#menu button{display:block;width:100%;text-align:left;padding:12px 14px;border-radius:7px}
-#menu button:active{background:#f2f3f5}
+/* ---- 「…」のボトムシート（設計稿 4777:44659） ---- */
+#menuWrap{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.65)}
+.msheet{position:absolute;left:0;bottom:0;width:430px;background:#f2f3f5;border-radius:8px 8px 0 0;
+  display:flex;flex-direction:column;gap:20px;padding-bottom:40px;overflow:hidden}
+.mhead{padding:20px 16px;border-bottom:1px solid #dee0e3;display:flex;gap:8px;align-items:stretch}
+.micon{width:48px;height:48px;flex:0 0 48px;background:#fff;border-radius:8px;
+  display:flex;align-items:center;justify-content:center}
+.micon img{width:28.8px;height:28.8px}
+.mtitle{flex:1 0 0;min-width:0;display:flex;flex-direction:column;gap:12px;justify-content:center}
+.mtitle b{font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans",sans-serif;font-weight:600;font-size:17px;
+  line-height:1.5;color:#1f2329;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mtitle span{font-size:13px;line-height:1;color:#646a73;font-weight:300}
+.mclose{width:28px;height:28px;flex:0 0 28px;align-self:flex-start}
+.mclose img{width:28px;height:28px}
+.mtiles{padding:0 16px;display:flex;gap:16px}
+.mtile{flex:1 0 0;min-width:0;background:#fff;border-radius:12px;padding:20px 0 4px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center}
+.mtile img{width:24px;height:24px}
+.mtile span{height:48.5px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;line-height:1.5;color:#1f2329;font-weight:300}
+.mgrp{display:flex;flex-direction:column;gap:16px}
+.mlist{margin:0 16px;background:#fff;border-radius:12px;padding-left:16px}
+.mrow{display:flex;gap:12px;height:64px;align-items:center;width:100%;text-align:left}
+.mrow img{width:24px;height:24px;flex:0 0 24px}
+.mrow i{flex:1 0 0;min-width:0;height:100%;display:flex;align-items:center;font-style:normal;
+  font-size:18px;line-height:1.5;color:#1f2329;font-weight:300;
+  border-bottom:.5px solid rgba(31,35,41,.15)}
+.mrow:last-child i{border-bottom:0}
+.mdel{padding:0 16px}
+.mdel button{width:100%;height:64px;background:#fff;border-radius:12px;
+  font-size:18px;line-height:1.5;color:#bd3734;font-weight:300}
+.mtile:active,.mrow:active,.mdel button:active{background:#eceef0}
 #scrim{position:absolute;inset:0;z-index:65}
+
+/* ---- タイトル変更ダイアログ（設計稿 4805:44783） ---- */
+#dlgWrap{position:absolute;inset:0;z-index:85;background:rgba(0,0,0,.5)}
+.dlg{position:absolute;left:40px;top:375.25px;width:350px;background:#fff;border-radius:8px;overflow:hidden;
+  display:flex;flex-direction:column}
+.dlg .top{padding:24px 20px 20px;border-bottom:.5px solid #bbbfc4;
+  display:flex;flex-direction:column;gap:20px;align-items:center}
+.dlg .top h3{margin:0;font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans",sans-serif;font-weight:600;
+  font-size:18px;line-height:1.5;color:#1f2329}
+.dlg .fld{width:100%;height:40px;border:1px solid #dee0e3;border-radius:8px;padding:0 8px;
+  display:flex;align-items:center;gap:8px}
+.dlg .fld input{flex:1 0 0;min-width:0;border:0;outline:0;background:none;
+  font-family:inherit;font-size:15px;line-height:1.5;color:#1f2329;font-weight:300}
+.dlg .fld button{width:20px;height:20px;flex:0 0 20px}
+.dlg .btns{display:flex;align-items:center}
+.dlg .btns button{flex:1 0 0;min-width:0;height:64px;font-size:18px;line-height:1.5;font-weight:300;color:#1f2329}
+.dlg .btns button:first-child{border-right:.5px solid #bbbfc4}
+.dlg .btns button.ok{color:#16c098}
+.dlg .btns button:active{background:#f2f3f5}
 
 /* ---- 話者編集 sheet ---- */
 #sheetwrap{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.5)}
@@ -466,7 +513,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
     <div class="tabsrow">
       <div class="tabs" id="tabs">
         <button class="tab" data-tab="transcript" aria-selected="true"><span class="lb">書き起こし</span><span class="ul"></span></button>
-        <button class="tab" data-tab="summary" aria-selected="false"><span class="lb">要約</span><span class="ul"></span></button>
+        <button class="tab" data-tab="summary" aria-selected="false"><span class="lb">キャンバス</span><span class="ul"></span></button>
         <button class="tab" data-tab="speakers" aria-selected="false"><span class="lb" id="spTabLabel">話者（3）</span><span class="ul"></span></button>
         <button class="tab" data-tab="log" aria-selected="false"><span class="lb">ログ情報</span><span class="ul"></span></button>
       </div>
@@ -608,7 +655,45 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   <div class="homeind"><i></i></div>
 
   <div id="scrim" hidden></div>
-  <div id="menu" hidden><button id="menuEdit">話者を編集</button></div>
+
+  <div id="dlgWrap" hidden>
+    <div class="dlg">
+      <div class="top">
+        <h3>タイトル変更</h3>
+        <div class="fld">
+          <input id="dlgInput" aria-label="タイトル">
+          <button id="dlgClear" aria-label="消去"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="9" fill="#dee0e3"/><path d="M7 7l6 6M13 7l-6 6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        </div>
+      </div>
+      <div class="btns">
+        <button id="dlgCancel">キャンセル</button>
+        <button id="dlgOk" class="ok">適用</button>
+      </div>
+    </div>
+  </div>
+  <div id="menuWrap" hidden>
+    <div class="msheet">
+      <div class="mhead">
+        <div class="micon"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4LjgiIGhlaWdodD0iMjguOCIgdmlld0JveD0iMCAwIDI4LjggMjguOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgaWQ9IkZyYW1lIj4KPHBhdGggaWQ9IlZlY3RvciIgZD0iTTE4LjYwMDQgOS4xMTcwOUMxOC42MDA0IDYuNzk3NDkgMTYuNzIgNC45MTcwOSAxNC40MDA0IDQuOTE3MDlDMTIuMDgwOCA0LjkxNzA5IDEwLjIwMDQgNi43OTc0OSAxMC4yMDA0IDkuMTE3MDlWMTUuNTEyMkMxMC4yMDA0IDE3LjgzMTggMTIuMDgwOCAxOS43MTIyIDE0LjQwMDQgMTkuNzEyMkMxNi43MiAxOS43MTIyIDE4LjYwMDQgMTcuODMxOCAxOC42MDA0IDE1LjUxMjJWOS4xMTcwOVoiIGZpbGw9IiMxNkMwOTgiIHN0cm9rZT0iIzE2QzA5OCIgc3Ryb2tlLXdpZHRoPSIxLjgiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNNS40MDAzOSAxNC45MTJDNS40MDAzOSAxOS44ODI2IDkuNDI5ODEgMjMuOTEyIDE0LjQwMDQgMjMuOTEyQzE5LjM3MSAyMy45MTIgMjMuNDAwNCAxOS44ODI2IDIzLjQwMDQgMTQuOTEyIiBzdHJva2U9IiMxNkMwOTgiIHN0cm9rZS13aWR0aD0iMS44IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt=""></div>
+        <div class="mtitle"><b id="mTitle"></b><span id="mOwner"></span></div>
+        <button class="mclose" data-m="close"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI4IiBoZWlnaHQ9IjI4IiB2aWV3Qm94PSIwIDAgMjggMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0xNC4wMDAzIDI1LjY2NjdDMjAuNDQzNiAyNS42NjY3IDI1LjY2NyAyMC40NDM0IDI1LjY2NyAxNC4wMDAxQzI1LjY2NyA3LjU1Njc1IDIwLjQ0MzYgMi4zMzM0IDE0LjAwMDMgMi4zMzM0QzcuNTU2OTYgMi4zMzM0IDIuMzMzNjIgNy41NTY3NSAyLjMzMzYyIDE0LjAwMDFDMi4zMzM2MiAyMC40NDM0IDcuNTU2OTYgMjUuNjY2NyAxNC4wMDAzIDI1LjY2NjdaIiBmaWxsPSIjMUYyMzI5IiBmaWxsLW9wYWNpdHk9IjAuMTUiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNMTguMjAxIDkuNzk5OTZMOS44MDEwMyAxOC4yIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS43NSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMyIgZD0iTTkuODAxMDMgOS43OTk5NkwxOC4yMDEgMTguMiIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNzUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt="閉じる"></button>
+      </div>
+      <div class="mgrp">
+        <div class="mtiles">
+          <button class="mtile" data-m="share"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIyOTsmIzEzMzsmIzE3NzsmIzIzMDsmIzE1NjsmIzEzNzsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMTQgM0gyMVYxMCIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTIxIDE0LjczNjhWMTkuNUMyMSAyMC4zMjg1IDIwLjMyODUgMjEgMTkuNSAyMUg0LjVDMy42NzE1OCAyMSAzIDIwLjMyODUgMyAxOS41VjQuNUMzIDMuNjcxNTggMy42NzE1OCAzIDQuNSAzSDkiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzMiIGQ9Ik0xMi44OTk5IDExLjA5OTlMMjAuNTQ5OSAzLjQ0OTk1IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt=""><span>共有</span></button>
+          <button class="mtile" data-m="export"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIyNzsmIzEzMTsmIzEyODsmIzIyNzsmIzEzMDsmIzE2NjsmIzIyNzsmIzEzMTsmIzE3OTsmIzIyNzsmIzEzMTsmIzE3MzsmIzIyNzsmIzEzMTsmIzE4ODsmIzIyNzsmIzEzMTsmIzEzNzsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMyAxMi4wMDQyVjIxSDIxVjEyIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNMTYuNSAxMS41TDEyIDE2TDcuNSAxMS41IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8zIiBkPSJNMTEuOTk1OCAzVjE2IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt=""><span>出力</span></button>
+          <button class="mtile" data-m="copy"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik02LjUgNi4yMTU4VjMuOTA2MjVDNi41IDMuMTI5NiA3LjEyOTYgMi41IDcuOTA2MjUgMi41SDIwLjA5MzhDMjAuODcwNCAyLjUgMjEuNSAzLjEyOTYgMjEuNSAzLjkwNjI1VjE2LjA5MzhDMjEuNSAxNi44NzA0IDIwLjg3MDQgMTcuNSAyMC4wOTM4IDE3LjVIMTcuNzU4MiIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTE2LjA5MzggNi41SDMuOTA2MjVDMy4xMjk2IDYuNSAyLjUgNy4xMjk2IDIuNSA3LjkwNjI1VjIwLjA5MzhDMi41IDIwLjg3MDQgMy4xMjk2IDIxLjUgMy45MDYyNSAyMS41SDE2LjA5MzhDMTYuODcwNCAyMS41IDE3LjUgMjAuODcwNCAxNy41IDIwLjA5MzhWNy45MDYyNUMxNy41IDcuMTI5NiAxNi44NzA0IDYuNSAxNi4wOTM4IDYuNVoiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt=""><span>コピー</span></button>
+        </div>
+        <div class="mlist">
+          <button class="mrow" data-m="move"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIzMTsmIzE2NzsmIzE4NzsmIzIyOTsmIzEzOTsmIzE0OTsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMjIgMTJMMTIgMkwyIDEyTDEyIDIyTDE3LjUgMTYuNSIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTExIDEyLjAwMDFDMTEgMTIuMDAwMSAxNy4yNSAxMS43NTAxIDE5Ljc1IDE0LjI1MDFDMjIuMjUgMTYuNzUwMSAxOS41IDIyLjAwMDEgMTkuNSAyMi4wMDAxIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8zIiBkPSJNMTMgMTBMMTEgMTJMMTMgMTQiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt=""><i>他のグループへ移動</i></button>
+          <button class="mrow" data-m="rename"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIzMTsmIzE4MzsmIzE2ODsmIzIzMzsmIzE1NTsmIzEzNDsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMy41MDAzNCAyMUgyMS41MDAzIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNNS40OTk2NiAxMy4zNlYxN0g5LjE1ODI2TDE5LjQ5OTcgNi42NTQwNUwxNS44NDcyIDNMNS40OTk2NiAxMy4zNloiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt=""><i>タイトル変更</i></button>
+          <button class="mrow" data-m="editmode"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIzMTsmIzE4MzsmIzE2ODsmIzIzMzsmIzE1NTsmIzEzNDsmIzIyNzsmIzEzMTsmIzE2MjsmIzIyNzsmIzEzMTsmIzE4ODsmIzIyNzsmIzEzMTsmIzEzNzsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMjAgMTYuNVYyMUMyMCAyMS41NTIzIDE5LjU1MjMgMjIgMTkgMjJIMTUuNzUiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik0yMCA4VjNDMjAgMi40NDc3MSAxOS41NTIzIDIgMTkgMkg1QzQuNDQ3NzEgMiA0IDIuNDQ3NzEgNCAzVjIxQzQgMjEuNTUyMyA0LjQ0NzcxIDIyIDUgMjJIOCIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMyIgZD0iTTggOEgxNSIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNCIgZD0iTTExLjUgMjJMMjAgMTEuNSIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNSIgZD0iTTggMTJIMTIiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt=""><i>編集モード</i></button>
+          <button class="mrow" data-m="resplit"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIzMjsmIzE2OTsmIzE3NzsmIzIzMjsmIzEyODsmIzEzMzsmIzIyOTsmIzEzNjsmIzEzNDsmIzIzMzsmIzE1NTsmIzE2MjsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMTIuMDAwMiAxMEMxMy45MzMyIDEwIDE1LjUwMDIgOC40MzMgMTUuNTAwMiA2LjVDMTUuNTAwMiA0LjU2NzAxIDEzLjkzMzIgMyAxMi4wMDAyIDNDMTAuMDY3MiAzIDguNTAwMiA0LjU2NzAxIDguNTAwMiA2LjVDOC41MDAyIDguNDMzIDEwLjA2NzIgMTAgMTIuMDAwMiAxMFoiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik02IDMuNjI3NTRDNS4wOTMyNSA0LjI2MDAxIDQuNSA1LjMxMDggNC41IDYuNTAwMkM0LjUgNy43NzMzNSA1LjE3OTggOC44ODc3NSA2LjE5NjIgOS41MDAyIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8zIiBkPSJNMTggMy42Mjc1NEMxOC45MDY4IDQuMjYwMDEgMTkuNSA1LjMxMDggMTkuNSA2LjUwMDJDMTkuNSA3LjY4OTU1IDE4LjkwNjggOC43NDA0IDE4IDkuMzcyODUiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzQiIGQ9Ik02IDE5Ljk5OThWMjAuOTk5OEgxOFYxOS45OTk4QzE4IDE4LjEzNjEgMTggMTcuMjA0MiAxNy42OTU1IDE2LjQ2OTFDMTcuMjg5NSAxNS40ODkgMTYuNTEwOSAxNC43MTAzIDE1LjUzMDggMTQuMzA0M0MxNC43OTU3IDEzLjk5OTggMTMuODYzNyAxMy45OTk4IDEyIDEzLjk5OThDMTAuMTM2MyAxMy45OTk4IDkuMjA0MzUgMTMuOTk5OCA4LjQ2OTI1IDE0LjMwNDNDNy40ODkxNSAxNC43MTAzIDYuNzEwNDUgMTUuNDg5IDYuMzA0NSAxNi40NjkxQzYgMTcuMjA0MiA2IDE4LjEzNjEgNiAxOS45OTk4WiIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNSIgZD0iTTIxLjk5OTkgMjEuMDAwM1YyMC40MDAzQzIxLjk5OTkgMTguMTYwMSAyMS45OTk5IDE3LjA0IDIxLjU2MzkgMTYuMTg0NEMyMS4xODA0IDE1LjQzMTcgMjAuNTY4NSAxNC44MTk4IDE5LjgxNTggMTQuNDM2MyIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNiIgZD0iTTEuOTk5OCAyMS4wMDAzVjIwLjQwMDNDMS45OTk4IDE4LjE2MDEgMS45OTk4IDE3LjA0IDIuNDM1NzggMTYuMTg0NEMyLjgxOTI3IDE1LjQzMTcgMy40MzExOSAxNC44MTk4IDQuMTgzODQgMTQuNDM2MyIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt=""><i>話者分離再実行</i></button>
+        </div>
+      </div>
+      <div class="mdel"><button data-m="delete">削除</button></div>
+    </div>
+  </div>
 
   <div id="sheetwrap" hidden>
     <div class="sheet">

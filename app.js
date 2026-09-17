@@ -867,8 +867,10 @@ gesture($("#plA"), true); gesture($("#miniC"), true);
 
 /* AI buttons */
 var toastT = null;
-function toast(){
-  var t = $("#aiToast"); t.classList.add("on");
+function toast(msg){
+  var t = $("#aiToast");
+  t.textContent = msg || "AIチャットは今回の検討範囲外です";
+  t.classList.add("on");
   clearTimeout(toastT); toastT = setTimeout(function(){ t.classList.remove("on"); }, 1600);
 }
 ["#aiA","#aiB"].forEach(function(s){ $(s).addEventListener("click", function(e){ e.stopPropagation(); toast(); }); });
@@ -958,19 +960,46 @@ function userTouch(){ userAt = Date.now(); stopSmooth(); }
   $("#scroller").addEventListener(ev, userTouch, {passive:true});
 });
 
-/* ⋯ menu */
-function openMenu(up){
-  $("#menu").classList.toggle("up", !!up);   /* D案は下のバーから開くので上向きに出す */
-  $("#menu").hidden = false; $("#scrim").hidden = false;
+/* ⋯ のボトムシート */
+function openMenu(){
+  $("#mTitle").textContent = $("#docTitle").textContent;      /* 実際の資料名に合わせる */
+  $("#mOwner").textContent = "作成者：" + SPK[DATA.owner].label;
+  $("#menuWrap").hidden = false;
 }
-$("#moreBtn").addEventListener("click", function(e){ e.stopPropagation(); openMenu(false); });
-$("#moreD").addEventListener("click", function(e){ e.stopPropagation(); openMenu(true); });
-$("#scrim").addEventListener("click", function(){ $("#menu").hidden = true; $("#scrim").hidden = true; });
-$("#menuEdit").addEventListener("click", function(){
-  S.editMode = !S.editMode;
-  $("#menuEdit").textContent = S.editMode ? "編集モードを終了" : "話者を編集";
-  $("#menu").hidden = true; $("#scrim").hidden = true;
-  setTab("transcript"); renderTranscript(); paint();
+function closeMenu(){ $("#menuWrap").hidden = true; }
+$("#moreBtn").addEventListener("click", function(e){ e.stopPropagation(); openMenu(); });
+$("#moreD").addEventListener("click", function(e){ e.stopPropagation(); openMenu(); });
+$("#menuWrap").addEventListener("click", function(e){
+  if(e.target === $("#menuWrap")){ closeMenu(); return; }   /* 外側を押したら閉じる */
+  var b = e.target.closest("[data-m]"); if(!b) return;
+  var m = b.getAttribute("data-m");
+  closeMenu();
+  if(m === "close") return;
+  if(m === "rename"){ openDialog(); return; }
+  if(m === "editmode"){
+    S.editMode = !S.editMode;
+    setTab("transcript"); renderTranscript(); paint();
+    toast(S.editMode ? "編集モードにしました" : "編集モードを終了しました");
+    return;
+  }
+  toast({share:"共有", export:"出力", copy:"コピー", move:"他のグループへ移動",
+         resplit:"話者分離再実行", delete:"削除"}[m] + "は次の更新で作ります");
+});
+
+/* タイトル変更 */
+function openDialog(){
+  $("#dlgInput").value = $("#docTitle").textContent;
+  $("#dlgWrap").hidden = false;
+  setTimeout(function(){ $("#dlgInput").focus(); }, 60);
+}
+function closeDialog(){ $("#dlgWrap").hidden = true; }
+$("#dlgWrap").addEventListener("click", function(e){ if(e.target === $("#dlgWrap")) closeDialog(); });
+$("#dlgClear").addEventListener("click", function(){ $("#dlgInput").value = ""; $("#dlgInput").focus(); });
+$("#dlgCancel").addEventListener("click", closeDialog);
+$("#dlgOk").addEventListener("click", function(){
+  var v = $("#dlgInput").value.trim();
+  if(v){ $("#docTitle").textContent = v; }
+  closeDialog();
 });
 
 /* sheet */

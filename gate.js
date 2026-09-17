@@ -100,7 +100,7 @@
     if(gate && gate.parentNode) gate.parentNode.removeChild(gate);
     if(VERIFY){ document.getElementById("picker").hidden = false; return; }
     var s = document.createElement("script");
-    s.src = "app.js";
+    s.src = "app.js" + (window.__APPV ? "?v=" + window.__APPV : "");   /* 古いキャッシュを掴まないように */
     document.body.appendChild(s);
   }
 

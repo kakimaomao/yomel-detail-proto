@@ -347,6 +347,54 @@ body.nostatus .homeind i{visibility:hidden}
 .mtile:active,.mrow:active,.mdel button:active{background:#eceef0}
 #scrim{position:absolute;inset:0;z-index:65}
 
+/* ---- 編集モード（設計稿 4824:50092 / 4824:49705 / 4824:50473） ---- */
+#editWrap{position:absolute;inset:0;z-index:75;background:#fff}
+.ehead{position:absolute;left:0;top:45px;width:430px;height:61px;padding:0 16px;
+  border-bottom:1px solid rgba(31,35,41,.15);display:flex;align-items:center}
+.ehead .eback{width:32px;height:32px}
+.ehead .etitle{position:absolute;left:0;right:0;text-align:center;pointer-events:none;
+  font-family:"Hiragino Kaku Gothic Pro","Hiragino Kaku Gothic ProN",sans-serif;
+  font-weight:600;font-size:20px;line-height:1;color:#1f2329}
+.ehead .esave{position:absolute;right:16px;background:#16c098;border-radius:4px;padding:12px 24px;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans",sans-serif;
+  font-weight:600;font-size:16px;line-height:1.5;color:#fff}
+.ebody{position:absolute;left:16px;top:126px;width:398px;bottom:0;overflow-y:auto;
+  display:flex;flex-direction:column;gap:20px;padding-bottom:140px;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none}
+.ebody::-webkit-scrollbar{display:none}
+.erow{display:flex;gap:8px;align-items:flex-start}
+.erow .esel{padding:2px 0;display:flex;align-items:center;flex:0 0 24px}
+.erow .esel img{width:24px;height:24px}
+.erow .ecol{display:flex;flex-direction:column;gap:4px;justify-content:center;flex:1 0 0;min-width:0;
+  padding-right:40px}
+.erow.me .ecol{align-items:flex-end;padding-right:0;padding-left:40px}
+.erow .emeta{height:28px;display:flex;align-items:center;gap:8px}
+.erow .emeta .nm{font-size:15px;line-height:normal;color:#646a73;font-weight:300;white-space:nowrap}
+.erow .emeta .pen{width:16px;height:16px}
+.erow .emeta .dot{width:3px;height:3px}
+.erow .emeta .tw{display:flex;align-items:center;gap:4px}
+.erow .emeta .tm{font-family:"Hiragino Sans",sans-serif;font-size:12px;line-height:1;color:#646a73}
+.erow .emeta .pl{width:12px;height:12px;position:relative;transform:rotate(90deg)}
+.erow .emeta .pl img{position:absolute;left:13.03%;right:13.03%;top:8.62%;bottom:25%;width:auto;height:auto}
+.erow .ebb{border:.5px solid #8f959e;padding:12px;font-size:17px;line-height:1.5;color:#1f2329;
+  border-radius:4px 12px 12px 12px;outline:0;max-width:322px}
+.erow.me .ebb{border-radius:12px 4px 12px 12px}
+.erow .ebb.editing{border-color:#1a85ff}
+.erow .av{flex:0 0 28px}
+.emini{position:absolute;left:189px;width:52px;height:52px;border-radius:9999px;background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 4px rgba(31,35,41,.1),0 2px 10px rgba(31,35,41,.1)}
+.emini img{width:32px;height:32px}
+.ebar{position:absolute;left:0;top:839px;width:430px;height:93px;background:#eff0f1;
+  border-top:1px solid rgba(31,35,41,.15);padding:0 72px 20px;
+  display:flex;align-items:center;justify-content:space-between}
+.ebar button{display:flex;flex-direction:column;align-items:center;gap:8px;width:28px}
+.ebar button img{width:24px;height:24px}
+.ebar button span{font-family:"Hiragino Kaku Gothic Pro","Hiragino Kaku Gothic ProN",sans-serif;
+  font-size:12px;line-height:1;color:#646a73;font-weight:300;white-space:nowrap}
+.ebar button[disabled]{opacity:.3}
+.ebar .flip img{transform:rotate(-90deg)}
+
 /* ---- 共有・出力・コピーのシート（設計稿 4824:45641 / 4824:47233 / 4824:47820） ---- */
 #subWrap{position:absolute;inset:0;z-index:82;background:rgba(0,0,0,.5)}
 .ssheet{position:absolute;left:0;bottom:0;width:430px;background:#f2f3f5;border-radius:8px 8px 0 0;
@@ -711,6 +759,17 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
 
   <div id="scrim" hidden></div>
 
+  <div id="editWrap" hidden>
+    <div class="ehead">
+      <img class="eback" id="eBack" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yMC42NjY3IDI0TDEyLjY2NjcgMTZMMjAuNjY2NyA4IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="戻る">
+      <div class="etitle" id="eTitle"></div>
+      <button class="esave" id="eSave">保存</button>
+    </div>
+    <div class="ebody" id="eBody"></div>
+    <button class="emini" id="eMini"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyLjAwMDEiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMi4wMDAxIDMyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZyBpZD0iRnJhbWUgMTAwMDAwMTc2MCI+CjxwYXRoIGlkPSJFbGxpcHNlIDE2IiBkPSJNMzIgMTZDMzIgMjQuODM2NiAyNC44MzY2IDMyIDE2IDMyQzcuMTYzNDcgMzIgMi41MjkyMmUtMDUgMjQuODM2NiAyLjUyOTIyZS0wNSAxNkMyLjUyOTIyZS0wNSA3LjE2MzQ0IDcuMTYzNDcgMCAxNiAwQzI0LjgzNjYgMCAzMiA3LjE2MzQ0IDMyIDE2Wk0xLjYwMDAzIDE2QzEuNjAwMDMgMjMuOTUyOSA4LjA0NzEzIDMwLjQgMTYgMzAuNEMyMy45NTI5IDMwLjQgMzAuNCAyMy45NTI5IDMwLjQgMTZDMzAuNCA4LjA0NzEgMjMuOTUyOSAxLjYgMTYgMS42QzguMDQ3MTMgMS42IDEuNjAwMDMgOC4wNDcxIDEuNjAwMDMgMTZaIiBmaWxsPSIjRUZGMEYxIi8+CjxwYXRoIGlkPSJFbGxpcHNlIDE4IiBkPSJNMTYgMEMxMi4yOTgzIC00LjQxNDIxZS0wOCA4LjcxMTE3IDEuMjgzNTEgNS44NDk3MyAzLjYzMTgzQzIuOTg4MjkgNS45ODAxNiAxLjAyOTYyIDkuMjQ4IDAuMzA3NDYxIDEyLjg3ODZDLTAuNDE0NzAyIDE2LjUwOTEgMC4xNDQzMjMgMjAuMjc3OCAxLjg4OTI4IDIzLjU0MjNDMy42MzQyNSAyNi44MDY5IDYuNDU3MTggMjkuMzY1NSA5Ljg3NzA5IDMwLjc4MjFDMTMuMjk3IDMyLjE5ODYgMTcuMTAyMyAzMi4zODU2IDIwLjY0NDYgMzEuMzExQzI0LjE4NjkgMzAuMjM2NSAyNy4yNDcgMjcuOTY3IDI5LjMwMzUgMjQuODg5MUMzMS4zNjAxIDIxLjgxMTMgMzIuMjg1OCAxOC4xMTU2IDMxLjkyMyAxNC40MzE3QzMxLjU2MDIgMTAuNzQ3OSAyOS45MzEyIDcuMzAzNzggMjcuMzEzNyA0LjY4NjI5TDI2LjE4MjQgNS44MTc2NkMyOC41MzgxIDguMTczNCAzMC4wMDQxIDExLjI3MzEgMzAuMzMwNyAxNC41ODg2QzMwLjY1NzIgMTcuOTA0IDI5LjgyNDEgMjEuMjMwMiAyNy45NzMyIDI0LjAwMDJDMjYuMTIyMyAyNi43NzAzIDIzLjM2ODIgMjguODEyOSAyMC4xODAxIDI5Ljc3OTlDMTYuOTkyMSAzMC43NDcgMTMuNTY3MyAzMC41Nzg4IDEwLjQ4OTQgMjkuMzAzOUM3LjQxMTQ2IDI4LjAyODkgNC44NzA4MiAyNS43MjYyIDMuMzAwMzYgMjIuNzg4MUMxLjcyOTg5IDE5Ljg1IDEuMjI2NzcgMTYuNDU4MiAxLjg3NjcyIDEzLjE5MDdDMi41MjY2NiA5LjkyMzIgNC4yODk0NyA2Ljk4MjE0IDYuODY0NzYgNC44Njg2NUM5LjQ0MDA2IDIuNzU1MTYgMTIuNjY4NSAxLjYgMTYgMS42TDE2IDBaIiBmaWxsPSIjMUYyMzI5Ii8+CjxwYXRoIGlkPSJQb2x5Z29uIDciIGQ9Ik0yMS4yNzU5IDEzLjg0OTlDMjIuNDk4IDE0LjU1NTUgMjMuMTA5MSAxNC45MDgzIDIzLjMxNDEgMTUuMzY4OUMyMy40OTMgMTUuNzcwNiAyMy40OTMgMTYuMjI5NCAyMy4zMTQxIDE2LjYzMTFDMjMuMTA5MSAxNy4wOTE3IDIyLjQ5OCAxNy40NDQ1IDIxLjI3NTkgMTguMTUwMUwxNS4yMjQyIDIxLjY0NDFDMTQuMDAyIDIyLjM0OTcgMTMuMzkxIDIyLjcwMjUgMTIuODg5NSAyMi42NDk4QzEyLjQ1MjIgMjIuNjAzOCAxMi4wNTQ5IDIyLjM3NDQgMTEuNzk2NCAyMi4wMTg2QzExLjUgMjEuNjEwNyAxMS41IDIwLjkwNTIgMTEuNSAxOS40OTRMMTEuNSAxMi41MDZDMTEuNSAxMS4wOTQ4IDExLjUgMTAuMzg5MyAxMS43OTY0IDkuOTgxMzZDMTIuMDU0OSA5LjYyNTU3IDEyLjQ1MjIgOS4zOTYxOCAxMi44ODk1IDkuMzUwMjFDMTMuMzkxIDkuMjk3NTEgMTQuMDAyIDkuNjUwMzEgMTUuMjI0MiAxMC4zNTU5TDIxLjI3NTkgMTMuODQ5OVoiIGZpbGw9IiMxRjIzMjkiLz4KPC9nPgo8L3N2Zz4K" alt="再生"></button>
+    <div class="ebar" id="eBar" hidden></div>
+  </div>
+
   <div id="subWrap" hidden>
     <div class="ssheet">
       <div class="shead">
@@ -858,7 +917,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";</script>
-<script src="gate.js"></script>
+<script>window.__LOCK="C";window.__APPV="7051e1b8";</script>
+<script src="gate.js?v=7051e1b8"></script>
 </body>
 </html>

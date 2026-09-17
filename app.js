@@ -68,7 +68,8 @@ function rescale(){
   var H = boardH();
   var vw = window.innerWidth, vh = window.innerHeight;
   if(window.visualViewport){
-    vw = window.visualViewport.width;
+    /* 幅は innerWidth のまま使う。visualViewport.width は拡大表示で縮むので、
+       入力欄に触れて iOS が勝手に拡大した時に画板まで小さくなってしまう。 */
     /* ソフトキーボードが出ると visualViewport の高さが大きく縮む。
        それで倍率を計算すると画面全体が小さくなってしまうので、
        100px 以上縮んでいる時＝キーボードが出ている時は innerHeight のままにする。
@@ -152,7 +153,9 @@ function sprowHTML(id){
     return '<i style="left:'+(s[0]*100).toFixed(3)+'%;width:'+Math.max(s[1]*100, 0.35).toFixed(3)
          + '%;background:'+sp.seg+'"></i>';
   }).join("");
-  var ph = (isCur || soloed || spDrag === id)
+  /* ドラッグ中は、つまんでいる行だけ。そうしないと再生位置が動くたびに
+     他の話者の行にもつまみが現れて点滅して見える */
+  var ph = (spDrag ? spDrag === id : (isCur || soloed))
     ? '<i class="ph" style="left:'+(S.pos/DUR*100).toFixed(3)+'%;border-color:'+sp.seg+'"></i>' : "";
   return '<div class="sprow" data-sp="'+id+'">'
     + '<div class="top">'

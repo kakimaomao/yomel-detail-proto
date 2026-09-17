@@ -586,6 +586,10 @@ function animPanelC(){
        bgMs, 0, "linear");
   anim(pa.querySelector(".prow"), [{opacity:0}, {opacity:1}],
        ms, 0, "cubic-bezier(.16,.84,.28,1)");
+  /* 再生の三角はミニ(12px)とパネル(16px)で大きさが違うので、その差を繋いで育てる */
+  anim(pa.querySelector("[data-toggle]"),
+       [{transform:"scale(.75)"}, {transform:"none"}],
+       Math.round(ms * 0.6), 0, "cubic-bezier(.17,.89,.24,1)");
   var kids = pa.querySelectorAll(".crow > *:not([data-toggle])");
   for(var i = 0; i < kids.length; i++){
     anim(kids[i], [{opacity:0, transform:"translateY(18px)"}, {opacity:1, transform:"none"}],
@@ -618,9 +622,18 @@ function applyExpanded(animate){
     $("#jumpDown").style.setProperty("--jdur", animate ? riseMs() + "ms" : "0s");
     if(animate){
       if(S.expanded) animPanelC();
-      else anim($("#miniC").querySelector(".mglass"),      /* 畳む時は丸い背景が小さく→大きく */
-                [{opacity:0, transform:"scale(.25)"}, {opacity:1, transform:"none"}],
-                Math.round(riseMs() * 0.55), 0, "cubic-bezier(.16,.9,.28,1)");
+      else {
+        var cms = Math.round(riseMs() * 0.55);
+        anim($("#miniC").querySelector(".mglass"),          /* 丸い背景は小さく→大きく */
+             [{opacity:0, transform:"scale(.25)"}, {opacity:1, transform:"none"}],
+             cms, 0, "cubic-bezier(.16,.9,.28,1)");
+        anim($("#mGlyph"),                                  /* 三角はパネルの大きさから縮む */
+             [{transform:"scale(1.3333)"}, {transform:"none"}],
+             cms, 0, "cubic-bezier(.17,.89,.24,1)");
+        anim($("#mRing"),                                   /* 輪はそれに少し遅れて現れる */
+             [{opacity:0}, {opacity:0}, {opacity:1}],
+             cms, 0, "cubic-bezier(.3,.7,.3,1)");
+      }
     }
   }
   paintTimes(); paintPlayIcons(); updateJump();

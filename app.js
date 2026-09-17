@@ -1092,14 +1092,16 @@ function placeSearchNav(){
     if(seen > 0 && seen < 900) kb = seen;    /* キーボードが出ている時だけ小さくなる */
   }
   if(kb){
-    nav.classList.remove("pill");
-    nav.style.top = Math.max(200, Math.round(kb) - 48) + "px";
+    /* iOSの入力補助バーのすぐ上に、畳んだ時と同じ丸い島で置く。
+       全幅の白帯だとiOSのバーと二段に重なって見えるため。 */
+    nav.classList.add("pill");
+    nav.style.top = Math.max(200, Math.round(kb) - 60) + "px";
   } else if(S.expanded){
     nav.classList.remove("pill");
     nav.style.top = "762px";
   } else {
     nav.classList.add("pill");
-    nav.style.top = "";
+    nav.style.top = "840px";          /* 設計稿 4837:52496 */
   }
 }
 function sePaintCount(){

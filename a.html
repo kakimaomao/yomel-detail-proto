@@ -468,8 +468,15 @@ body.nostatus .homeind i{visibility:hidden}
 /* 検索中は見出しとタブを隠して、書き起こしだけを出す */
 #phone.searching .navrow,#phone.searching .titleblock,#phone.searching .tabsrow{display:none}
 #phone.searching #scroller{top:135px}
+/* 検索の ∧∨ は3通りの置き方がある（設計稿 4837:52353 / 4837:52496 / 4837:53132）
+   ・キーボードが出ている時: 全幅の白帯をキーボードのすぐ上に
+   ・パネルが出ている時    : 全幅の白帯を y=762（パネルの上）に
+   ・パネルが畳んである時  : 右側の丸い小さな島 112×52 を y=840 に */
 #searchNav{position:absolute;left:0;top:762px;width:430px;height:48px;background:#fff;z-index:34;
   display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:8px 16px}
+#searchNav.pill{left:302px;top:840px;width:112px;height:52px;padding:0 16px;border-radius:9999px;
+  justify-content:center;
+  box-shadow:0 4px 8px rgba(31,35,41,.1),0 2px 20px rgba(31,35,41,.1)}
 #searchNav button{width:32px;height:32px}
 #searchNav img{width:32px;height:32px}
 #searchNav button[disabled]{opacity:.3}
@@ -1004,7 +1011,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="A";window.__APPV="95b194b4";</script>
-<script src="gate.js?v=95b194b4"></script>
+<script>window.__LOCK="A";window.__APPV="6ee1d4eb";</script>
+<script src="gate.js?v=6ee1d4eb"></script>
 </body>
 </html>

@@ -662,6 +662,7 @@ function applyExpanded(animate){
     }
   }
   paintTimes(); paintPlayIcons(); updateJump();
+  if(SE && SE.on) placeSearchNav();   /* 検索中は ∧∨ の位置も合わせる */
 }
 function setExpanded(on){
   if(S.variant === "B" || S.variant === "D") return;   /* 常時表示なので出し入れしない */
@@ -1074,12 +1075,35 @@ function sePaint(){
   });
   markCurrent();
 }
+/* キーボードやパネルの状態に合わせて ∧∨ の位置を決める */
+function placeSearchNav(){
+  var nav = $("#searchNav");
+  if(nav.hidden) return;
+  var kb = 0;
+  if(window.visualViewport){
+    var pr = phone.getBoundingClientRect(), k = pr.width / 430;
+    /* 画面の見えている下端を画板の座標に直す */
+    var seen = (window.visualViewport.height + (window.visualViewport.offsetTop || 0) - pr.top) / k;
+    if(seen > 0 && seen < 900) kb = seen;    /* キーボードが出ている時だけ小さくなる */
+  }
+  if(kb){
+    nav.classList.remove("pill");
+    nav.style.top = Math.max(200, Math.round(kb) - 48) + "px";
+  } else if(S.expanded){
+    nav.classList.remove("pill");
+    nav.style.top = "762px";
+  } else {
+    nav.classList.add("pill");
+    nav.style.top = "";
+  }
+}
 function sePaintCount(){
   $("#seCount").textContent = SE.hits.length ? (SE.at + 1) + "/" + SE.hits.length : (SE.q ? "0/0" : "");
   $("#seClear").hidden = !SE.q;
   var none = !SE.hits.length;
   $("#searchNav").hidden = !SE.on || none;
   $("#sePrev").disabled = none; $("#seNext").disabled = none;
+  placeSearchNav();
 }
 function seGo(d){
   if(!SE.hits.length) return;
@@ -1127,8 +1151,14 @@ $("#seInput").addEventListener("input", function(){
   seFind(); sePaint(); sePaintCount();
   if(SE.hits.length) seScroll();
 });
-$("#sePrev").addEventListener("click", function(){ seGo(-1); });
-$("#seNext").addEventListener("click", function(){ seGo(1); });
+/* 指を置いた時に入力欄の focus を奪わない（奪うと押す前にキーボードが閉じて位置がずれる）。
+   押した後は自分で focus を外してキーボードを閉じる。 */
+["#sePrev","#seNext"].forEach(function(sel){
+  $(sel).addEventListener("pointerdown", function(e){ e.preventDefault(); });
+});
+$("#sePrev").addEventListener("click", function(){ $("#seInput").blur(); seGo(-1); });
+$("#seNext").addEventListener("click", function(){ $("#seInput").blur(); seGo(1); });
+if(window.visualViewport) window.visualViewport.addEventListener("resize", placeSearchNav);
 
 /* ---------- 他のグループへ移動 ---------- */
 var GROUPS = [

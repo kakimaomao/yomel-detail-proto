@@ -1207,13 +1207,15 @@ function edRowHTML(r){
   var on = !!ED.sel[r.k];
   var box = '<button class="esel" data-esel="'+r.k+'"><img src="'
           + (on ? A_ASSETS.edSelectOn : A_ASSETS.edSelect) + '" alt="選択"></button>';
-  var pen = '<img class="pen" src="'+A_ASSETS.edPen+'" alt="話者を編集" data-epen="'+r.k+'">';
-  var tw  = '<span class="tw"><span class="tm">'+fmt(r.t)+'</span>'
-          + '<span class="pl" data-eplay="'+r.k+'"><img src="'+A_ASSETS.edPlay+'" alt="再生"></span></span>';
+  var pen = '<img class="pen" src="'+A_ASSETS.edPen+'" alt="話者を編集">';
+  var tw  = '<span class="tw" data-eplay="'+r.k+'"><span class="tm">'+fmt(r.t)+'</span>'
+          + '<span class="pl"><img src="'+A_ASSETS.edPlay+'" alt="再生"></span></span>';
   var dot = '<img class="dot" src="'+A_ASSETS.dot3+'" alt="">';
   var nm  = '<span class="nm">'+esc(sp.label)+'</span>';
-  var meta = me ? '<div class="emeta">'+tw+dot+nm+pen+'</div>'
-                : '<div class="emeta">'+nm+pen+dot+tw+'</div>';
+  /* 鉛筆だけだと小さいので、名前ごと受ける */
+  var nw  = '<span class="nw" data-epen="'+r.k+'">'+nm+pen+'</span>';
+  var meta = me ? '<div class="emeta">'+tw+dot+nw+'</div>'
+                : '<div class="emeta">'+nw+dot+tw+'</div>';
   var bb = '<div class="ebb" data-ebb="'+r.k+'" style="background:'+SPK[r.sp].bub+'">'+esc(r.text)+'</div>';
   return '<div class="erow'+(me?" me":"")+'" data-line="'+r.k+'">'
        + box + (me ? "" : avatarHTML(sp))

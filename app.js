@@ -1199,7 +1199,7 @@ $("#grpList").addEventListener("click", function(e){
 /* ---------- 編集モード ---------- */
 /* 編集モードは分割や結合で行が増減するので、元データとは別に作業用の行を持つ。
    保存しても元データは書き換えない（原型なので見た目だけ） */
-var ED = {rows:[], sel:{}, editing:null, seq:0};
+var ED = {rows:[], sel:{}, editing:null, seq:0, caret:null};
 
 function edRowHTML(r){
   var sp = r.ov || SPK[r.sp], me = SPK[r.sp].side === "me";
@@ -1230,22 +1230,30 @@ function renderEdit(){
 function edSplit(){
   var k = ED.editing; if(k == null) return;
   var el = document.querySelector('#eBody .ebb[data-ebb="'+k+'"]'); if(!el) return;
+  var text = el.textContent;
+  /* 押した時点で選択が外れていることがあるので、覚えておいた位置を使う */
+  var at = ED.caret;
   var sel = window.getSelection();
-  var text = el.textContent, at = text.length;
   if(sel && sel.rangeCount && el.contains(sel.getRangeAt(0).startContainer)){
     var rg = document.createRange();
     rg.selectNodeContents(el);
     rg.setEnd(sel.getRangeAt(0).startContainer, sel.getRangeAt(0).startOffset);
     at = rg.toString().length;
   }
-  if(at <= 0 || at >= text.length){ toast("カーソルの前後に文字がある所で分割できます"); return; }
+  if(at == null || at <= 0 || at >= text.length){
+    toast("文の途中にカーソルを置いてから分割してください"); return;
+  }
   var i = edIndex(k), r = ED.rows[i];
-  var second = {k:++ED.seq, sp:r.sp, t:r.t, text:text.slice(at), ov:r.ov};
+  /* 後半の時刻は、この発言が占める音声の長さを文字数で按分して見積もる。
+     本来は音声から取り直すべきなので、あくまで原型上の目安。 */
+  var endT = (i + 1 < ED.rows.length ? ED.rows[i + 1].t : DUR);
+  var t2 = r.t + Math.max(0, endT - r.t) * (at / text.length);
+  var second = {k:++ED.seq, sp:r.sp, t:Math.round(t2 * 100) / 100, text:text.slice(at), ov:r.ov};
   r.text = text.slice(0, at);
   ED.rows.splice(i + 1, 0, second);
-  ED.editing = null; ED.sel = {};
+  ED.editing = null; ED.sel = {}; ED.caret = null;
   renderEdit();
-  toast("2つに分けました");
+  toast("2つに分けました（後半 " + fmt(second.t) + "）");
 }
 /* 結合: 選んだ吹き出しを1つにまとめる。話者は一番早いものに合わせる */
 function edMerge(){
@@ -1292,10 +1300,19 @@ function edPop(){
   var sel = window.getSelection();
   if(!sel || !sel.rangeCount){ pop.hidden = true; return; }
   var rg = sel.getRangeAt(0);
+  var host = document.querySelector('#eBody .ebb[data-ebb="'+ED.editing+'"]');
+  if(host && host.contains(rg.startContainer)){
+    /* 「分割」を押した時点では選択が外れていることがあるので、動くたびに覚えておく */
+    var m = document.createRange();
+    m.selectNodeContents(host);
+    m.setEnd(rg.startContainer, rg.startOffset);
+    ED.caret = m.toString().length;
+  }
   var r = rg.getClientRects()[0] || rg.getBoundingClientRect();
   if(!r || (!r.width && !r.height && !r.left)){ pop.hidden = true; return; }
   var pr = phone.getBoundingClientRect(), k = pr.width / 430;
   var cx = (r.left - pr.left) / k, cy = (r.top - pr.top) / k;
+  if(cy < 140 || cy > 900){ pop.hidden = true; return; }   /* 文字が見えていない時は出さない */
   pop.hidden = false;
   var w = pop.querySelector(".box").offsetWidth || 94;
   var left = Math.max(8, Math.min(430 - w - 8, cx - w / 2));
@@ -1354,7 +1371,7 @@ $("#eBody").addEventListener("click", function(e){
           if(pr2){ seek(pr2.t); if(!S.playing) togglePlay(); } return; }
   var bb = e.target.closest("[data-ebb]");
   if(bb){
-    ED.editing = +bb.getAttribute("data-ebb");
+    ED.editing = +bb.getAttribute("data-ebb"); ED.caret = null;
     ED.sel = {};
     $$("#eBody .ebb").forEach(function(el){ el.classList.remove("editing"); el.removeAttribute("contenteditable"); });
     bb.setAttribute("contenteditable", "true");
@@ -1365,6 +1382,12 @@ $("#eBody").addEventListener("click", function(e){
   }
 });
 document.addEventListener("selectionchange", function(){ if(ED.editing != null) edPop(); });
+/* スクロールしても文字の位置に付いて動かす */
+var edPopRaf = 0;
+$("#eBody").addEventListener("scroll", function(){
+  if(ED.editing == null || edPopRaf) return;
+  edPopRaf = requestAnimationFrame(function(){ edPopRaf = 0; edPop(); });
+}, {passive:true});
 $("#edPop").addEventListener("pointerdown", function(e){ e.preventDefault(); });
 $("#edPop").addEventListener("click", function(){ edSplit(); });
 $("#eBar").addEventListener("click", function(e){

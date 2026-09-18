@@ -400,6 +400,16 @@ body.nostatus .homeind i{visibility:hidden}
   font-size:12px;line-height:1;color:#646a73;font-weight:300;white-space:nowrap}
 .ebar button[disabled]{opacity:.3}
 .ebar .flip img{transform:rotate(-90deg)}
+/* 文字を触っている間に出る「分割」の吹き出し（設計稿 4852:45744） */
+#edPop{position:absolute;z-index:78}
+#edPop .box{background:#fff;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:8px;
+  box-shadow:0 4px 8px rgba(31,35,41,.1),0 2px 20px rgba(31,35,41,.1)}
+#edPop .box img{width:20px;height:20px}
+#edPop .box span{font-family:"Hiragino Kaku Gothic Pro","Hiragino Kaku Gothic ProN",sans-serif;
+  font-size:17px;line-height:1;color:#1f2329;font-weight:300;white-space:nowrap}
+#edPop .tail{position:absolute;top:100%;width:21.43px;height:15px;margin-top:-1px;
+  background:#fff;clip-path:polygon(0 0,100% 0,50% 100%);
+  filter:drop-shadow(0 3px 3px rgba(31,35,41,.08))}
 
 /* ---- 共有・出力・コピーのシート（設計稿 4824:45641 / 4824:47233 / 4824:47820） ---- */
 #subWrap{position:absolute;inset:0;z-index:82;background:rgba(0,0,0,.5)}
@@ -862,6 +872,10 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
       </svg>
     </button>
     <div class="ebar" id="eBar" hidden></div>
+    <div id="edPop" hidden>
+      <div class="box"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSIgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzQ4NTlfNzk3ODkpIj4KPHBhdGggaWQ9IlZlY3RvciIgZD0iTTIwIDBIMFYyMEgyMFYwWiIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC4wMSIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik00LjU4MzMzIDE3LjVDNS43MzM5MiAxNy41IDYuNjY2NjcgMTYuNTY3MiA2LjY2NjY3IDE1LjQxNjdDNi42NjY2NyAxNC4yNjYxIDUuNzMzOTIgMTMuMzMzMyA0LjU4MzMzIDEzLjMzMzNDMy40MzI3NCAxMy4zMzMzIDIuNSAxNC4yNjYxIDIuNSAxNS40MTY3QzIuNSAxNi41NjcyIDMuNDMyNzQgMTcuNSA0LjU4MzMzIDE3LjVaIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzMiIGQ9Ik0xNS40MTY3IDE3LjVDMTYuNTY3MiAxNy41IDE3LjUgMTYuNTY3MiAxNy41IDE1LjQxNjdDMTcuNSAxNC4yNjYxIDE2LjU2NzIgMTMuMzMzMyAxNS40MTY3IDEzLjMzMzNDMTQuMjY2MSAxMy4zMzMzIDEzLjMzMzMgMTQuMjY2MSAxMy4zMzMzIDE1LjQxNjdDMTMuMzMzMyAxNi41NjcyIDE0LjI2NjEgMTcuNSAxNS40MTY3IDE3LjVaIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzQiIGQ9Ik02LjQwNzI3IDE2LjQyMjJMNy4yOTE2OCAxNC45MjM1TDE0LjM3NSAyLjY1NDgzIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNSIgZD0iTTUuNjIzMTcgMi41NzMwNEwxMi43MDY1IDE0Ljg0MTdMMTMuNTk0MyAxNi40MjIyIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjwvZz4KPGRlZnM+CjxjbGlwUGF0aCBpZD0iY2xpcDBfNDg1OV83OTc4OSI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K" alt=""><span>分割</span></div>
+      <i class="tail"></i>
+    </div>
   </div>
 
   <div id="subWrap" hidden>
@@ -1011,7 +1025,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";window.__APPV="e259e9a4";</script>
-<script src="gate.js?v=e259e9a4"></script>
+<script>window.__LOCK="C";window.__APPV="ad1fc499";</script>
+<script src="gate.js?v=ad1fc499"></script>
 </body>
 </html>

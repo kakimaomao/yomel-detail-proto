@@ -1235,10 +1235,17 @@ function edPlaceCaret(el, x, y){
       if(pos){ rg = document.createRange(); rg.setStart(pos.offsetNode, pos.offset); rg.collapse(true); }
     }
   }catch(e){}
-  if(rg && el.contains(rg.startContainer)){
+  if(!rg || !el.contains(rg.startContainer)) return;
+  function put(){
     var sel = window.getSelection();
-    sel.removeAllRanges(); sel.addRange(rg);
+    if(!sel) return;
+    sel.removeAllRanges(); sel.addRange(rg.cloneRange());
   }
+  /* iOS は focus のあとから自分でカーソルを置き直すことがあるので、少し後にも当て直す */
+  put();
+  requestAnimationFrame(put);
+  setTimeout(put, 60);
+  setTimeout(function(){ put(); edPop(); }, 180);
 }
 
 /* 文字を触っている間は、下のバーではなくカーソルの上に「分割」を出す（設計稿 4852:45171） */

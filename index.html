@@ -386,6 +386,10 @@ body.nostatus .homeind i{visibility:hidden}
   border-radius:4px 12px 12px 12px;outline:0;max-width:322px}
 .erow.me .ebb{border-radius:12px 4px 12px 12px}
 .erow .ebb.editing{border-color:#1a85ff}
+/* 全画面版は #phone に user-select:none を掛けているが、
+   これが効いていると iOS では contenteditable の中にカーソルを置けない。
+   編集する吹き出しだけ選べるように戻す。 */
+#editWrap .ebb{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 .erow .av{flex:0 0 28px}
 .emini{position:absolute;left:189px;width:52px;height:52px;border-radius:9999px;background:#fff;
   display:flex;align-items:center;justify-content:center;
@@ -1025,7 +1029,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";window.__APPV="12045902";</script>
-<script src="gate.js?v=12045902"></script>
+<script>window.__LOCK="C";window.__APPV="533db087";</script>
+<script src="gate.js?v=533db087"></script>
 </body>
 </html>

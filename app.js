@@ -774,12 +774,11 @@ function applySheet(){
   var m = MEMBERS[st.sel];
   if(st.mode === "edit"){                    /* 編集モードで選んだ行をまとめて変える */
     var done = 0;
-    for(var k in ED.sel){
-      if(!ED.sel[k]) continue;
-      var li = +k;
-      LINES[li].ov = {id:LINES[li].sp, label:m.n, img:m.img, color:SPK[LINES[li].sp].color};
+    ED.rows.forEach(function(r){
+      if(!ED.sel[r.k]) return;
+      r.ov = {id:r.sp, label:m.n, img:m.img, color:SPK[r.sp].color};
       done++;
-    }
+    });
     closeSheet(); ED.sel = {}; renderEdit();
     toast(done + "件の話者を " + m.n + " に変えました");
     return;
@@ -1198,30 +1197,68 @@ $("#grpList").addEventListener("click", function(e){
 });
 
 /* ---------- 編集モード ---------- */
-var ED = {sel:{}, editing:null};          /* 選んだ行 / 文字を編集している行 */
+/* 編集モードは分割や結合で行が増減するので、元データとは別に作業用の行を持つ。
+   保存しても元データは書き換えない（原型なので見た目だけ） */
+var ED = {rows:[], sel:{}, editing:null, seq:0};
 
-function edRowHTML(l){
-  var sp = spkOf(l), me = SPK[l.sp].side === "me";
-  var on = !!ED.sel[l.i];
-  var box = '<button class="esel" data-esel="'+l.i+'"><img src="'
+function edRowHTML(r){
+  var sp = r.ov || SPK[r.sp], me = SPK[r.sp].side === "me";
+  var on = !!ED.sel[r.k];
+  var box = '<button class="esel" data-esel="'+r.k+'"><img src="'
           + (on ? A_ASSETS.edSelectOn : A_ASSETS.edSelect) + '" alt="選択"></button>';
-  var pen = '<img class="pen" src="'+A_ASSETS.edPen+'" alt="話者を編集" data-epen="'+l.i+'">';
-  var tw  = '<span class="tw"><span class="tm">'+fmt(l.t)+'</span>'
-          + '<span class="pl" data-eplay="'+l.i+'"><img src="'+A_ASSETS.edPlay+'" alt="再生"></span></span>';
+  var pen = '<img class="pen" src="'+A_ASSETS.edPen+'" alt="話者を編集" data-epen="'+r.k+'">';
+  var tw  = '<span class="tw"><span class="tm">'+fmt(r.t)+'</span>'
+          + '<span class="pl" data-eplay="'+r.k+'"><img src="'+A_ASSETS.edPlay+'" alt="再生"></span></span>';
   var dot = '<img class="dot" src="'+A_ASSETS.dot3+'" alt="">';
   var nm  = '<span class="nm">'+esc(sp.label)+'</span>';
   var meta = me ? '<div class="emeta">'+tw+dot+nm+pen+'</div>'
                 : '<div class="emeta">'+nm+pen+dot+tw+'</div>';
-  var bb = '<div class="ebb" data-ebb="'+l.i+'" style="background:'+SPK[l.sp].bub+'">'+esc(l.text)+'</div>';
-  return '<div class="erow'+(me?" me":"")+'" data-line="'+l.i+'">'
+  var bb = '<div class="ebb" data-ebb="'+r.k+'" style="background:'+SPK[r.sp].bub+'">'+esc(r.text)+'</div>';
+  return '<div class="erow'+(me?" me":"")+'" data-line="'+r.k+'">'
        + box + (me ? "" : avatarHTML(sp))
        + '<div class="ecol">'+meta+bb+'</div>'
        + (me ? avatarHTML(sp) : "") + '</div>';
 }
 function edCount(){ var c = 0; for(var k in ED.sel) if(ED.sel[k]) c++; return c; }
+function edRow(k){ for(var i = 0; i < ED.rows.length; i++) if(ED.rows[i].k === +k) return ED.rows[i]; return null; }
+function edIndex(k){ for(var i = 0; i < ED.rows.length; i++) if(ED.rows[i].k === +k) return i; return -1; }
 function renderEdit(){
-  $("#eBody").innerHTML = LINES.map(edRowHTML).join("");
+  $("#eBody").innerHTML = ED.rows.map(edRowHTML).join("");
   edPaintBar();
+}
+/* 分割: カーソルの前後で2つに分ける。話者はそのまま引き継ぐ */
+function edSplit(){
+  var k = ED.editing; if(k == null) return;
+  var el = document.querySelector('#eBody .ebb[data-ebb="'+k+'"]'); if(!el) return;
+  var sel = window.getSelection();
+  var text = el.textContent, at = text.length;
+  if(sel && sel.rangeCount && el.contains(sel.getRangeAt(0).startContainer)){
+    var rg = document.createRange();
+    rg.selectNodeContents(el);
+    rg.setEnd(sel.getRangeAt(0).startContainer, sel.getRangeAt(0).startOffset);
+    at = rg.toString().length;
+  }
+  if(at <= 0 || at >= text.length){ toast("カーソルの前後に文字がある所で分割できます"); return; }
+  var i = edIndex(k), r = ED.rows[i];
+  var second = {k:++ED.seq, sp:r.sp, t:r.t, text:text.slice(at), ov:r.ov};
+  r.text = text.slice(0, at);
+  ED.rows.splice(i + 1, 0, second);
+  ED.editing = null; ED.sel = {};
+  renderEdit();
+  toast("2つに分けました");
+}
+/* 結合: 選んだ吹き出しを1つにまとめる。話者は一番早いものに合わせる */
+function edMerge(){
+  var keys = [];
+  ED.rows.forEach(function(r){ if(ED.sel[r.k]) keys.push(r.k); });
+  if(keys.length < 2) return;
+  var first = edRow(keys[0]);
+  var texts = keys.map(function(k){ return edRow(k).text; });
+  first.text = texts.join("");
+  for(var j = keys.length - 1; j >= 1; j--) ED.rows.splice(edIndex(keys[j]), 1);
+  ED.sel = {}; ED.editing = null;
+  renderEdit();
+  toast(keys.length + "つを " + (first.ov || SPK[first.sp]).label + " の発言としてまとめました");
 }
 /* 触った場所にカーソルを置く。contenteditable を後から付けると
    ブラウザ任せでは先頭に飛んでしまうため、座標から位置を出して指定する。 */
@@ -1287,7 +1324,14 @@ function edPaintBar(){
   $("#eMini").hidden = (ED.editing != null);     /* 文字を触っている間は丸ボタンを出さない */
   $("#eMini").style.top = bar.hidden ? "840px" : "771px";
 }
-function openEdit(){ ED.sel = {}; ED.editing = null; renderEdit(); $("#editWrap").hidden = false; }
+function openEdit(){
+  ED.seq = 0; ED.sel = {}; ED.editing = null;
+  ED.rows = LINES.map(function(l){
+    return {k:++ED.seq, sp:l.sp, t:l.t, text:l.text, ov:l.ov};
+  });
+  renderEdit();
+  $("#editWrap").hidden = false;
+}
 function closeEdit(){ $("#editWrap").hidden = true; ED.editing = null; renderTranscript(); paint(); }
 
 $("#eBack").addEventListener("click", closeEdit);
@@ -1299,13 +1343,15 @@ $("#eSave").addEventListener("click", function(){
 $("#eMini").addEventListener("click", function(){ togglePlay(); });
 $("#eBody").addEventListener("click", function(e){
   var b = e.target.closest("[data-esel]");
-  if(b){ var i = +b.getAttribute("data-esel"); ED.sel[i] = !ED.sel[i];
+  if(b){ var kk = +b.getAttribute("data-esel"); ED.sel[kk] = !ED.sel[kk];
          ED.editing = null; renderEdit(); return; }
   var pen = e.target.closest("[data-epen]");
-  if(pen){ var li = +pen.getAttribute("data-epen"); openSheet("single", LINES[li].sp, li); return; }
+  if(pen){ var pk = +pen.getAttribute("data-epen");
+           ED.sel = {}; ED.sel[pk] = true; ED.editing = null;
+           renderEdit(); openSheet("edit", null, null, 1); return; }
   var pl = e.target.closest("[data-eplay]");
-  if(pl){ var pi = +pl.getAttribute("data-eplay");
-          seek(LINES[pi].t); if(!S.playing) togglePlay(); return; }
+  if(pl){ var pr2 = edRow(pl.getAttribute("data-eplay"));
+          if(pr2){ seek(pr2.t); if(!S.playing) togglePlay(); } return; }
   var bb = e.target.closest("[data-ebb]");
   if(bb){
     ED.editing = +bb.getAttribute("data-ebb");
@@ -1320,23 +1366,22 @@ $("#eBody").addEventListener("click", function(e){
 });
 document.addEventListener("selectionchange", function(){ if(ED.editing != null) edPop(); });
 $("#edPop").addEventListener("pointerdown", function(e){ e.preventDefault(); });
-$("#edPop").addEventListener("click", function(){ toast("分割は原型の範囲外です"); });
+$("#edPop").addEventListener("click", function(){ edSplit(); });
 $("#eBar").addEventListener("click", function(e){
   var b = e.target.closest("[data-ebar]"); if(!b || b.disabled) return;
   var a = b.getAttribute("data-ebar");
   if(a === "bulkSpeaker"){ openSheet("edit", null, null, edCount()); return; }
-  if(a === "merge"){ toast("吹き出しの結合は原型の範囲外です"); return; }
-  if(a === "split"){ toast("分割は原型の範囲外です"); return; }
-  /* 削除は見た目だけ消す */
+  if(a === "merge"){ edMerge(); return; }
+  if(a === "split"){ edSplit(); return; }
   var gone = [];
   if(a === "del1" && ED.editing != null) gone = [ED.editing];
   else for(var k in ED.sel) if(ED.sel[k]) gone.push(+k);
-  gone.forEach(function(i){
-    var row = document.querySelector('#eBody .erow[data-line="'+i+'"]');
-    if(row) row.parentNode.removeChild(row);
+  gone.forEach(function(kk){
+    var idx = edIndex(kk);
+    if(idx >= 0) ED.rows.splice(idx, 1);
   });
-  ED.sel = {}; ED.editing = null; edPaintBar();
-  toast(gone.length + "件を削除しました（原型では元のデータは変えません）");
+  ED.sel = {}; ED.editing = null; renderEdit();
+  toast(gone.length + "件を削除しました");
 });
 
 /* ---------- 共有・出力・コピーのシート ---------- */

@@ -1223,6 +1223,24 @@ function renderEdit(){
   $("#eBody").innerHTML = LINES.map(edRowHTML).join("");
   edPaintBar();
 }
+/* 触った場所にカーソルを置く。contenteditable を後から付けると
+   ブラウザ任せでは先頭に飛んでしまうため、座標から位置を出して指定する。 */
+function edPlaceCaret(el, x, y){
+  el.focus();
+  var rg = null;
+  try{
+    if(document.caretRangeFromPoint) rg = document.caretRangeFromPoint(x, y);
+    else if(document.caretPositionFromPoint){
+      var pos = document.caretPositionFromPoint(x, y);
+      if(pos){ rg = document.createRange(); rg.setStart(pos.offsetNode, pos.offset); rg.collapse(true); }
+    }
+  }catch(e){}
+  if(rg && el.contains(rg.startContainer)){
+    var sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(rg);
+  }
+}
+
 /* 文字を触っている間は、下のバーではなくカーソルの上に「分割」を出す（設計稿 4852:45171） */
 function edPop(){
   var pop = $("#edPop");
@@ -1288,7 +1306,7 @@ $("#eBody").addEventListener("click", function(e){
     $$("#eBody .ebb").forEach(function(el){ el.classList.remove("editing"); el.removeAttribute("contenteditable"); });
     bb.setAttribute("contenteditable", "true");
     bb.classList.add("editing");
-    bb.focus();
+    edPlaceCaret(bb, e.clientX, e.clientY);
     $$("#eBody .esel img").forEach(function(im){ im.src = A_ASSETS.edSelect; });
     edPaintBar();
   }

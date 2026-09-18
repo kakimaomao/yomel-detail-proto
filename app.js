@@ -1408,6 +1408,15 @@ function edEndEditing(){
   ED.editing = null; ED.caret = null;
   edPaintBar();
 }
+/* 小さな再生ボタンなど、focus が動かない所を押した時は focusout が来ないので、
+   編集中の吹き出しの外を押したら必ず終わらせる */
+document.addEventListener("click", function(e){
+  if(ED.editing == null || $("#editWrap").hidden) return;
+  var el = document.querySelector('#eBody .ebb[data-ebb="'+ED.editing+'"]');
+  if(el && el.contains(e.target)) return;
+  if(e.target.closest && e.target.closest("#edPop")) return;
+  edEndEditing();
+});
 $("#eBody").addEventListener("focusout", function(){
   setTimeout(function(){                      /* 次に何処へ移ったかが決まってから見る */
     if(ED.editing == null) return;

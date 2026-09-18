@@ -321,6 +321,7 @@ function paintPlayIcons(){
 }
 function paint(){
   paintTimes(); paintPlayIcons(); markCurrent(); updateJump();
+  if(!$("#editWrap").hidden) edMarkCurrent();
   if(S.tab === "speakers") renderSpeakers();
 }
 /* 音声 = 書き起こしの各行を読み上げた 31:08 のタイムラインを1本に焼いたもの。
@@ -1220,10 +1221,28 @@ function edRowHTML(r){
        + (me ? avatarHTML(sp) : "") + '</div>';
 }
 function edCount(){ var c = 0; for(var k in ED.sel) if(ED.sel[k]) c++; return c; }
+/* 再生中の吹き出しを、書き起こしと同じように話者の色で光らせる */
+function edMarkCurrent(){
+  var cur = null;
+  for(var i = 0; i < ED.rows.length; i++){
+    if(ED.rows[i].t <= S.pos) cur = ED.rows[i]; else break;
+  }
+  $$("#eBody .ebb").forEach(function(el){
+    var on = cur && cur.k === +el.getAttribute("data-ebb");
+    el.classList.toggle("cur", !!on);
+    if(on){
+      var hi = SPK[cur.sp].hi || "#1a85ff";
+      el.style.borderColor = hi; el.style.color = hi;
+    } else {
+      el.style.borderColor = ""; el.style.color = "";
+    }
+  });
+}
 function edRow(k){ for(var i = 0; i < ED.rows.length; i++) if(ED.rows[i].k === +k) return ED.rows[i]; return null; }
 function edIndex(k){ for(var i = 0; i < ED.rows.length; i++) if(ED.rows[i].k === +k) return i; return -1; }
 function renderEdit(){
   $("#eBody").innerHTML = ED.rows.map(edRowHTML).join("");
+  edMarkCurrent();
   edPaintBar();
 }
 /* 分割: カーソルの前後で2つに分ける。話者はそのまま引き継ぐ */
@@ -1380,6 +1399,24 @@ $("#eBody").addEventListener("click", function(e){
     $$("#eBody .esel img").forEach(function(im){ im.src = A_ASSETS.edSelect; });
     edPaintBar();
   }
+});
+/* 吹き出しから離れてカーソルが消えたら、編集をやめて「分割」も引っ込める */
+function edEndEditing(){
+  if(ED.editing == null) return;
+  var el = document.querySelector('#eBody .ebb[data-ebb="'+ED.editing+'"]');
+  if(el){ el.removeAttribute("contenteditable"); el.classList.remove("editing"); }
+  ED.editing = null; ED.caret = null;
+  edPaintBar();
+}
+$("#eBody").addEventListener("focusout", function(){
+  setTimeout(function(){                      /* 次に何処へ移ったかが決まってから見る */
+    if(ED.editing == null) return;
+    var a = document.activeElement;
+    var el = document.querySelector('#eBody .ebb[data-ebb="'+ED.editing+'"]');
+    if(a === el) return;                                       /* まだ触っている */
+    if(a && a.closest && a.closest("#edPop")) return;           /* 「分割」を押した所 */
+    edEndEditing();
+  }, 0);
 });
 document.addEventListener("selectionchange", function(){ if(ED.editing != null) edPop(); });
 /* スクロールしても文字の位置に付いて動かす */

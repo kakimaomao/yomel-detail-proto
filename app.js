@@ -1047,7 +1047,7 @@ $("#menuWrap").addEventListener("click", function(e){
   if(m === "rename"){ openDialog(); return; }
   if(m === "editmode"){ openEdit(); return; }
   if(m === "share" || m === "export" || m === "copy"){ openSub(m); return; }
-  if(m === "move"){ openGroups(); return; }
+  if(m === "move"){ openPick("group"); return; }
   toast({resplit:"話者分離再実行", delete:"削除"}[m] + "は次の更新で作ります");
 });
 
@@ -1171,33 +1171,102 @@ $("#sePrev").addEventListener("click", function(){ $("#seInput").blur(); seGo(-1
 $("#seNext").addEventListener("click", function(){ $("#seInput").blur(); seGo(1); });
 if(window.visualViewport) window.visualViewport.addEventListener("resize", placeSearchNav);
 
-/* ---------- 他のグループへ移動 ---------- */
+/* ---------- グループ・ステータス・タグを選ぶシート ---------- */
 var GROUPS = [
   {n:"UIUXデザイン", icon:"gpGroup"},
   {n:"プロダクトデザイン開発推進チーム統括本部", icon:"gpGroup"},
   {n:"プライベートモード", icon:"gpPrivate"}
 ];
-function renderGroups(){
-  var q = $("#grpSearch").value.trim().toLowerCase();
-  $("#grpList").innerHTML = GROUPS.filter(function(g){
-    return !q || g.n.toLowerCase().indexOf(q) >= 0;
-  }).map(function(g){
-    return '<button class="grow" data-grp="'+esc(g.n)+'">'
-         + '<img src="'+A_ASSETS[g.icon]+'" alt="">'
-         + '<span>'+esc(g.n)+'</span></button>';
-  }).join("");
+/* 設計稿 4874:46947 のまま。「ネクストアクション抽出済み」が2つあるのも設計稿どおり */
+var STATUSES = ["商談中", "ネクストアクション抽出済み", "未確認", "ネクストアクション抽出済み",
+  "1.初期接点/ヘルススコアgood支援", "2.DX部門との関係構築", "3.ユーザー拡大支援",
+  "4.データ活用の価値提案", "解約", "プライベートモード"];
+var TAGS = ["オンライン相談会", "社内会議", "未確認", "ネクストアクション抽出済み", "社外会議", "解約"];
+
+var PICK = {kind:null, sel:null, tags:[]};
+var PICK_TITLE = {group:"他のグループへ移動", status:"ステータス変更", tag:"タグ編集"};
+var XMARK = '<svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="9" fill="#bbbfc4"/>'
+          + '<path d="M7 7l6 6M13 7l-6 6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>';
+
+function pickItems(){
+  if(PICK.kind === "group") return GROUPS.map(function(g){ return {n:g.n, icon:g.icon}; });
+  if(PICK.kind === "status") return STATUSES.map(function(t){ return {n:t}; });
+  return TAGS.map(function(t){ return {n:t}; });
 }
-function openGroups(){ $("#grpSearch").value = ""; renderGroups(); $("#grpWrap").hidden = false; }
-function closeGroups(){ $("#grpWrap").hidden = true; }
-$("#grpClose").addEventListener("click", closeGroups);
-$("#grpWrap").addEventListener("click", function(e){ if(e.target === $("#grpWrap")) closeGroups(); });
-$("#grpSearch").addEventListener("input", renderGroups);
-$("#grpList").addEventListener("click", function(e){
-  var b = e.target.closest("[data-grp]"); if(!b) return;
-  var name = b.getAttribute("data-grp");
-  $("#logGroup").textContent = name;        /* ログ情報のグループも合わせる */
-  closeGroups();
-  toast(name + " へ移動しました");
+function renderPick(){
+  var multi = PICK.kind === "tag";
+  var q = multi ? "" : $("#pickSearch").value.trim().toLowerCase();
+  var list = $("#pickList");
+  list.className = "picklist" + (multi ? " tag" : "");
+  list.innerHTML = pickItems().filter(function(it){
+    return !q || it.n.toLowerCase().indexOf(q) >= 0;
+  }).map(function(it, i){
+    var on = multi ? PICK.tags.indexOf(it.n) >= 0 : PICK.sel === it.n;
+    var lead = multi
+      ? '<img class="cb" src="' + (on ? A_ASSETS.edSelectOn : A_ASSETS.edSelect) + '" alt="">'
+      : (it.icon ? '<img class="ic" src="' + A_ASSETS[it.icon] + '" alt="">' : "");
+    var tail = (!multi && on) ? '<img class="ck" src="' + A_ASSETS.check + '" alt="選択中">' : "";
+    return '<button class="prow" data-pick="' + esc(it.n) + '">' + lead
+         + '<span>' + esc(it.n) + '</span>' + tail + '</button>';
+  }).join("");
+  if(multi){
+    var box = $("#pickChips");
+    box.innerHTML = PICK.tags.length
+      ? PICK.tags.map(function(t){
+          return '<span class="c">' + esc(t) + '<button data-untag="' + esc(t) + '">' + XMARK + '</button></span>';
+        }).join("")
+      : '<span class="ph">タグを選んでください</span>';
+  }
+}
+function openPick(kind){
+  PICK.kind = kind;
+  PICK.sel = kind === "group" ? $("#logGroup").textContent.trim()
+                              : (kind === "status" ? $("#logStatus").textContent.trim() : null);
+  PICK.tags = $$("#logTags .chip").map(function(e){ return e.textContent; });
+  $("#pickTitle").textContent = PICK_TITLE[kind];
+  $("#pickSearchWrap").hidden = kind === "tag";
+  $("#pickChips").hidden = kind !== "tag";
+  $("#pickSearch").value = "";
+  renderPick();
+  $("#pickWrap").hidden = false;
+}
+function closePick(){ $("#pickWrap").hidden = true; PICK.kind = null; }
+$("#pickClose").addEventListener("click", closePick);
+$("#pickWrap").addEventListener("click", function(e){ if(e.target === $("#pickWrap")) closePick(); });
+$("#pickSearch").addEventListener("input", renderPick);
+$("#pickList").addEventListener("click", function(e){
+  var b = e.target.closest("[data-pick]"); if(!b) return;
+  var name = b.getAttribute("data-pick");
+  if(PICK.kind === "tag"){
+    var i = PICK.tags.indexOf(name);
+    if(i >= 0) PICK.tags.splice(i, 1); else PICK.tags.push(name);
+  } else {
+    PICK.sel = name;
+  }
+  renderPick();
+});
+$("#pickChips").addEventListener("click", function(e){
+  var b = e.target.closest("[data-untag]"); if(!b) return;
+  var i = PICK.tags.indexOf(b.getAttribute("data-untag"));
+  if(i >= 0){ PICK.tags.splice(i, 1); renderPick(); }
+});
+$("#pickApply").addEventListener("click", function(){
+  if(PICK.kind === "group"){
+    if(PICK.sel){ $("#logGroup").textContent = PICK.sel; toast(PICK.sel + " へ移動しました"); }
+  } else if(PICK.kind === "status"){
+    if(PICK.sel){ $("#logStatus").textContent = PICK.sel; toast("ステータスを " + PICK.sel + " にしました"); }
+  } else {
+    $("#logTags").innerHTML = PICK.tags.map(function(t){
+      return '<span class="chip">' + esc(t) + '</span>';
+    }).join("");
+    toast(PICK.tags.length ? "タグを" + PICK.tags.length + "件にしました" : "タグを外しました");
+  }
+  closePick();
+});
+/* ログ情報の鉛筆から */
+$("#panelLog").addEventListener("click", function(e){
+  var b = e.target.closest("[data-logedit]"); if(!b) return;
+  openPick(b.getAttribute("data-logedit"));
 });
 
 /* ---------- 編集モード ---------- */

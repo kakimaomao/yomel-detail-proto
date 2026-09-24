@@ -233,8 +233,8 @@ function sectionOffset(){ return 34 + $(".chips").offsetHeight + 12; }
 /* 滑らかスクロールは自前で持つ。ブラウザ標準の behavior:"smooth" は
    途中で確実に止められず、タブを切り替えた後も動き続けて
    中身が画面の外まで流れてしまう（＝一瞬まっ白になる）ため。 */
-var scAnim = 0;
-function stopSmooth(){ if(scAnim){ cancelAnimationFrame(scAnim); scAnim = 0; } }
+var scAnim = 0, chipLock = null;
+function stopSmooth(){ if(scAnim){ cancelAnimationFrame(scAnim); scAnim = 0; } chipLock = null; }
 function smoothTo(top, ms){
   var sc = $("#scroller");
   stopSmooth();
@@ -256,6 +256,7 @@ function scrollToSection(key){
   if(!el) return;
   quietScroll();
   smoothTo(Math.max(0, el.offsetTop - sectionOffset()));
+  chipLock = key;          /* 動いている間は押したチップを選んだままにする */
 }
 function syncChips(){
   if(S.tab !== "summary") return;
@@ -265,6 +266,8 @@ function syncChips(){
     if(el && el.offsetTop <= y) cur = s.key;
   });
   if(!cur) cur = DATA.summary.sections[0].key;
+  /* 移動中は途中の見出しを拾わない。止まったら普通の判定に戻す */
+  if(chipLock){ if(scAnim) cur = chipLock; else chipLock = null; }
   $$("#sumChips button").forEach(function(b){
     if(b.getAttribute("data-c") === cur) b.setAttribute("aria-selected", "true");
     else b.removeAttribute("aria-selected");

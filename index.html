@@ -370,8 +370,8 @@ body.nostatus .homeind i{visibility:hidden}
 .ebody::-webkit-scrollbar{display:none}
 /* キャンバスの編集（設計稿 4874:83297）: 書き起こしと同じ枠の中に要約を出す */
 #editWrap.canvas .ebody{left:0;width:430px;top:106px;padding-bottom:200px;gap:0}
-#editWrap.canvas .chips{position:sticky;top:0}
-#editWrap.canvas .sumbody{padding:12px 16px 40px}
+#editWrap.canvas .chips{position:sticky;top:0;padding:20px 16px 12px;flex:none}  /* flex で潰れると上下の余白が消える */
+#editWrap.canvas .sumbody{padding:0 16px 40px}
 #editWrap.canvas .sec p[contenteditable],#editWrap.canvas .sec p:active{outline:0}
 #editWrap.canvas .sec p{border-radius:6px;padding:2px 4px;margin:-2px -4px}
 #editWrap.canvas .sec p.editing{background:rgba(26,133,255,.06)}
@@ -525,8 +525,8 @@ mark.hit.now{background:#ffd60a}
   font-size:17px;line-height:1;color:#16c098;font-weight:300}
 .chipfield{margin:0 16px;background:#f8f9fa;border-radius:12px;padding:8px;
   display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-height:47px;box-sizing:border-box}
-.chipfield .c{background:rgba(31,35,41,.1);border-radius:4px;padding:4px 6px;
-  display:flex;align-items:center;gap:10px;
+.chipfield .c{background:rgba(31,35,41,.05);border-radius:4px;padding:4px 6px;
+  display:flex;align-items:center;gap:4px;
   font-size:15px;line-height:normal;color:#1f2329;font-weight:300;white-space:nowrap}
 .chipfield .c button{width:20px;height:20px;flex:0 0 20px;display:flex}
 .chipfield .ph{font-size:15px;color:#bbbfc4;font-weight:300;padding:4px 6px}
@@ -1074,7 +1074,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";window.__APPV="af5be111";</script>
-<script src="gate.js?v=af5be111"></script>
+<script>window.__LOCK="C";window.__APPV="6921061d";</script>
+<script src="gate.js?v=6921061d"></script>
 </body>
 </html>

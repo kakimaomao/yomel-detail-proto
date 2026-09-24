@@ -646,7 +646,10 @@ function applyExpanded(animate){
     $("#miniC").hidden = S.expanded;
     $("#panel2C").hidden = !S.expanded;
     placeAiC();
-    $("#jumpDown").style.setProperty("--jdur", animate ? riseMs() + "ms" : "0s");
+    /* 畳む時は丸ボタンが出るのと同じ速さで降りてくる。遅いと ↓ だけ上に残って
+       再生ボタンと高さが揃っていないように見える（畳んだ後はどちらも 840〜892）。 */
+    $("#jumpDown").style.setProperty("--jdur",
+      animate ? (S.expanded ? riseMs() : Math.round(riseMs() * 0.55)) + "ms" : "0s");
     if(animate){
       if(S.expanded) animPanelC();
       else {
@@ -1198,6 +1201,22 @@ $("#grpList").addEventListener("click", function(e){
 });
 
 /* ---------- 編集モード ---------- */
+/* クリップボードの中身は、権限が下りている環境でだけ黙って見に行ける。
+   iOS Safari は毎回ユーザーの確認が要るので、分からないうちはペーストを出しておく。 */
+var CLIP = {known:false, has:false};
+function clipProbe(){
+  if(!navigator.clipboard || !navigator.clipboard.readText) return;
+  if(!navigator.permissions || !navigator.permissions.query) return;
+  try{
+    navigator.permissions.query({name:"clipboard-read"}).then(function(st){
+      if(st.state !== "granted") return;
+      navigator.clipboard.readText().then(function(t){
+        CLIP.known = true; CLIP.has = !!String(t || "").trim();
+        if(ED.editing != null) edPop();
+      }, function(){});
+    }, function(){});
+  }catch(e){}
+}
 /* 編集モードは分割や結合で行が増減するので、元データとは別に作業用の行を持つ。
    保存しても元データは書き換えない（原型なので見た目だけ） */
 var ED = {rows:[], sel:{}, editing:null, seq:0, caret:null};
@@ -1366,6 +1385,18 @@ function edPop(){
   var cx = (r.left - pr.left) / k, cy = (r.top - pr.top) / k;
   if(cy < 140 || cy > 900){ pop.hidden = true; return; }   /* 文字が見えていない時は出さない */
   pop.hidden = false;
+  /* 文の先頭・末尾では分割できないので出さない。
+     クリップボードが空だと分かっている時はペーストも出さない。 */
+  var host2 = document.querySelector('#eBody .ebb[data-ebb="'+ED.editing+'"]');
+  var len = host2 ? host2.textContent.length : 0;
+  var canSplit = ED.caret != null && ED.caret > 0 && ED.caret < len;
+  var canPaste = !(CLIP.known && !CLIP.has);
+  var bSplit = pop.querySelector('[data-pop="split"]');
+  var bPaste = pop.querySelector('[data-pop="paste"]');
+  bSplit.hidden = !canSplit;
+  bPaste.hidden = !canPaste;
+  pop.querySelector(".sep").hidden = !(canSplit && canPaste);
+  if(!canSplit && !canPaste){ pop.hidden = true; return; }
   var w = pop.querySelector(".box").offsetWidth || 94;
   var left = Math.max(8, Math.min(430 - w - 8, cx - w / 2));
   pop.style.left = left + "px";
@@ -1432,6 +1463,7 @@ $("#eBody").addEventListener("click", function(e){
     $$("#eBody .ebb").forEach(function(el){ el.classList.remove("editing"); el.removeAttribute("contenteditable"); });
     bb.setAttribute("contenteditable", "true");
     bb.classList.add("editing");
+    clipProbe();
     edPlaceCaret(bb, e.clientX, e.clientY);
     $$("#eBody .esel img").forEach(function(im){ im.src = A_ASSETS.edSelect; });
     edPaintBar();
@@ -1493,7 +1525,8 @@ function edPaste(){
   if(at == null) at = r.text.length;
   function put(txt){
     txt = String(txt || "").replace(/\s+/g, " ").trim();
-    if(!txt){ toast("クリップボードに文字がありません"); return; }
+    CLIP.known = true; CLIP.has = !!txt;      /* 読めたので次からは出し分けられる */
+    if(!txt){ toast("クリップボードに文字がありません"); edPop(); return; }
     r.text = r.text.slice(0, at) + txt + r.text.slice(at);
     ED.editing = null; ED.caret = null;
     renderEdit();

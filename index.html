@@ -368,6 +368,13 @@ body.nostatus .homeind i{visibility:hidden}
   display:flex;flex-direction:column;gap:20px;padding-bottom:140px;
   -webkit-overflow-scrolling:touch;scrollbar-width:none}
 .ebody::-webkit-scrollbar{display:none}
+/* キャンバスの編集（設計稿 4874:83297）: 書き起こしと同じ枠の中に要約を出す */
+#editWrap.canvas .ebody{left:0;width:430px;top:106px;padding-bottom:200px;gap:0}
+#editWrap.canvas .chips{position:sticky;top:0}
+#editWrap.canvas .sumbody{padding:12px 16px 40px}
+#editWrap.canvas .sec p[contenteditable],#editWrap.canvas .sec p:active{outline:0}
+#editWrap.canvas .sec p{border-radius:6px;padding:2px 4px;margin:-2px -4px}
+#editWrap.canvas .sec p.editing{background:rgba(26,133,255,.06)}
 .erow{display:flex;gap:8px;align-items:flex-start}
 .erow .esel{padding:2px 0;display:flex;align-items:center;flex:0 0 24px}
 .erow .esel img{width:24px;height:24px}
@@ -1067,7 +1074,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";window.__APPV="78fe05e4";</script>
-<script src="gate.js?v=78fe05e4"></script>
+<script>window.__LOCK="C";window.__APPV="af5be111";</script>
+<script src="gate.js?v=af5be111"></script>
 </body>
 </html>

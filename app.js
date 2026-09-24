@@ -1288,7 +1288,7 @@ function clipProbe(){
 }
 /* 編集モードは分割や結合で行が増減するので、元データとは別に作業用の行を持つ。
    保存しても元データは書き換えない（原型なので見た目だけ） */
-var ED = {rows:[], sel:{}, editing:null, seq:0, caret:null};
+var ED = {rows:[], sel:{}, editing:null, seq:0, caret:null, mode:"transcript"};
 
 function edRowHTML(r){
   var sp = r.ov || SPK[r.sp], me = SPK[r.sp].side === "me";
@@ -1322,6 +1322,7 @@ function edCurRow(){
 }
 function edJump(){
   var up = $("#eJumpUp"), dn = $("#eJumpDown");
+  if(ED.mode === "canvas"){ up.hidden = true; dn.hidden = true; return; }
   var cur = edCurRow();
   var el = cur && document.querySelector('#eBody .erow[data-line="'+cur.k+'"]');
   if(!el){ up.hidden = true; dn.hidden = true; return; }
@@ -1344,6 +1345,7 @@ $("#eJumpDown").addEventListener("click", edJumpTo);
 $("#eBody").addEventListener("scroll", function(){ if(!$("#editWrap").hidden) edJump(); }, {passive:true});
 
 function edMarkCurrent(){
+  if(ED.mode === "canvas") return;
   var cur = null;
   for(var i = 0; i < ED.rows.length; i++){
     if(ED.rows[i].t <= S.pos) cur = ED.rows[i]; else break;
@@ -1436,7 +1438,7 @@ function edPlaceCaret(el, x, y){
 /* 文字を触っている間は、下のバーではなくカーソルの上に「分割」を出す（設計稿 4852:45171） */
 function edPop(){
   var pop = $("#edPop");
-  if(ED.editing == null){ pop.hidden = true; return; }
+  if(ED.mode === "canvas" || ED.editing == null){ pop.hidden = true; return; }
   var sel = window.getSelection();
   if(!sel || !sel.rangeCount){ pop.hidden = true; return; }
   var rg = sel.getRangeAt(0);
@@ -1473,6 +1475,7 @@ function edPop(){
   pop.querySelector(".tail").style.left = Math.max(6, Math.min(w - 28, cx - left - 10.7)) + "px";
 }
 function edPaintBar(){
+  if(ED.mode === "canvas") return;
   var c = edCount(), bar = $("#eBar");
   if(ED.editing != null){
     $("#eTitle").textContent = "";
@@ -1495,16 +1498,77 @@ function edPaintBar(){
   $("#eMini").style.top = btm;
   $("#eJumpDown").style.top = btm;      /* ↓ は再生ボタンと同じ高さに揃える */
 }
+/* キャンバスの編集画面。書き起こしと同じ枠に、チップと要約をそのまま入れる */
+function renderCanvasEdit(){
+  var secs = DATA.summary.sections;
+  var chips = '<div class="chips" id="eChips">' + secs.map(function(sc, i){
+    return '<button data-ec="' + sc.key + '"' + (i === 0 ? ' aria-selected="true"' : '') + '>'
+         + esc(sc.label) + '</button>';
+  }).join("") + '</div>';
+  var body = '<div class="sumbody">' + secs.map(function(sc){
+    var inner;
+    if(sc.kind === "text"){
+      inner = '<p data-ecx>' + esc(sc.text) + '</p>';
+    } else if(sc.kind === "qa"){
+      inner = sc.items.map(function(it){
+        return '<div class="item"><span class="tsbadge">' + fmt(it.t) + '</span>'
+             + '<p class="q" data-ecx>' + esc(it.q) + '</p><p class="a" data-ecx>' + esc(it.a) + '</p></div>';
+      }).join("");
+    } else {
+      inner = sc.items.map(function(it){
+        return '<div class="item"><span class="tsbadge">' + fmt(it.t) + '</span>'
+             + '<p data-ecx>' + (it.title ? esc(it.title) + "：" : "") + esc(it.text) + '</p></div>';
+      }).join("");
+    }
+    return '<div class="sec" id="esec-' + sc.key + '"><div class="h">'
+         + '<img src="' + A_ASSETS.sparkle + '" alt=""><span>' + esc(sc.label) + '</span></div>'
+         + inner + '</div>';
+  }).join("") + '</div>';
+  $("#eBody").innerHTML = chips + body;
+}
 function openEdit(){
   ED.seq = 0; ED.sel = {}; ED.editing = null;
-  ED.rows = LINES.map(function(l){
-    return {k:++ED.seq, sp:l.sp, t:l.t, text:l.text, ov:l.ov};
-  });
-  renderEdit();
+  ED.mode = (S.tab === "summary") ? "canvas" : "transcript";
+  $("#editWrap").classList.toggle("canvas", ED.mode === "canvas");
+  if(ED.mode === "canvas"){
+    renderCanvasEdit();
+    $("#eTitle").textContent = "";
+    $("#eBar").hidden = true;
+    $("#eMini").hidden = false;
+    $("#eMini").style.top = "840px";
+    $("#eJumpUp").hidden = true; $("#eJumpDown").hidden = true;
+  } else {
+    ED.rows = LINES.map(function(l){
+      return {k:++ED.seq, sp:l.sp, t:l.t, text:l.text, ov:l.ov};
+    });
+    renderEdit();
+  }
   $("#editWrap").hidden = false;
 }
+/* キャンバス編集: チップでその見出しへ、文字を触ると編集できる */
+$("#eBody").addEventListener("click", function(e){
+  if(ED.mode !== "canvas") return;
+  var chip = e.target.closest("[data-ec]");
+  if(chip){
+    $$("#eChips button").forEach(function(x){ x.removeAttribute("aria-selected"); });
+    chip.setAttribute("aria-selected", "true");
+    var sec = document.getElementById("esec-" + chip.getAttribute("data-ec"));
+    if(sec) $("#eBody").scrollTop = Math.max(0, sec.offsetTop - $("#eChips").offsetHeight - 12);
+    return;
+  }
+  var p = e.target.closest("[data-ecx]");
+  if(p){
+    $$("#eBody [data-ecx]").forEach(function(x){
+      if(x !== p){ x.removeAttribute("contenteditable"); x.classList.remove("editing"); }
+    });
+    p.setAttribute("contenteditable", "true");
+    p.classList.add("editing");
+    edPlaceCaret(p, e.clientX, e.clientY);
+  }
+});
 function closeEdit(){
   $("#editWrap").hidden = true; ED.editing = null;
+  $("#editWrap").classList.remove("canvas"); ED.mode = "transcript";
   $("#eJumpUp").hidden = true; $("#eJumpDown").hidden = true;
   renderTranscript(); paint();
 }

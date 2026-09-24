@@ -1422,7 +1422,9 @@ function edPaintBar(){
   }
   if(ED.editing == null) $("#edPop").hidden = true;
   $("#eMini").hidden = (ED.editing != null);     /* 文字を触っている間は丸ボタンを出さない */
-  $("#eMini").style.top = bar.hidden ? "840px" : "771px";
+  var btm = bar.hidden ? "840px" : "771px";
+  $("#eMini").style.top = btm;
+  $("#eJumpDown").style.top = btm;      /* ↓ は再生ボタンと同じ高さに揃える */
 }
 function openEdit(){
   ED.seq = 0; ED.sel = {}; ED.editing = null;

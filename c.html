@@ -397,6 +397,12 @@ body.nostatus .homeind i{visibility:hidden}
    編集する吹き出しだけ選べるように戻す。 */
 #editWrap .ebb{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 .erow .av{flex:0 0 28px}
+.ejump{position:absolute;right:16px;width:52px;height:52px;border-radius:35px;background:#8f959e;
+  border:.5px solid #dee0e3;display:flex;align-items:center;justify-content:center;z-index:76}
+.ejump img{width:32px;height:32px}
+#eJumpUp{top:160px}
+#eJumpDown{top:763px}
+#eJumpDown img{transform:scaleY(-1)}
 .emini{position:absolute;left:189px;width:52px;height:52px;border-radius:9999px;background:#fff;
   display:flex;align-items:center;justify-content:center;
   box-shadow:0 4px 4px rgba(31,35,41,.1),0 2px 10px rgba(31,35,41,.1)}
@@ -412,11 +418,14 @@ body.nostatus .homeind i{visibility:hidden}
 .ebar .flip img{transform:rotate(-90deg)}
 /* 文字を触っている間に出る「分割」の吹き出し（設計稿 4852:45744） */
 #edPop{position:absolute;z-index:78}
-#edPop .box{background:#fff;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:8px;
+#edPop .box{background:#fff;border-radius:12px;padding:8px 16px;display:flex;align-items:center;
   box-shadow:0 4px 8px rgba(31,35,41,.1),0 2px 20px rgba(31,35,41,.1)}
+#edPop .box button{display:flex;align-items:center;gap:8px;height:28px}
 #edPop .box img{width:20px;height:20px}
 #edPop .box span{font-family:"Hiragino Kaku Gothic Pro","Hiragino Kaku Gothic ProN",sans-serif;
   font-size:17px;line-height:1;color:#1f2329;font-weight:300;white-space:nowrap}
+#edPop .box i.sep{width:1px;height:28px;background:rgba(31,35,41,.15);margin:0 16px}
+#edPop .box button:active{opacity:.55}
 #edPop .tail{position:absolute;top:100%;width:21.43px;height:15px;margin-top:-1px;
   background:#fff;clip-path:polygon(0 0,100% 0,50% 100%);
   filter:drop-shadow(0 3px 3px rgba(31,35,41,.08))}
@@ -882,8 +891,14 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
       </svg>
     </button>
     <div class="ebar" id="eBar" hidden></div>
+    <button class="ejump" id="eJumpUp" hidden><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik04IDE2TDE2IDhMMjQgMTYiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTggMjRMMTYgMTZMMjQgMjQiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="再生位置へ"></button>
+    <button class="ejump" id="eJumpDown" hidden><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiB2aWV3Qm94PSIwIDAgMzIgMzIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik04IDE2TDE2IDhMMjQgMTYiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTggMjRMMTYgMTZMMjQgMjQiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt="再生位置へ"></button>
     <div id="edPop" hidden>
-      <div class="box"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSIgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzQ4NTlfNzk3ODkpIj4KPHBhdGggaWQ9IlZlY3RvciIgZD0iTTIwIDBIMFYyMEgyMFYwWiIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC4wMSIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik00LjU4MzMzIDE3LjVDNS43MzM5MiAxNy41IDYuNjY2NjcgMTYuNTY3MiA2LjY2NjY3IDE1LjQxNjdDNi42NjY2NyAxNC4yNjYxIDUuNzMzOTIgMTMuMzMzMyA0LjU4MzMzIDEzLjMzMzNDMy40MzI3NCAxMy4zMzMzIDIuNSAxNC4yNjYxIDIuNSAxNS40MTY3QzIuNSAxNi41NjcyIDMuNDMyNzQgMTcuNSA0LjU4MzMzIDE3LjVaIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzMiIGQ9Ik0xNS40MTY3IDE3LjVDMTYuNTY3MiAxNy41IDE3LjUgMTYuNTY3MiAxNy41IDE1LjQxNjdDMTcuNSAxNC4yNjYxIDE2LjU2NzIgMTMuMzMzMyAxNS40MTY3IDEzLjMzMzNDMTQuMjY2MSAxMy4zMzMzIDEzLjMzMzMgMTQuMjY2MSAxMy4zMzMzIDE1LjQxNjdDMTMuMzMzMyAxNi41NjcyIDE0LjI2NjEgMTcuNSAxNS40MTY3IDE3LjVaIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzQiIGQ9Ik02LjQwNzI3IDE2LjQyMjJMNy4yOTE2OCAxNC45MjM1TDE0LjM3NSAyLjY1NDgzIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNSIgZD0iTTUuNjIzMTcgMi41NzMwNEwxMi43MDY1IDE0Ljg0MTdMMTMuNTk0MyAxNi40MjIyIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjwvZz4KPGRlZnM+CjxjbGlwUGF0aCBpZD0iY2xpcDBfNDg1OV83OTc4OSI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K" alt=""><span>分割</span></div>
+      <div class="box">
+        <button data-pop="split"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSIgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzQ4NTlfNzk3ODkpIj4KPHBhdGggaWQ9IlZlY3RvciIgZD0iTTIwIDBIMFYyMEgyMFYwWiIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC4wMSIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik00LjU4MzMzIDE3LjVDNS43MzM5MiAxNy41IDYuNjY2NjcgMTYuNTY3MiA2LjY2NjY3IDE1LjQxNjdDNi42NjY2NyAxNC4yNjYxIDUuNzMzOTIgMTMuMzMzMyA0LjU4MzMzIDEzLjMzMzNDMy40MzI3NCAxMy4zMzMzIDIuNSAxNC4yNjYxIDIuNSAxNS40MTY3QzIuNSAxNi41NjcyIDMuNDMyNzQgMTcuNSA0LjU4MzMzIDE3LjVaIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzMiIGQ9Ik0xNS40MTY3IDE3LjVDMTYuNTY3MiAxNy41IDE3LjUgMTYuNTY3MiAxNy41IDE1LjQxNjdDMTcuNSAxNC4yNjYxIDE2LjU2NzIgMTMuMzMzMyAxNS40MTY3IDEzLjMzMzNDMTQuMjY2MSAxMy4zMzMzIDEzLjMzMzMgMTQuMjY2MSAxMy4zMzMzIDE1LjQxNjdDMTMuMzMzMyAxNi41NjcyIDE0LjI2NjEgMTcuNSAxNS40MTY3IDE3LjVaIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzQiIGQ9Ik02LjQwNzI3IDE2LjQyMjJMNy4yOTE2OCAxNC45MjM1TDE0LjM3NSAyLjY1NDgzIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNSIgZD0iTTUuNjIzMTcgMi41NzMwNEwxMi43MDY1IDE0Ljg0MTdMMTMuNTk0MyAxNi40MjIyIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjwvZz4KPGRlZnM+CjxjbGlwUGF0aCBpZD0iY2xpcDBfNDg1OV83OTc4OSI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K" alt=""><span>分割</span></button>
+        <i class="sep"></i>
+        <button data-pop="paste"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0xNy4wODMzIDcuNUg3LjkxNjY3QzcuNjg2NTQgNy41IDcuNSA3LjY4NjU0IDcuNSA3LjkxNjY3VjE3LjA4MzNDNy41IDE3LjMxMzUgNy42ODY1NCAxNy41IDcuOTE2NjcgMTcuNUgxNy4wODMzQzE3LjMxMzUgMTcuNSAxNy41IDE3LjMxMzUgMTcuNSAxNy4wODMzVjcuOTE2NjdDMTcuNSA3LjY4NjU0IDE3LjMxMzUgNy41IDE3LjA4MzMgNy41WiIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuMjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNNC4xNTM3NyAyLjVIMi41VjQuMTgwNjciIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjI1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8zIiBkPSJNNC4xNjU0NCAxMi41MDAxSDIuNVYxMC44Mzg0IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNCIgZD0iTTEwLjgzNDQgMi41SDEyLjUwMDFWNC4xNzMiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjI1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl81IiBkPSJNNi42Nzg0NyAyLjVIOC4zMzY4IiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNiIgZD0iTTIuNSA2LjY2NjY3QzIuNSA3Ljc3MjMzIDIuNSA4LjMyNzg3IDIuNSA4LjMzMzMzIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS4yNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNyIgZD0iTTEyLjUgNi42NjY2N0MxMi41IDcuNzgxODcgMTIuNSA4LjA2MDY3IDEyLjUgNy41MDMwOCIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuMjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzgiIGQ9Ik02LjY2MzQxIDEyLjVINy40OTk4MyIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuMjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt=""><span>ペースト</span></button>
+      </div>
       <i class="tail"></i>
     </div>
   </div>
@@ -1035,7 +1050,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";window.__APPV="83bcae49";</script>
-<script src="gate.js?v=83bcae49"></script>
+<script>window.__LOCK="C";window.__APPV="e20691f2";</script>
+<script src="gate.js?v=e20691f2"></script>
 </body>
 </html>

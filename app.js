@@ -1681,15 +1681,32 @@ function openEdit(){
   edAnimIn();
 }
 var ED_EASE = "cubic-bezier(.17,.89,.24,1)";
-/* 下から押し上がって出てくる。「減弱」設定の時も、消さずにフェードだけは残す */
+/* 書き起こしの並びが、そのまま編集の並びに移り変わるように見せる。
+   上へ動きながら、左端が右へ寄って狭くなり、選択の丸が遅れて出る。
+   「減弱」設定の時も、消さずにフェードだけは残す */
 function edAnimIn(){
-  var w = $("#editWrap");
+  var w = $("#editWrap"), b = $("#eBody");
   if(!w.animate) return;
   try{
     if(REDUCE){ w.animate([{opacity:0},{opacity:1}], {duration:180}); return; }
-    w.animate([{opacity:0, transform:"translateY(26px) scale(.98)"},
-               {opacity:1, transform:"translateY(0) scale(1)"}],
-              {duration:280, easing:ED_EASE});
+    w.animate([{opacity:0},{opacity:1}], {duration:150});
+    if(b){
+      b.style.transformOrigin = "100% 0";      /* 右端を軸に狭くなる */
+      b.animate([{transform:"translate(-30px, 22px) scaleX(1.05)"},
+                 {transform:"translate(0, 0) scaleX(1)"}],
+                {duration:320, easing:"cubic-bezier(.33,.72,.28,1)"});
+    }
+    /* 丸は画面に見えている分だけ動かす（189行ぜんぶ動かすと重い） */
+    var seen = [], all = $$("#eBody .esel"), br = b ? b.getBoundingClientRect() : null;
+    for(var i = 0; i < all.length && seen.length < 20; i++){
+      var r = all[i].getBoundingClientRect();
+      if(!br || (r.bottom > br.top && r.top < br.bottom)) seen.push(all[i]);
+    }
+    seen.forEach(function(el){
+      el.animate([{opacity:0, transform:"scale(.6)"},
+                  {opacity:1, transform:"scale(1)"}],
+                 {duration:240, delay:130, easing:"cubic-bezier(.2,1.4,.3,1)", fill:"backwards"});
+    });
   }catch(e){}
 }
 /* キャンバス編集: チップでその見出しへ、文字を触ると編集できる */
@@ -1728,14 +1745,29 @@ function closeEdit(){
     w.classList.remove("canvas"); ED.mode = "transcript";
     $("#eJumpUp").hidden = true; $("#eJumpDown").hidden = true;
   }
-  if(REDUCE || !w.animate){ done(); return; }
+  if(!w.animate){ done(); return; }
   edClosing = true;
-  var a = REDUCE
-    ? w.animate([{opacity:1},{opacity:0}], {duration:140})
-    : w.animate([{opacity:1, transform:"translateY(0) scale(1)"},
-                 {opacity:0, transform:"translateY(20px) scale(.985)"}],
-                {duration:190, easing:EASE_OUT});
-  a.onfinish = done; a.oncancel = done;
+  /* 終わった瞬間に元の見た目へ戻ると1コマちらつくので fill:"forwards" で止め、
+     隠すのと同時に cancel して消す */
+  var running = [];
+  function stop(){
+    running.forEach(function(x){ try{ x.cancel(); }catch(e){} });
+    running = [];
+    done();
+  }
+  var b = $("#eBody"), ms = REDUCE ? 140 : 180;
+  if(!REDUCE && b && b.animate){                /* 入った時の逆。広がりながら下へ戻る */
+    try{
+      b.style.transformOrigin = "100% 0";
+      running.push(b.animate([{transform:"translate(0, 0) scaleX(1)"},
+                              {transform:"translate(-24px, 18px) scaleX(1.04)"}],
+                             {duration:ms, easing:EASE_OUT, fill:"forwards"}));
+    }catch(e){}
+  }
+  var a = w.animate([{opacity:1},{opacity:0}],
+                    {duration:ms, easing:EASE_OUT, fill:"forwards"});
+  running.push(a);
+  a.onfinish = stop; a.oncancel = stop;
 }
 
 $("#eBack").addEventListener("click", closeEdit);

@@ -838,12 +838,28 @@ $("#panelSummary").addEventListener("click", function(e){
 });
 /* ---- 長押しでその吹き出しをそのまま編集する ---- */
 var lpTimer = 0, lpX = 0, lpY = 0, lpDone = false, lpEl = null, lpOff = null;
+/* 長押しが効いた合図の振動。Android は vibrate、iOS は隠しスイッチを叩くしかない */
+var hapticing = false;
+function haptic(){
+  try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
+  try{
+    hapticing = true;
+    var lb = document.getElementById("hapticLb");
+    if(lb) lb.click();
+  }catch(e){}
+  hapticing = false;
+}
 function lpCancel(){ if(lpTimer){ clearTimeout(lpTimer); lpTimer = 0; } }
 function lpStart(e, run){
   if(e.button != null && e.button !== 0) return;
   lpCancel(); lpDone = false;
   lpX = e.clientX; lpY = e.clientY;
-  lpTimer = setTimeout(function(){ lpTimer = 0; lpDone = true; run(); }, 500);
+  lpTimer = setTimeout(function(){
+    lpTimer = 0;
+    haptic();                      /* 先に鳴らす。この時点ではまだ編集に入っていない */
+    lpDone = true;
+    run();
+  }, 500);
 }
 document.addEventListener("pointermove", function(e){
   /* 指が動いた＝スクロールなので長押しは取り消す */
@@ -866,7 +882,7 @@ document.addEventListener("touchend", lpRefocus, {passive:true});
 document.addEventListener("pointercancel", function(){ lpEl = null; lpCancel(); }, {passive:true});
 /* 長押しの直後に来るクリックは捨てる。編集画面の下の要素を押してしまわないように */
 document.addEventListener("click", function(e){
-  if(!lpDone) return;
+  if(hapticing || !lpDone) return;
   lpDone = false;
   e.stopPropagation(); e.preventDefault();
 }, true);
@@ -1647,6 +1663,11 @@ function openEdit(){
     renderEdit();
   }
   $("#editWrap").hidden = false;
+  /* すっと持ち上がって出る。中身は一拍おいて出すと切り替わった感じが出る */
+  anim($("#editWrap"), [{opacity:0, transform:"scale(.965)"},
+                        {opacity:1, transform:"scale(1)"}], 230, 0, "cubic-bezier(.17,.89,.24,1)");
+  anim($("#eBody"), [{opacity:0, transform:"translateY(10px)"},
+                     {opacity:1, transform:"translateY(0)"}], 260, 40, "cubic-bezier(.17,.89,.24,1)");
 }
 /* キャンバス編集: チップでその見出しへ、文字を触ると編集できる */
 $("#eBody").addEventListener("click", function(e){
@@ -1669,11 +1690,27 @@ $("#eBody").addEventListener("click", function(e){
     edPlaceCaret(p, e.clientX, e.clientY);
   }
 });
+var edClosing = false;
 function closeEdit(){
-  $("#editWrap").hidden = true; ED.editing = null;
-  $("#editWrap").classList.remove("canvas"); ED.mode = "transcript";
-  $("#eJumpUp").hidden = true; $("#eJumpDown").hidden = true;
-  renderTranscript(); paint();
+  var w = $("#editWrap");
+  if(w.hidden || edClosing) return;
+  /* 開いたままキーボードが残らないように、先に手を離させる */
+  var ae = document.activeElement;
+  if(ae && ae !== document.body && w.contains(ae) && ae.blur) ae.blur();
+  lpEl = null;
+  renderTranscript(); paint();        /* 下の画面は先に正しくしておく（見えないうちに） */
+  function done(){
+    edClosing = false;
+    w.hidden = true; ED.editing = null;
+    w.classList.remove("canvas"); ED.mode = "transcript";
+    $("#eJumpUp").hidden = true; $("#eJumpDown").hidden = true;
+  }
+  if(REDUCE || !w.animate){ done(); return; }
+  edClosing = true;
+  var a = w.animate([{opacity:1, transform:"scale(1)"},
+                     {opacity:0, transform:"scale(.975)"}],
+                    {duration:170, easing:EASE_OUT});
+  a.onfinish = done; a.oncancel = done;
 }
 
 $("#eBack").addEventListener("click", closeEdit);
@@ -1718,6 +1755,7 @@ function edEndEditing(){
 /* 小さな再生ボタンなど、focus が動かない所を押した時は focusout が来ないので、
    編集中の吹き出しの外を押したら必ず終わらせる */
 document.addEventListener("click", function(e){
+  if(hapticing) return;
   if(ED.editing == null || $("#editWrap").hidden) return;
   var el = document.querySelector('#eBody .ebb[data-ebb="'+ED.editing+'"]');
   if(el && el.contains(e.target)) return;

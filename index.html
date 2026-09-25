@@ -353,6 +353,8 @@ body.nostatus .homeind i{visibility:hidden}
 #scrim{position:absolute;inset:0;z-index:65}
 
 /* ---- 編集モード（設計稿 4824:50092 / 4824:49705 / 4824:50473） ---- */
+#hapticSw,#hapticLb{position:absolute;left:0;top:0;width:1px;height:1px;
+  opacity:0;pointer-events:none;-webkit-appearance:none;appearance:none;margin:0;border:0}
 #editWrap{position:absolute;inset:0;z-index:75;background:#fff}
 .ehead{position:absolute;left:0;top:45px;width:430px;height:61px;padding:0 16px;
   border-bottom:1px solid rgba(31,35,41,.15);display:flex;align-items:center}
@@ -675,6 +677,11 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
 <div id="board">
 <div id="clip">
 <div id="phone">
+
+  <!-- iOS で触覚フィードバックを出すための隠しスイッチ（Safari 17.4+）。
+       iOS には navigator.vibrate が無いので、これ以外に振動させる手段がない -->
+  <input type="checkbox" id="hapticSw" switch aria-hidden="true" tabindex="-1">
+  <label id="hapticLb" for="hapticSw" aria-hidden="true"></label>
 
   <div class="statusbar">
     <div class="clock">9:41</div>
@@ -1072,7 +1079,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";window.__APPV="a579298e";</script>
+<script>window.__LOCK="C";window.__APPV="1c50960c";</script>
 <script>
 (function(){
   try{ if(sessionStorage.getItem("yomel-fresh")) return; }catch(e){}
@@ -1087,6 +1094,6 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   }).catch(function(){});
 })();
 </script>
-<script src="gate.js?v=a579298e"></script>
+<script src="gate.js?v=1c50960c"></script>
 </body>
 </html>

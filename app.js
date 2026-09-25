@@ -729,10 +729,15 @@ function openSheet(mode, spId, lineIdx, count){
 }
 function closeSheet(){ S.sheet = null; $("#sheetwrap").hidden = true; }
 function countOf(spId){ return LINES.filter(function(l){ return l.sp===spId && !l.ov; }).length; }
+/* 編集モードは LINES ではなく作業中の ED.rows を数える（分割・結合の後も合うように） */
+function edCountOf(spId){ return ED.rows.filter(function(r){ return r.sp===spId && !r.ov; }).length; }
 function renderSheet(){
   var st = S.sheet; if(!st) return;
   var q = $("#memSearch").value.trim().toLowerCase();
-  var assigned = currentAssigned(st.sp, st.line);
+  var erow = (st.mode === "edit1") ? edRow(st.line) : null;
+  var assigned = erow
+    ? ((erow.ov && erow.ov.label) || (SPK[erow.sp] && SPK[erow.sp].assigned) || null)
+    : currentAssigned(st.sp, st.line);
   var list = MEMBERS.map(function(m,i){ return {m:m, i:i}; })
     .filter(function(o){ return !q || o.m.n.toLowerCase().indexOf(q) >= 0; });
   var html = "";
@@ -760,14 +765,15 @@ function renderSheet(){
     bulkBtn.hidden = false;
     bulkBtn.style.pointerEvents = "none";
     bulkBtn.innerHTML = '<span>' + st.count + 'か所の話者を一括変更</span>';
-  } else if(st.mode === "single"){
+  } else if(st.mode === "single" || st.mode === "edit1"){
     foot.classList.remove("right");
     bulkBtn.hidden = false;
     bulkBtn.style.pointerEvents = "";
     var box = st.bulk
       ? '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="10" fill="#16C098"/><path d="M7.5 12.3l3.2 3.2 5.8-6.4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
       : '<img src="'+A_ASSETS.checkbox+'" alt="">';
-    bulkBtn.innerHTML = box + '<span>'+countOf(st.sp)+'か所の「'+esc(SPK[st.sp].label)+'」を一括変更</span>';
+    var nAll = (st.mode === "edit1") ? edCountOf(st.sp) : countOf(st.sp);
+    bulkBtn.innerHTML = box + '<span>'+nAll+'か所の「'+esc(SPK[st.sp].label)+'」を一括変更</span>';
   } else {
     foot.classList.add("right");
     bulkBtn.hidden = true;
@@ -779,6 +785,19 @@ function renderSheet(){
 function applySheet(){
   var st = S.sheet; if(!st || st.sel == null) return;
   var m = MEMBERS[st.sel];
+  if(st.mode === "edit1"){                   /* 編集モードで名前の横のペンから */
+    var one = edRow(st.line);
+    var tgt = st.bulk
+      /* ボタンの「◯か所」と数が合うように、個別に変えた行は巻き込まない */
+      ? ED.rows.filter(function(r){ return r.sp === st.sp && (!r.ov || r === one); })
+      : (one ? [one] : []);
+    tgt.forEach(function(r){
+      r.ov = {id:r.sp, label:m.n, img:m.img, color:SPK[r.sp].color};
+    });
+    closeSheet(); ED.sel = {}; renderEdit();
+    toast(tgt.length + "件の話者を " + m.n + " に変えました");
+    return;
+  }
   if(st.mode === "edit"){                    /* 編集モードで選んだ行をまとめて変える */
     var done = 0;
     ED.rows.forEach(function(r){
@@ -1588,9 +1607,9 @@ $("#eBody").addEventListener("click", function(e){
   if(b){ var kk = +b.getAttribute("data-esel"); ED.sel[kk] = !ED.sel[kk];
          ED.editing = null; renderEdit(); return; }
   var pen = e.target.closest("[data-epen]");
-  if(pen){ var pk = +pen.getAttribute("data-epen");
-           ED.sel = {}; ED.sel[pk] = true; ED.editing = null;
-           renderEdit(); openSheet("edit", null, null, 1); return; }
+  if(pen){ var pk = +pen.getAttribute("data-epen"), prow = edRow(pk);
+           ED.sel = {}; ED.editing = null; renderEdit();
+           if(prow) openSheet("edit1", prow.sp, pk); return; }
   var pl = e.target.closest("[data-eplay]");
   if(pl){ var pr2 = edRow(pl.getAttribute("data-eplay"));
           if(pr2){ seek(pr2.t); if(!S.playing) togglePlay(); } return; }

@@ -849,12 +849,16 @@ document.addEventListener("pointermove", function(e){
   /* 指が動いた＝スクロールなので長押しは取り消す */
   if(lpTimer && (Math.abs(e.clientX - lpX) > 10 || Math.abs(e.clientY - lpY) > 10)) lpCancel();
 }, {passive:true});
-/* iOS はタイマーから focus してもキーボードを出してくれない（指の操作の中でないとダメ）。
-   見た目は 500ms で切り替えておいて、指を離した時にもう一度 focus してキーボードを出す。 */
+/* iOS はタイマーから focus してもキーボードを出さない（指の操作の中でないとダメ）。
+   500ms では画面を切り替えて枠を出すだけにして、指を離した瞬間に
+   contenteditable を付けて focus する。そこでキーボードが出る。 */
 function lpRefocus(){
   if(!lpDone || !lpEl) return;
   var el = lpEl, off = lpOff;
   lpEl = null;
+  el.setAttribute("contenteditable", "true");
+  /* すでに focus 済みだと focus() は何もしない＝キーボードが出ないので、一度外す */
+  if(document.activeElement === el) el.blur();
   edCaretAt(el, off);
 }
 document.addEventListener("pointerup", function(){ lpRefocus(); lpCancel(); }, {passive:true});
@@ -912,11 +916,9 @@ function edEnterFromLine(li, off){
   var host = el.closest(".erow") || el, body = $("#eBody");
   body.scrollTop = Math.max(0, host.offsetTop - (body.clientHeight - host.offsetHeight) / 2);
   ED.editing = r.k; ED.caret = null; ED.sel = {};
-  el.setAttribute("contenteditable", "true");
-  el.classList.add("editing");
+  el.classList.add("editing");     /* 枠だけ先に出す */
   clipProbe();
-  lpEl = el; lpOff = off;          /* 指を離した時にもう一度 focus する用 */
-  edCaretAt(el, off);
+  lpEl = el; lpOff = off;          /* 実際に編集を始めるのは指を離した時 */
   edPaintBar();
 }
 $("#panelTranscript").addEventListener("pointerdown", function(e){

@@ -1209,7 +1209,7 @@ function renderPick(){
       ? '<img class="cb" src="' + (on ? A_ASSETS.edSelectOn : A_ASSETS.edSelect) + '" alt="">'
       : (it.icon ? '<img class="ic" src="' + A_ASSETS[it.icon] + '" alt="">' : "");
     var tail = (!multi && on) ? '<img class="ck" src="' + A_ASSETS.check + '" alt="選択中">' : "";
-    return '<button class="prow" data-pick="' + esc(it.n) + '">' + lead
+    return '<button class="pkrow" data-pick="' + esc(it.n) + '">' + lead
          + '<span>' + esc(it.n) + '</span>' + tail + '</button>';
   }).join("");
   if(multi){

@@ -836,19 +836,8 @@ $("#panelSummary").addEventListener("click", function(e){
     jumpToCurrent();          /* 飛んだ先の発言を表示する（setTab は先頭に戻すだけなので） */
   }
 });
-/* ---- 長押しでその吹き出しをそのまま編集する ---- */
-var lpTimer = 0, lpX = 0, lpY = 0, lpDone = false, lpEl = null, lpOff = null;
-/* 長押しが効いた合図の振動。Android は vibrate、iOS は隠しスイッチを叩くしかない */
-var hapticing = false;
-function haptic(){
-  try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){}
-  try{
-    hapticing = true;
-    var lb = document.getElementById("hapticLb");
-    if(lb) lb.click();
-  }catch(e){}
-  hapticing = false;
-}
+/* ---- 長押しで編集モードに入る（カーソルもキーボードも出さない） ---- */
+var lpTimer = 0, lpX = 0, lpY = 0, lpDone = false;
 function lpCancel(){ if(lpTimer){ clearTimeout(lpTimer); lpTimer = 0; } }
 function lpPulse(el){
   if(!el || !el.animate || REDUCE) return;
@@ -865,7 +854,6 @@ function lpStart(e, el, run){
   lpX = e.clientX; lpY = e.clientY;
   lpTimer = setTimeout(function(){
     lpTimer = 0;
-    haptic();                      /* この時点ではまだ編集に入っていない */
     lpPulse(el);                   /* 効いたのが判るように、押した吹き出しを一度ふくらませる */
     lpDone = true;
     lpPending = run;
@@ -876,86 +864,49 @@ document.addEventListener("pointermove", function(e){
   /* 指が動いた＝スクロールなので長押しは取り消す */
   if(lpTimer && (Math.abs(e.clientX - lpX) > 10 || Math.abs(e.clientY - lpY) > 10)) lpCancel();
 }, {passive:true});
-/* iOS はタイマーから focus してもキーボードを出さない（指の操作の中でないとダメ）。
-   500ms では画面を切り替えて枠を出すだけにして、指を離した瞬間に
-   contenteditable を付けて focus する。そこでキーボードが出る。 */
-function lpRefocus(){
-  if(!lpDone) return;
-  lpGo();                          /* まだ切り替わっていなければ、指を離した時点で切り替える */
-  if(!lpEl) return;
-  var el = lpEl, off = lpOff;
-  lpEl = null;
-  el.setAttribute("contenteditable", "true");
-  /* すでに focus 済みだと focus() は何もしない＝キーボードが出ないので、一度外す */
-  if(document.activeElement === el) el.blur();
-  edCaretAt(el, off);
-}
-document.addEventListener("pointerup", function(){ lpRefocus(); lpCancel(); }, {passive:true});
-document.addEventListener("touchend", lpRefocus, {passive:true});
-document.addEventListener("pointercancel", function(){
-  lpEl = null; lpPending = null; lpCancel();
-}, {passive:true});
+/* 指を離すのが早かった時は、その場で切り替えてしまう */
+document.addEventListener("pointerup", function(){ if(lpDone) lpGo(); lpCancel(); }, {passive:true});
+document.addEventListener("pointercancel", function(){ lpPending = null; lpCancel(); }, {passive:true});
 /* 長押しの直後に来るクリックは捨てる。編集画面の下の要素を押してしまわないように */
 document.addEventListener("click", function(e){
-  if(hapticing || !lpDone) return;
+  if(!lpDone) return;
   lpDone = false;
   e.stopPropagation(); e.preventDefault();
 }, true);
 
-/* 押した場所が文字の何文字目かを数える。編集画面では幅が変わるので、
-   座標ではなく文字数で覚えておいて同じ所にカーソルを置く */
-function textOffsetAt(el, x, y){
-  var rg = null;
-  try{
-    if(document.caretRangeFromPoint) rg = document.caretRangeFromPoint(x, y);
-    else if(document.caretPositionFromPoint){
-      var pos = document.caretPositionFromPoint(x, y);
-      if(pos){ rg = document.createRange(); rg.setStart(pos.offsetNode, pos.offset); rg.collapse(true); }
+/* 編集モードに入っても同じ所が見えているように、今いる位置を覚えて合わせる。
+   書き起こしは1発言1行、普通の画面は同じ話者をまとめて出すので高さが違う。
+   だから座標ではなく「一番上に見えている発言（段落）」を目印にする */
+function edAnchor(){
+  var sc = $("#scroller"); if(!sc) return null;
+  var k = phone.getBoundingClientRect().width / 430;
+  var top = sc.getBoundingClientRect().top + 34 * k;      /* タブのすぐ下 */
+  var els = (S.tab === "summary") ? $$("#panelSummary .sec p") : $$("#panelTranscript .bb");
+  for(var i = 0; i < els.length; i++){
+    var r = els[i].getBoundingClientRect();
+    if(r.bottom > top){
+      return {canvas:(S.tab === "summary"),
+              i:(S.tab === "summary" ? i : +els[i].getAttribute("data-line")),
+              d:(r.top - top) / k};
     }
-  }catch(e){}
-  if(!rg || !el.contains(rg.startContainer)) return null;
-  var m = document.createRange();
-  m.selectNodeContents(el);
-  m.setEnd(rg.startContainer, rg.startOffset);
-  return m.toString().length;
-}
-/* off 文字目にカーソルを置く（null なら文末）。
-   iOS は focus のあとから自分で置き直すので、少し後にも当て直す */
-function edCaretAt(el, off){
-  el.focus();
-  function put(){
-    var sel = window.getSelection(); if(!sel) return;
-    var rg = document.createRange(), t = el.firstChild;
-    if(off != null && t && t.nodeType === 3){
-      rg.setStart(t, Math.max(0, Math.min(off, t.length)));
-      rg.collapse(true);
-    } else {
-      rg.selectNodeContents(el); rg.collapse(false);
-    }
-    sel.removeAllRanges(); sel.addRange(rg);
   }
-  put();
-  requestAnimationFrame(put);
-  setTimeout(put, 60);
-  setTimeout(function(){ put(); edPop(); }, 180);
+  return null;
 }
-function edEnterFromLine(li, off){
-  openEdit();
-  var r = ED.rows[li]; if(!r) return;
-  var el = document.querySelector('#eBody .ebb[data-ebb="' + r.k + '"]');
-  if(!el) return;
-  var host = el.closest(".erow") || el, body = $("#eBody");
-  body.scrollTop = Math.max(0, host.offsetTop - (body.clientHeight - host.offsetHeight) / 2);
-  ED.editing = r.k; ED.caret = null; ED.sel = {};
-  el.classList.add("editing");     /* 枠だけ先に出す */
-  clipProbe();
-  lpEl = el; lpOff = off;          /* 実際に編集を始めるのは指を離した時 */
-  edPaintBar();
+function edApplyAnchor(a){
+  if(!a) return;
+  var host = null;
+  if(a.canvas){
+    host = $$("#eBody [data-ecx]")[a.i];
+  } else {
+    var r = ED.rows[a.i];
+    if(r) host = document.querySelector('#eBody .ebb[data-ebb="' + r.k + '"]');
+  }
+  if(!host) return;
+  $("#eBody").scrollTop = Math.max(0, host.offsetTop - a.d);
 }
 $("#panelTranscript").addEventListener("pointerdown", function(e){
   var bb = e.target.closest(".bb"); if(!bb) return;
-  var li = +bb.getAttribute("data-line");
-  lpStart(e, bb, function(){ edEnterFromLine(li, textOffsetAt(bb, lpX, lpY)); });
+  lpStart(e, bb, openEdit);
 });
 /* 長押しで出る OS のメニューは邪魔なので止める */
 $("#panelTranscript").addEventListener("contextmenu", function(e){
@@ -1661,6 +1612,7 @@ function renderCanvasEdit(){
   $("#eBody").innerHTML = chips + body;
 }
 function openEdit(){
+  var anchor = edAnchor();          /* 今どこを見ているかを先に覚える */
   ED.seq = 0; ED.sel = {}; ED.editing = null;
   ED.mode = (S.tab === "summary") ? "canvas" : "transcript";
   $("#editWrap").classList.toggle("canvas", ED.mode === "canvas");
@@ -1678,6 +1630,7 @@ function openEdit(){
     renderEdit();
   }
   $("#editWrap").hidden = false;
+  edApplyAnchor(anchor);            /* 文章の先頭からではなく、さっき見ていた所から出す */
   edAnimIn();
 }
 var ED_EASE = "cubic-bezier(.17,.89,.24,1)";
@@ -1737,7 +1690,6 @@ function closeEdit(){
   /* 開いたままキーボードが残らないように、先に手を離させる */
   var ae = document.activeElement;
   if(ae && ae !== document.body && w.contains(ae) && ae.blur) ae.blur();
-  lpEl = null;
   renderTranscript(); paint();        /* 下の画面は先に正しくしておく（見えないうちに） */
   function done(){
     edClosing = false;
@@ -1812,7 +1764,6 @@ function edEndEditing(){
 /* 小さな再生ボタンなど、focus が動かない所を押した時は focusout が来ないので、
    編集中の吹き出しの外を押したら必ず終わらせる */
 document.addEventListener("click", function(e){
-  if(hapticing) return;
   if(ED.editing == null || $("#editWrap").hidden) return;
   var el = document.querySelector('#eBody .ebb[data-ebb="'+ED.editing+'"]');
   if(el && el.contains(e.target)) return;

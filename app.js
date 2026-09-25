@@ -57,7 +57,7 @@ var S = {
   variant:"A", tab:"transcript", pos:0, playing:false, speed:1,
   scrollMem:{},   /* タブごとの閲覧位置を覚えておく */
   solo:null,      /* この話者の発言だけを再生している（話者ページの再生ボタン） */
-  expanded:false, editMode:false,
+  expanded:false,
   sheet:null   /* {mode:'bulk'|'single', sp:'A', line:idx, sel:memberIdx|null, bulk:false} */
 };
 var SPEEDS = [1, 1.5, 2];
@@ -119,7 +119,6 @@ function groups(){
   var out = [], cur = null;
   LINES.forEach(function(l){
     var key = (l.ov ? "ov" + l.i : "g" + l.g);
-    if(S.editMode) { out.push({sp:l.sp, key:key, lines:[l]}); cur=null; return; }
     if(cur && cur.key === key){ cur.lines.push(l); }
     else { cur = {sp:l.sp, key:key, lines:[l]}; out.push(cur); }
   });
@@ -136,10 +135,9 @@ function renderTranscript(){
   groups().forEach(function(g){
     var sp = spkOf(g.lines[0]);
     var me = SPK[g.sp].side === "me";
-    var pen = S.editMode ? '<img class="pen" src="'+A_ASSETS.pencil+'" alt="話者を編集">' : "";
     var head = me
-      ? '<div class="ghead"><span class="tm">'+fmt(g.lines[0].t)+'</span>'+pen+'<img class="dot" src="'+A_ASSETS.dot3+'" alt=""><span class="nm">'+esc(sp.label)+'</span></div>'
-      : '<div class="ghead"><span class="nm">'+esc(sp.label)+'</span>'+pen+'<img class="dot" src="'+A_ASSETS.dot3+'" alt=""><span class="tm">'+fmt(g.lines[0].t)+'</span></div>';
+      ? '<div class="ghead"><span class="tm">'+fmt(g.lines[0].t)+'</span><img class="dot" src="'+A_ASSETS.dot3+'" alt=""><span class="nm">'+esc(sp.label)+'</span></div>'
+      : '<div class="ghead"><span class="nm">'+esc(sp.label)+'</span><img class="dot" src="'+A_ASSETS.dot3+'" alt=""><span class="tm">'+fmt(g.lines[0].t)+'</span></div>';
     var n = g.lines.length, bg = SPK[g.sp].bub;
     var bubbles = g.lines.map(function(l, k){
       var first = k===0, last = k===n-1, multi = n>1;
@@ -149,7 +147,7 @@ function renderTranscript(){
       return '<div class="bb" data-line="'+l.i+'" style="background:'+bg
            + ';border-radius:'+r[0]+'px '+r[1]+'px '+r[2]+'px '+r[3]+'px">'+esc(l.text)+'</div>';
     }).join("");
-    html += '<div class="grp'+(me?" me":"")+'" data-pen-line="'+g.lines[0].i+'">'
+    html += '<div class="grp'+(me?" me":"")+'">'
           + (me ? "" : avatarHTML(sp))
           + '<div class="gbody">'+head+'<div class="bubbles">'+bubbles+'</div></div>'
           + (me ? avatarHTML(sp) : "")
@@ -728,8 +726,7 @@ function openSheet(mode, spId, lineIdx, count){
   $("#sheetwrap").hidden = false;
 }
 function closeSheet(){ S.sheet = null; $("#sheetwrap").hidden = true; }
-function countOf(spId){ return LINES.filter(function(l){ return l.sp===spId && !l.ov; }).length; }
-/* 編集モードは LINES ではなく作業中の ED.rows を数える（分割・結合の後も合うように） */
+/* 件数は LINES ではなく編集中の作業データ（ED.rows）から数える。分割・結合の後も合うように */
 function edCountOf(spId){ return ED.rows.filter(function(r){ return r.sp===spId && !r.ov; }).length; }
 function renderSheet(){
   var st = S.sheet; if(!st) return;
@@ -765,15 +762,15 @@ function renderSheet(){
     bulkBtn.hidden = false;
     bulkBtn.style.pointerEvents = "none";
     bulkBtn.innerHTML = '<span>' + st.count + 'か所の話者を一括変更</span>';
-  } else if(st.mode === "single" || st.mode === "edit1"){
+  } else if(st.mode === "edit1"){
     foot.classList.remove("right");
     bulkBtn.hidden = false;
     bulkBtn.style.pointerEvents = "";
     var box = st.bulk
       ? '<svg viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="10" fill="#16C098"/><path d="M7.5 12.3l3.2 3.2 5.8-6.4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
       : '<img src="'+A_ASSETS.checkbox+'" alt="">';
-    var nAll = (st.mode === "edit1") ? edCountOf(st.sp) : countOf(st.sp);
-    bulkBtn.innerHTML = box + '<span>'+nAll+'か所の「'+esc(SPK[st.sp].label)+'」を一括変更</span>';
+    bulkBtn.innerHTML = box
+      + '<span>'+edCountOf(st.sp)+'か所の「'+esc(SPK[st.sp].label)+'」を一括変更</span>';
   } else {
     foot.classList.add("right");
     bulkBtn.hidden = true;
@@ -809,13 +806,9 @@ function applySheet(){
     toast(done + "件の話者を " + m.n + " に変えました");
     return;
   }
-  var ident = {id:st.sp, label:m.n, img:m.img, color:SPK[st.sp].color};
-  if(st.mode === "bulk" || st.bulk){
-    SPK[st.sp].label = m.n; SPK[st.sp].img = m.img; SPK[st.sp].assigned = m.n;
-    LINES.forEach(function(l){ if(l.sp === st.sp) l.ov = null; });
-  } else {
-    LINES[st.line].ov = ident;
-  }
+  /* 話者ページから = その話者を丸ごと差し替える */
+  SPK[st.sp].label = m.n; SPK[st.sp].img = m.img; SPK[st.sp].assigned = m.n;
+  LINES.forEach(function(l){ if(l.sp === st.sp) l.ov = null; });
   closeSheet(); renderTranscript(); renderSpeakers(); paint();
 }
 
@@ -843,13 +836,67 @@ $("#panelSummary").addEventListener("click", function(e){
     jumpToCurrent();          /* 飛んだ先の発言を表示する（setTab は先頭に戻すだけなので） */
   }
 });
-$("#panelTranscript").addEventListener("click", function(e){
-  var pen = e.target.closest(".pen");
-  if(pen && S.editMode){
-    var grp = pen.closest(".grp");
-    openSheet("single", spkLineSp(grp), +grp.getAttribute("data-pen-line"));
-    return;
+/* ---- 長押しでその吹き出しをそのまま編集する ---- */
+var lpTimer = 0, lpX = 0, lpY = 0, lpDone = false;
+function lpCancel(){ if(lpTimer){ clearTimeout(lpTimer); lpTimer = 0; } }
+function lpStart(e, run){
+  if(e.button != null && e.button !== 0) return;
+  lpCancel(); lpDone = false;
+  lpX = e.clientX; lpY = e.clientY;
+  lpTimer = setTimeout(function(){ lpTimer = 0; lpDone = true; run(); }, 500);
+}
+document.addEventListener("pointermove", function(e){
+  /* 指が動いた＝スクロールなので長押しは取り消す */
+  if(lpTimer && (Math.abs(e.clientX - lpX) > 10 || Math.abs(e.clientY - lpY) > 10)) lpCancel();
+}, {passive:true});
+document.addEventListener("pointerup", lpCancel, {passive:true});
+document.addEventListener("pointercancel", lpCancel, {passive:true});
+/* 長押しの直後に来るクリックは捨てる。編集画面の下の要素を押してしまわないように */
+document.addEventListener("click", function(e){
+  if(!lpDone) return;
+  lpDone = false;
+  e.stopPropagation(); e.preventDefault();
+}, true);
+
+/* カーソルを文末に置く。iOS は focus のあとから置き直すので少し後にも当て直す */
+function edCaretEnd(el){
+  el.focus();
+  function put(){
+    var sel = window.getSelection(); if(!sel) return;
+    var rg = document.createRange();
+    rg.selectNodeContents(el); rg.collapse(false);
+    sel.removeAllRanges(); sel.addRange(rg);
   }
+  put();
+  requestAnimationFrame(put);
+  setTimeout(put, 60);
+  setTimeout(function(){ put(); edPop(); }, 180);
+}
+function edEnterFromLine(li){
+  openEdit();
+  var r = ED.rows[li]; if(!r) return;
+  var el = document.querySelector('#eBody .ebb[data-ebb="' + r.k + '"]');
+  if(!el) return;
+  var host = el.closest(".erow") || el, body = $("#eBody");
+  body.scrollTop = Math.max(0, host.offsetTop - (body.clientHeight - host.offsetHeight) / 2);
+  ED.editing = r.k; ED.caret = null; ED.sel = {};
+  el.setAttribute("contenteditable", "true");
+  el.classList.add("editing");
+  clipProbe();
+  edCaretEnd(el);
+  edPaintBar();
+}
+$("#panelTranscript").addEventListener("pointerdown", function(e){
+  var bb = e.target.closest(".bb"); if(!bb) return;
+  var li = +bb.getAttribute("data-line");
+  lpStart(e, function(){ edEnterFromLine(li); });
+});
+/* 長押しで出る OS のメニューは邪魔なので止める */
+$("#panelTranscript").addEventListener("contextmenu", function(e){
+  if(e.target.closest(".bb")) e.preventDefault();
+});
+
+$("#panelTranscript").addEventListener("click", function(e){
   var bb = e.target.closest(".bb");
   if(bb){
     var li = +bb.getAttribute("data-line"), ln = LINES[li];
@@ -859,7 +906,6 @@ $("#panelTranscript").addEventListener("click", function(e){
     centerLine(li);                                 /* 下の方を押したら中央まで送る */
   }
 });
-function spkLineSp(grp){ return LINES[+grp.getAttribute("data-pen-line")].sp; }
 $("#panelSpeakers").addEventListener("click", function(e){
   var pen = e.target.closest("[data-editsp]");
   if(pen){ openSheet("bulk", pen.getAttribute("data-editsp"), null); return; }

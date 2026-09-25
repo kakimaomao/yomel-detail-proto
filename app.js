@@ -837,7 +837,7 @@ $("#panelSummary").addEventListener("click", function(e){
   }
 });
 /* ---- 長押しでその吹き出しをそのまま編集する ---- */
-var lpTimer = 0, lpX = 0, lpY = 0, lpDone = false;
+var lpTimer = 0, lpX = 0, lpY = 0, lpDone = false, lpEl = null, lpOff = null;
 function lpCancel(){ if(lpTimer){ clearTimeout(lpTimer); lpTimer = 0; } }
 function lpStart(e, run){
   if(e.button != null && e.button !== 0) return;
@@ -849,8 +849,17 @@ document.addEventListener("pointermove", function(e){
   /* 指が動いた＝スクロールなので長押しは取り消す */
   if(lpTimer && (Math.abs(e.clientX - lpX) > 10 || Math.abs(e.clientY - lpY) > 10)) lpCancel();
 }, {passive:true});
-document.addEventListener("pointerup", lpCancel, {passive:true});
-document.addEventListener("pointercancel", lpCancel, {passive:true});
+/* iOS はタイマーから focus してもキーボードを出してくれない（指の操作の中でないとダメ）。
+   見た目は 500ms で切り替えておいて、指を離した時にもう一度 focus してキーボードを出す。 */
+function lpRefocus(){
+  if(!lpDone || !lpEl) return;
+  var el = lpEl, off = lpOff;
+  lpEl = null;
+  edCaretAt(el, off);
+}
+document.addEventListener("pointerup", function(){ lpRefocus(); lpCancel(); }, {passive:true});
+document.addEventListener("touchend", lpRefocus, {passive:true});
+document.addEventListener("pointercancel", function(){ lpEl = null; lpCancel(); }, {passive:true});
 /* 長押しの直後に来るクリックは捨てる。編集画面の下の要素を押してしまわないように */
 document.addEventListener("click", function(e){
   if(!lpDone) return;
@@ -906,6 +915,7 @@ function edEnterFromLine(li, off){
   el.setAttribute("contenteditable", "true");
   el.classList.add("editing");
   clipProbe();
+  lpEl = el; lpOff = off;          /* 指を離した時にもう一度 focus する用 */
   edCaretAt(el, off);
   edPaintBar();
 }

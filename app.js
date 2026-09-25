@@ -858,13 +858,36 @@ document.addEventListener("click", function(e){
   e.stopPropagation(); e.preventDefault();
 }, true);
 
-/* カーソルを文末に置く。iOS は focus のあとから置き直すので少し後にも当て直す */
-function edCaretEnd(el){
+/* 押した場所が文字の何文字目かを数える。編集画面では幅が変わるので、
+   座標ではなく文字数で覚えておいて同じ所にカーソルを置く */
+function textOffsetAt(el, x, y){
+  var rg = null;
+  try{
+    if(document.caretRangeFromPoint) rg = document.caretRangeFromPoint(x, y);
+    else if(document.caretPositionFromPoint){
+      var pos = document.caretPositionFromPoint(x, y);
+      if(pos){ rg = document.createRange(); rg.setStart(pos.offsetNode, pos.offset); rg.collapse(true); }
+    }
+  }catch(e){}
+  if(!rg || !el.contains(rg.startContainer)) return null;
+  var m = document.createRange();
+  m.selectNodeContents(el);
+  m.setEnd(rg.startContainer, rg.startOffset);
+  return m.toString().length;
+}
+/* off 文字目にカーソルを置く（null なら文末）。
+   iOS は focus のあとから自分で置き直すので、少し後にも当て直す */
+function edCaretAt(el, off){
   el.focus();
   function put(){
     var sel = window.getSelection(); if(!sel) return;
-    var rg = document.createRange();
-    rg.selectNodeContents(el); rg.collapse(false);
+    var rg = document.createRange(), t = el.firstChild;
+    if(off != null && t && t.nodeType === 3){
+      rg.setStart(t, Math.max(0, Math.min(off, t.length)));
+      rg.collapse(true);
+    } else {
+      rg.selectNodeContents(el); rg.collapse(false);
+    }
     sel.removeAllRanges(); sel.addRange(rg);
   }
   put();
@@ -872,7 +895,7 @@ function edCaretEnd(el){
   setTimeout(put, 60);
   setTimeout(function(){ put(); edPop(); }, 180);
 }
-function edEnterFromLine(li){
+function edEnterFromLine(li, off){
   openEdit();
   var r = ED.rows[li]; if(!r) return;
   var el = document.querySelector('#eBody .ebb[data-ebb="' + r.k + '"]');
@@ -883,13 +906,13 @@ function edEnterFromLine(li){
   el.setAttribute("contenteditable", "true");
   el.classList.add("editing");
   clipProbe();
-  edCaretEnd(el);
+  edCaretAt(el, off);
   edPaintBar();
 }
 $("#panelTranscript").addEventListener("pointerdown", function(e){
   var bb = e.target.closest(".bb"); if(!bb) return;
   var li = +bb.getAttribute("data-line");
-  lpStart(e, function(){ edEnterFromLine(li); });
+  lpStart(e, function(){ edEnterFromLine(li, textOffsetAt(bb, lpX, lpY)); });
 });
 /* 長押しで出る OS のメニューは邪魔なので止める */
 $("#panelTranscript").addEventListener("contextmenu", function(e){

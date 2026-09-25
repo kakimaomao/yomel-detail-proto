@@ -850,15 +850,26 @@ function haptic(){
   hapticing = false;
 }
 function lpCancel(){ if(lpTimer){ clearTimeout(lpTimer); lpTimer = 0; } }
-function lpStart(e, run){
+function lpPulse(el){
+  if(!el || !el.animate || REDUCE) return;
+  try{
+    el.animate([{transform:"scale(1)"}, {transform:"scale(1.045)"}, {transform:"scale(1)"}],
+               {duration:280, easing:"cubic-bezier(.2,.9,.25,1)"});
+  }catch(e){}
+}
+var lpPending = null;
+function lpGo(){ if(!lpPending) return; var r = lpPending; lpPending = null; r(); }
+function lpStart(e, el, run){
   if(e.button != null && e.button !== 0) return;
-  lpCancel(); lpDone = false;
+  lpCancel(); lpDone = false; lpPending = null;
   lpX = e.clientX; lpY = e.clientY;
   lpTimer = setTimeout(function(){
     lpTimer = 0;
-    haptic();                      /* 先に鳴らす。この時点ではまだ編集に入っていない */
+    haptic();                      /* この時点ではまだ編集に入っていない */
+    lpPulse(el);                   /* 効いたのが判るように、押した吹き出しを一度ふくらませる */
     lpDone = true;
-    run();
+    lpPending = run;
+    setTimeout(lpGo, 150);         /* ふくらみを見せてから画面を切り替える */
   }, 500);
 }
 document.addEventListener("pointermove", function(e){
@@ -869,7 +880,9 @@ document.addEventListener("pointermove", function(e){
    500ms では画面を切り替えて枠を出すだけにして、指を離した瞬間に
    contenteditable を付けて focus する。そこでキーボードが出る。 */
 function lpRefocus(){
-  if(!lpDone || !lpEl) return;
+  if(!lpDone) return;
+  lpGo();                          /* まだ切り替わっていなければ、指を離した時点で切り替える */
+  if(!lpEl) return;
   var el = lpEl, off = lpOff;
   lpEl = null;
   el.setAttribute("contenteditable", "true");
@@ -879,7 +892,9 @@ function lpRefocus(){
 }
 document.addEventListener("pointerup", function(){ lpRefocus(); lpCancel(); }, {passive:true});
 document.addEventListener("touchend", lpRefocus, {passive:true});
-document.addEventListener("pointercancel", function(){ lpEl = null; lpCancel(); }, {passive:true});
+document.addEventListener("pointercancel", function(){
+  lpEl = null; lpPending = null; lpCancel();
+}, {passive:true});
 /* 長押しの直後に来るクリックは捨てる。編集画面の下の要素を押してしまわないように */
 document.addEventListener("click", function(e){
   if(hapticing || !lpDone) return;
@@ -940,7 +955,7 @@ function edEnterFromLine(li, off){
 $("#panelTranscript").addEventListener("pointerdown", function(e){
   var bb = e.target.closest(".bb"); if(!bb) return;
   var li = +bb.getAttribute("data-line");
-  lpStart(e, function(){ edEnterFromLine(li, textOffsetAt(bb, lpX, lpY)); });
+  lpStart(e, bb, function(){ edEnterFromLine(li, textOffsetAt(bb, lpX, lpY)); });
 });
 /* 長押しで出る OS のメニューは邪魔なので止める */
 $("#panelTranscript").addEventListener("contextmenu", function(e){
@@ -1663,11 +1678,19 @@ function openEdit(){
     renderEdit();
   }
   $("#editWrap").hidden = false;
-  /* すっと持ち上がって出る。中身は一拍おいて出すと切り替わった感じが出る */
-  anim($("#editWrap"), [{opacity:0, transform:"scale(.965)"},
-                        {opacity:1, transform:"scale(1)"}], 230, 0, "cubic-bezier(.17,.89,.24,1)");
-  anim($("#eBody"), [{opacity:0, transform:"translateY(10px)"},
-                     {opacity:1, transform:"translateY(0)"}], 260, 40, "cubic-bezier(.17,.89,.24,1)");
+  edAnimIn();
+}
+var ED_EASE = "cubic-bezier(.17,.89,.24,1)";
+/* 下から押し上がって出てくる。「減弱」設定の時も、消さずにフェードだけは残す */
+function edAnimIn(){
+  var w = $("#editWrap");
+  if(!w.animate) return;
+  try{
+    if(REDUCE){ w.animate([{opacity:0},{opacity:1}], {duration:180}); return; }
+    w.animate([{opacity:0, transform:"translateY(26px) scale(.98)"},
+               {opacity:1, transform:"translateY(0) scale(1)"}],
+              {duration:280, easing:ED_EASE});
+  }catch(e){}
 }
 /* キャンバス編集: チップでその見出しへ、文字を触ると編集できる */
 $("#eBody").addEventListener("click", function(e){
@@ -1707,9 +1730,11 @@ function closeEdit(){
   }
   if(REDUCE || !w.animate){ done(); return; }
   edClosing = true;
-  var a = w.animate([{opacity:1, transform:"scale(1)"},
-                     {opacity:0, transform:"scale(.975)"}],
-                    {duration:170, easing:EASE_OUT});
+  var a = REDUCE
+    ? w.animate([{opacity:1},{opacity:0}], {duration:140})
+    : w.animate([{opacity:1, transform:"translateY(0) scale(1)"},
+                 {opacity:0, transform:"translateY(20px) scale(.985)"}],
+                {duration:190, easing:EASE_OUT});
   a.onfinish = done; a.oncancel = done;
 }
 

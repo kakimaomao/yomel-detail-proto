@@ -505,6 +505,7 @@ body.nostatus .homeind i{visibility:hidden}
 /* 検索中は見出しとタブを隠して、書き起こしだけを出す */
 #phone.searching .navrow,#phone.searching .titleblock,#phone.searching .tabsrow{display:none}
 #phone.searching #scroller{top:135px}
+#phone.searching .chips{top:0}      /* タブ行が消えるぶん、チップも上へ */
 /* 検索の ∧∨ は3通りの置き方がある（設計稿 4837:52353 / 4837:52496 / 4837:53132）
    ・キーボードが出ている時: 全幅の白帯をキーボードのすぐ上に
    ・パネルが出ている時    : 全幅の白帯を y=762（パネルの上）に
@@ -1079,7 +1080,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";window.__APPV="89553061";</script>
+<script>window.__LOCK="C";window.__APPV="9c04f9db";</script>
 <script>
 (function(){
   var KEY = "yomel-fresh";
@@ -1107,6 +1108,6 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   window.addEventListener("pageshow", function(e){ if(e.persisted) check(); });
 })();
 </script>
-<script src="gate.js?v=89553061"></script>
+<script src="gate.js?v=9c04f9db"></script>
 </body>
 </html>

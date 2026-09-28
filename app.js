@@ -1137,35 +1137,50 @@ $("#menuWrap").addEventListener("click", function(e){
 });
 
 /* ---------- 検索 ---------- */
-var SE = {on:false, q:"", hits:[], at:0};   /* hits = [{line, start}] */
+/* hits = [{line, start}]。canvas の時の line は段落の順番 */
+var SE = {on:false, q:"", hits:[], at:0, mode:"transcript", texts:[]};
+function seCanvasEls(){ return $$("#panelSummary .sec p"); }
 
 function seFind(){
   SE.hits = [];
   var q = SE.q;
   if(!q) return;
   var lq = q.toLowerCase();
-  LINES.forEach(function(l){
+  var src = (SE.mode === "canvas")
+    ? SE.texts.map(function(t, i){ return {i:i, text:t}; })
+    : LINES;
+  src.forEach(function(l){
     var t = l.text.toLowerCase(), from = 0, k;
     while((k = t.indexOf(lq, from)) >= 0){ SE.hits.push({line:l.i, start:k}); from = k + lq.length; }
   });
   if(SE.at >= SE.hits.length) SE.at = 0;
 }
+/* 一致に印を付けた HTML を作る。見つからなければ null */
+function seMarked(text, i, cur){
+  var q = SE.q, lq = q.toLowerCase(), lt = text.toLowerCase();
+  var out = "", from = 0, k, seen = 0;
+  while((k = lt.indexOf(lq, from)) >= 0){
+    var isNow = cur && cur.line === i && cur.start === k;
+    out += esc(text.slice(from, k))
+         + '<mark class="hit' + (isNow ? " now" : "") + '">' + esc(text.substr(k, q.length)) + '</mark>';
+    from = k + q.length; seen++;
+  }
+  return seen ? out + esc(text.slice(from)) : null;
+}
 /* 一致した箇所を印で囲む。今いる一致だけ色を変える */
 function sePaint(){
-  var q = SE.q, lq = q.toLowerCase();
   var cur = SE.hits[SE.at];
+  if(SE.mode === "canvas"){
+    seCanvasEls().forEach(function(el, i){
+      var text = SE.texts[i];
+      if(text == null) return;
+      el.innerHTML = SE.q ? (seMarked(text, i, cur) || esc(text)) : esc(text);
+    });
+    return;
+  }
   $$("#panelTranscript .bb").forEach(function(el){
     var i = +el.getAttribute("data-line"), text = LINES[i].text;
-    if(!q){ el.innerHTML = esc(text); return; }
-    var lt = text.toLowerCase(), out = "", from = 0, k, seen = 0;
-    while((k = lt.indexOf(lq, from)) >= 0){
-      var isNow = cur && cur.line === i && cur.start === k;
-      out += esc(text.slice(from, k))
-           + '<mark class="hit' + (isNow ? " now" : "") + '">' + esc(text.substr(k, q.length)) + '</mark>';
-      from = k + q.length; seen++;
-    }
-    out += esc(text.slice(from));
-    el.innerHTML = seen ? out : esc(text);
+    el.innerHTML = SE.q ? (seMarked(text, i, cur) || esc(text)) : esc(text);
   });
   markCurrent();
 }
@@ -1209,7 +1224,10 @@ function seGo(d){
 /* 今いる一致を帯の真ん中あたりへ */
 function seScroll(){
   var h = SE.hits[SE.at]; if(!h) return;
-  var el = $('#panelTranscript .bb[data-line="'+h.line+'"]'); if(!el) return;
+  var el = (SE.mode === "canvas")
+    ? seCanvasEls()[h.line]
+    : $('#panelTranscript .bb[data-line="'+h.line+'"]');
+  if(!el) return;
   var sc = $("#scroller");
   var pr = phone.getBoundingClientRect(), k = pr.width / 430;
   var r = el.getBoundingClientRect();
@@ -1222,7 +1240,16 @@ function seScroll(){
 }
 function openSearch(){
   SE.on = true; SE.q = ""; SE.hits = []; SE.at = 0;
-  setTab("transcript");
+  /* キャンバスから開いたらキャンバスを、それ以外は書き起こしを探す */
+  SE.mode = (S.tab === "summary") ? "canvas" : "transcript";
+  if(SE.mode === "canvas"){
+    SE.texts = seCanvasEls().map(function(el){ return el.textContent; });
+    $("#seInput").placeholder = "キャンバスを検索";
+  } else {
+    SE.texts = [];
+    $("#seInput").placeholder = "キーワードを検索";
+    setTab("transcript");
+  }
   phone.classList.add("searching");
   $("#searchBar").hidden = false;
   $("#seInput").value = "";
@@ -1235,7 +1262,8 @@ function closeSearch(){
   phone.classList.remove("searching");
   $("#searchBar").hidden = true;
   $("#searchNav").hidden = true;
-  sePaint();
+  sePaint();                 /* 印を消してから元に戻す */
+  SE.mode = "transcript"; SE.texts = [];
 }
 $("#searchBtn").addEventListener("click", function(e){ e.stopPropagation(); openSearch(); });
 $("#seCancel").addEventListener("click", closeSearch);

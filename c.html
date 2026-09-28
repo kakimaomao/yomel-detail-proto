@@ -162,6 +162,9 @@ body.nostatus .homeind i{visibility:hidden}
 /* ---- speakers ---- */
 #panelSpeakers{padding:24px 0 0;gap:40px}   /* 設計稿: ヘッダー291 → 内容315 = 24px */
 .spgroup{display:flex;flex-direction:column;gap:16px}
+/* 設計稿（4415:44600）は話者どうしも 16px だが、バーと次の名前がくっついて見えるので
+   同じ側の話者どうしだけ 24px にする。見出し→最初の話者は設計稿どおり 16px のまま */
+.sprow + .sprow{margin-top:8px}
 .spghead{padding:0 16px;font-size:17px;font-weight:600;color:#646a73;height:28px;display:flex;align-items:center}
 .sprow{padding:0 16px;display:flex;flex-direction:column;gap:12px}
 .sprow .top{display:flex;gap:8px;align-items:center}
@@ -1076,7 +1079,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";window.__APPV="9c4aabbf";</script>
+<script>window.__LOCK="C";window.__APPV="89553061";</script>
 <script>
 (function(){
   var KEY = "yomel-fresh";
@@ -1104,6 +1107,6 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   window.addEventListener("pageshow", function(e){ if(e.persisted) check(); });
 })();
 </script>
-<script src="gate.js?v=9c4aabbf"></script>
+<script src="gate.js?v=89553061"></script>
 </body>
 </html>

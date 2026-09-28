@@ -589,11 +589,15 @@ mark.hit.now{background:#ffd60a}
   white-space:nowrap}
 .memrow .ck{width:24px;height:24px;flex:0 0 24px}
 .memrow .nmwrap{display:flex;align-items:center;gap:8px;min-width:0}
-.sheet .foot{flex:0 0 auto;height:78px;background:#fff;border-top:.5px solid #bbbfc4;padding:0 24px 24px 16px;
-  display:flex;align-items:center;justify-content:space-between}
+.sheet .foot{flex:0 0 auto;min-height:78px;background:#fff;border-top:.5px solid #bbbfc4;
+  padding:0 24px 24px 16px;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:space-between;gap:12px}
 .sheet .foot.right{justify-content:flex-end;padding-right:24px}
-.bulk{display:flex;align-items:center;gap:8px;font-size:15px;color:#1f2329;cursor:pointer}
-.bulk img,.bulk svg{width:24px;height:24px}
+.bulk{display:flex;align-items:center;gap:8px;padding:6px 0;min-width:0;
+  font-size:15px;color:#1f2329;cursor:pointer;text-align:left}
+.bulk img,.bulk svg{width:24px;height:24px;flex:0 0 24px}
+/* 設計稿の文字幅は 256px（2行で 46px）。ボタンの既定の中央寄せを打ち消す */
+.bulk span{max-width:256px;line-height:23px;text-align:left}
 /* 設計稿: 70×37、文字は中央（左右18・上下12相当） */
 .apply{background:#16c098;border-radius:4px;width:70px;height:37px;box-sizing:border-box;padding:0;
   display:flex;align-items:center;
@@ -1072,7 +1076,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";window.__APPV="06f4a74a";</script>
+<script>window.__LOCK="C";window.__APPV="9c4aabbf";</script>
 <script>
 (function(){
   var KEY = "yomel-fresh";
@@ -1100,6 +1104,6 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   window.addEventListener("pageshow", function(e){ if(e.persisted) check(); });
 })();
 </script>
-<script src="gate.js?v=06f4a74a"></script>
+<script src="gate.js?v=9c4aabbf"></script>
 </body>
 </html>

@@ -198,9 +198,9 @@ body.nostatus .homeind i{visibility:hidden}
 .evt{display:flex;align-items:center;gap:8px}
 .lgrp .vl .pen16{width:16px;height:16px;flex:0 0 16px}
 /* 設計稿 4720:44641: タグは薄い灰色の角丸4、13px */
-.tagrow{display:flex;align-items:center;gap:8px;height:28px}
-.tagrow .chip{background:rgba(31,35,41,.05);border-radius:4px;padding:4px 6px;
-  font-size:13px;line-height:normal;color:#1f2329;font-weight:300;white-space:nowrap}
+.tagrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;flex:1 1 auto;min-width:0}
+.tagrow .chip{background:rgba(31,35,41,.05);border:0;border-radius:4px;padding:4px 6px;
+  font-size:13px;line-height:20px;color:#1f2329;font-weight:300;white-space:nowrap}
 .evt i{width:8px;height:8px;border-radius:2px;background:#336df3}
 .evt span{color:#336df3;font-size:17px}
 
@@ -749,8 +749,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
           <div class="vl"><span id="logGroup">プロダクトデザイン開発推進チーム統括本部</span>
             <img class="pen16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yLjMzMzQgMTRIMTQuMzMzNCIgc3Ryb2tlPSIjOEY5NTlFIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNMy42NjY2IDguOTA2NjNWMTEuMzMzM0g2LjEwNTY3TDEyLjk5OTkgNC40MzYwM0wxMC41NjUgMkwzLjY2NjYgOC45MDY2M1oiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt="グループを変更" data-logedit="group"></div></div>
         <div class="lgrp"><div class="lb">タグ</div>
-          <div class="vl"><span class="tagrow" id="logTags"><span class="chip">オンライン相談会</span><span class="chip">社内会議</span></span>
-            <img class="pen16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yLjMzMzQgMTRIMTQuMzMzNCIgc3Ryb2tlPSIjOEY5NTlFIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNMy42NjY2IDguOTA2NjNWMTEuMzMzM0g2LjEwNTY3TDEyLjk5OTkgNC40MzYwM0wxMC41NjUgMkwzLjY2NjYgOC45MDY2M1oiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt="タグを編集" data-logedit="tag"></div></div>
+          <div class="vl"><span class="tagrow" id="logTags"><span class="chip">オンライン相談会</span><span class="chip">社内会議</span><img class="pen16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yLjMzMzQgMTRIMTQuMzMzNCIgc3Ryb2tlPSIjOEY5NTlFIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNMy42NjY2IDguOTA2NjNWMTEuMzMzM0g2LjEwNTY3TDEyLjk5OTkgNC40MzYwM0wxMC41NjUgMkwzLjY2NjYgOC45MDY2M1oiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt="タグを編集" data-logedit="tag"></span></div></div>
         <div class="lgrp"><div class="lb">ステータス</div>
           <div class="vl"><span id="logStatus">商談中</span>
             <img class="pen16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJGcmFtZSI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik0yLjMzMzQgMTRIMTQuMzMzNCIgc3Ryb2tlPSIjOEY5NTlFIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNMy42NjY2IDguOTA2NjNWMTEuMzMzM0g2LjEwNTY3TDEyLjk5OTkgNC40MzYwM0wxMC41NjUgMkwzLjY2NjYgOC45MDY2M1oiIHN0cm9rZT0iIzhGOTU5RSIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt="ステータスを変更" data-logedit="status"></div></div>
@@ -1080,7 +1079,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";window.__APPV="9c04f9db";</script>
+<script>window.__LOCK="C";window.__APPV="e90b7c9a";</script>
 <script>
 (function(){
   var KEY = "yomel-fresh";
@@ -1108,6 +1107,6 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   window.addEventListener("pageshow", function(e){ if(e.persisted) check(); });
 })();
 </script>
-<script src="gate.js?v=9c04f9db"></script>
+<script src="gate.js?v=e90b7c9a"></script>
 </body>
 </html>

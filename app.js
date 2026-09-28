@@ -1369,9 +1369,11 @@ $("#pickApply").addEventListener("click", function(){
   } else if(PICK.kind === "status"){
     if(PICK.sel){ $("#logStatus").textContent = PICK.sel; toast("ステータスを " + PICK.sel + " にしました"); }
   } else {
+    /* 鉛筆は最後のタグの後ろ。折り返しても最後の行の末尾に付く */
     $("#logTags").innerHTML = PICK.tags.map(function(t){
       return '<span class="chip">' + esc(t) + '</span>';
-    }).join("");
+    }).join("")
+      + '<img class="pen16" src="' + A_ASSETS.edPen + '" alt="タグを編集" data-logedit="tag">';
     toast(PICK.tags.length ? "タグを" + PICK.tags.length + "件にしました" : "タグを外しました");
   }
   closePick();

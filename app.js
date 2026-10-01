@@ -820,7 +820,7 @@ $("#notesBtn").addEventListener("click", function(){
   $("#notes").scrollIntoView({behavior:"smooth", block:"start"});
 });
 $("#tabs").addEventListener("click", function(e){
-  var b = e.target.closest(".tab"); if(b) setTab(b.getAttribute("data-tab"));
+  var b = e.target.closest(".tab"); if(b){ cvEnd(); setTab(b.getAttribute("data-tab")); }
 });
 $("#sumChips").addEventListener("click", function(e){
   var b = e.target.closest("button[data-c]"); if(!b) return;
@@ -828,13 +828,38 @@ $("#sumChips").addEventListener("click", function(e){
   b.setAttribute("aria-selected", "true");
   scrollToSection(b.getAttribute("data-c"));
 });
+/* キャンバスは文字を押せばその場で直せる（専用の編集モードは持たない） */
+function cvEnd(){
+  var el = document.querySelector("#panelSummary .sec p.editing");
+  if(!el) return;
+  el.removeAttribute("contenteditable");
+  el.classList.remove("editing");
+  if(document.activeElement === el) el.blur();
+}
 $("#panelSummary").addEventListener("click", function(e){
   var b = e.target.closest("[data-seek]");
   if(b){
+    cvEnd();
     seek(+b.getAttribute("data-seek"));
     setTab("transcript");
     jumpToCurrent();          /* 飛んだ先の発言を表示する（setTab は先頭に戻すだけなので） */
+    return;
   }
+  var p = e.target.closest(".sec p");
+  if(p && !SE.on){                      /* 検索中は印を書き換えているので触らせない */
+    if(!p.classList.contains("editing")){
+      cvEnd();
+      p.setAttribute("contenteditable", "true");
+      p.classList.add("editing");
+    }
+    edPlaceCaret(p, e.clientX, e.clientY);
+  }
+});
+/* 文字から離れたら編集をやめる */
+document.addEventListener("click", function(e){
+  var el = document.querySelector("#panelSummary .sec p.editing");
+  if(!el || el.contains(e.target)) return;
+  cvEnd();
 });
 /* ---- 長押しで編集モードに入る（カーソルもキーボードも出さない） ---- */
 var lpTimer = 0, lpX = 0, lpY = 0, lpDone = false;
@@ -881,26 +906,18 @@ function edAnchor(){
   var sc = $("#scroller"); if(!sc) return null;
   var k = phone.getBoundingClientRect().width / 430;
   var top = sc.getBoundingClientRect().top + 34 * k;      /* タブのすぐ下 */
-  var els = (S.tab === "summary") ? $$("#panelSummary .sec p") : $$("#panelTranscript .bb");
+  if(S.tab !== "transcript") return null;      /* 書き起こし以外から入った時は先頭から */
+  var els = $$("#panelTranscript .bb");
   for(var i = 0; i < els.length; i++){
     var r = els[i].getBoundingClientRect();
-    if(r.bottom > top){
-      return {canvas:(S.tab === "summary"),
-              i:(S.tab === "summary" ? i : +els[i].getAttribute("data-line")),
-              d:(r.top - top) / k};
-    }
+    if(r.bottom > top) return {i:+els[i].getAttribute("data-line"), d:(r.top - top) / k};
   }
   return null;
 }
 function edApplyAnchor(a){
   if(!a) return;
-  var host = null;
-  if(a.canvas){
-    host = $$("#eBody [data-ecx]")[a.i];
-  } else {
-    var r = ED.rows[a.i];
-    if(r) host = document.querySelector('#eBody .ebb[data-ebb="' + r.k + '"]');
-  }
+  var r = ED.rows[a.i];
+  var host = r ? document.querySelector('#eBody .ebb[data-ebb="' + r.k + '"]') : null;
   if(!host) return;
   $("#eBody").scrollTop = Math.max(0, host.offsetTop - a.d);
 }
@@ -1129,7 +1146,6 @@ $("#menuWrap").addEventListener("click", function(e){
   var m = b.getAttribute("data-m");
   closeMenu();
   if(m === "close") return;
-  if(m === "rename"){ openDialog(); return; }
   if(m === "editmode"){ openEdit(); return; }
   if(m === "share" || m === "export" || m === "copy"){ openSub(m); return; }
   if(m === "move"){ openPick("group"); return; }
@@ -1239,6 +1255,7 @@ function seScroll(){
   sc.scrollTop = Math.max(0, Math.min(sc.scrollTop + (elTop - want), max));
 }
 function openSearch(){
+  cvEnd();
   SE.on = true; SE.q = ""; SE.hits = []; SE.at = 0;
   /* キャンバスから開いたらキャンバスを、それ以外は書き起こしを探す */
   SE.mode = (S.tab === "summary") ? "canvas" : "transcript";
@@ -1403,7 +1420,7 @@ function clipProbe(){
 }
 /* 編集モードは分割や結合で行が増減するので、元データとは別に作業用の行を持つ。
    保存しても元データは書き換えない（原型なので見た目だけ） */
-var ED = {rows:[], sel:{}, editing:null, seq:0, caret:null, mode:"transcript"};
+var ED = {rows:[], sel:{}, editing:null, seq:0, caret:null};
 
 function edRowHTML(r){
   var sp = r.ov || SPK[r.sp], me = SPK[r.sp].side === "me";
@@ -1437,7 +1454,6 @@ function edCurRow(){
 }
 function edJump(){
   var up = $("#eJumpUp"), dn = $("#eJumpDown");
-  if(ED.mode === "canvas"){ up.hidden = true; dn.hidden = true; return; }
   var cur = edCurRow();
   var el = cur && document.querySelector('#eBody .erow[data-line="'+cur.k+'"]');
   if(!el){ up.hidden = true; dn.hidden = true; return; }
@@ -1460,7 +1476,6 @@ $("#eJumpDown").addEventListener("click", edJumpTo);
 $("#eBody").addEventListener("scroll", function(){ if(!$("#editWrap").hidden) edJump(); }, {passive:true});
 
 function edMarkCurrent(){
-  if(ED.mode === "canvas") return;
   var cur = null;
   for(var i = 0; i < ED.rows.length; i++){
     if(ED.rows[i].t <= S.pos) cur = ED.rows[i]; else break;
@@ -1553,7 +1568,7 @@ function edPlaceCaret(el, x, y){
 /* 文字を触っている間は、下のバーではなくカーソルの上に「分割」を出す（設計稿 4852:45171） */
 function edPop(){
   var pop = $("#edPop");
-  if(ED.mode === "canvas" || ED.editing == null){ pop.hidden = true; return; }
+  if(ED.editing == null){ pop.hidden = true; return; }
   var sel = window.getSelection();
   if(!sel || !sel.rangeCount){ pop.hidden = true; return; }
   var rg = sel.getRangeAt(0);
@@ -1590,7 +1605,6 @@ function edPop(){
   pop.querySelector(".tail").style.left = Math.max(6, Math.min(w - 28, cx - left - 10.7)) + "px";
 }
 function edPaintBar(){
-  if(ED.mode === "canvas") return;
   var c = edCount(), bar = $("#eBar");
   if(ED.editing != null){
     $("#eTitle").textContent = "";
@@ -1614,51 +1628,13 @@ function edPaintBar(){
   $("#eJumpDown").style.top = btm;      /* ↓ は再生ボタンと同じ高さに揃える */
 }
 /* キャンバスの編集画面。書き起こしと同じ枠に、チップと要約をそのまま入れる */
-function renderCanvasEdit(){
-  var secs = DATA.summary.sections;
-  var chips = '<div class="chips" id="eChips">' + secs.map(function(sc, i){
-    return '<button data-ec="' + sc.key + '"' + (i === 0 ? ' aria-selected="true"' : '') + '>'
-         + esc(sc.label) + '</button>';
-  }).join("") + '</div>';
-  var body = '<div class="sumbody">' + secs.map(function(sc){
-    var inner;
-    if(sc.kind === "text"){
-      inner = '<p data-ecx>' + esc(sc.text) + '</p>';
-    } else if(sc.kind === "qa"){
-      inner = sc.items.map(function(it){
-        return '<div class="item"><span class="tsbadge">' + fmt(it.t) + '</span>'
-             + '<p class="q" data-ecx>' + esc(it.q) + '</p><p class="a" data-ecx>' + esc(it.a) + '</p></div>';
-      }).join("");
-    } else {
-      inner = sc.items.map(function(it){
-        return '<div class="item"><span class="tsbadge">' + fmt(it.t) + '</span>'
-             + '<p data-ecx>' + (it.title ? esc(it.title) + "：" : "") + esc(it.text) + '</p></div>';
-      }).join("");
-    }
-    return '<div class="sec" id="esec-' + sc.key + '"><div class="h">'
-         + '<img src="' + A_ASSETS.sparkle + '" alt=""><span>' + esc(sc.label) + '</span></div>'
-         + inner + '</div>';
-  }).join("") + '</div>';
-  $("#eBody").innerHTML = chips + body;
-}
 function openEdit(){
   var anchor = edAnchor();          /* 今どこを見ているかを先に覚える */
   ED.seq = 0; ED.sel = {}; ED.editing = null;
-  ED.mode = (S.tab === "summary") ? "canvas" : "transcript";
-  $("#editWrap").classList.toggle("canvas", ED.mode === "canvas");
-  if(ED.mode === "canvas"){
-    renderCanvasEdit();
-    $("#eTitle").textContent = "";
-    $("#eBar").hidden = true;
-    $("#eMini").hidden = false;
-    $("#eMini").style.top = "840px";
-    $("#eJumpUp").hidden = true; $("#eJumpDown").hidden = true;
-  } else {
-    ED.rows = LINES.map(function(l){
-      return {k:++ED.seq, sp:l.sp, t:l.t, text:l.text, ov:l.ov};
-    });
-    renderEdit();
-  }
+  ED.rows = LINES.map(function(l){
+    return {k:++ED.seq, sp:l.sp, t:l.t, text:l.text, ov:l.ov};
+  });
+  renderEdit();
   $("#editWrap").hidden = false;
   edApplyAnchor(anchor);            /* 文章の先頭からではなく、さっき見ていた所から出す */
   edAnimIn();
@@ -1692,27 +1668,6 @@ function edAnimIn(){
     });
   }catch(e){}
 }
-/* キャンバス編集: チップでその見出しへ、文字を触ると編集できる */
-$("#eBody").addEventListener("click", function(e){
-  if(ED.mode !== "canvas") return;
-  var chip = e.target.closest("[data-ec]");
-  if(chip){
-    $$("#eChips button").forEach(function(x){ x.removeAttribute("aria-selected"); });
-    chip.setAttribute("aria-selected", "true");
-    var sec = document.getElementById("esec-" + chip.getAttribute("data-ec"));
-    if(sec) $("#eBody").scrollTop = Math.max(0, sec.offsetTop - $("#eChips").offsetHeight - 12);
-    return;
-  }
-  var p = e.target.closest("[data-ecx]");
-  if(p){
-    $$("#eBody [data-ecx]").forEach(function(x){
-      if(x !== p){ x.removeAttribute("contenteditable"); x.classList.remove("editing"); }
-    });
-    p.setAttribute("contenteditable", "true");
-    p.classList.add("editing");
-    edPlaceCaret(p, e.clientX, e.clientY);
-  }
-});
 var edClosing = false;
 function closeEdit(){
   var w = $("#editWrap");
@@ -1724,7 +1679,6 @@ function closeEdit(){
   function done(){
     edClosing = false;
     w.hidden = true; ED.editing = null;
-    w.classList.remove("canvas"); ED.mode = "transcript";
     $("#eJumpUp").hidden = true; $("#eJumpDown").hidden = true;
   }
   if(!w.animate){ done(); return; }
@@ -1991,6 +1945,7 @@ phone.addEventListener("click", function(e){
 
 /* ---------- boot ---------- */
 if("scrollRestoration" in history) history.scrollRestoration = "manual";
+$("#docTitle").addEventListener("click", openDialog);
 $("#docTitle").textContent = DATA.title;
 $("#docDate").textContent = DATA.datetime;
 $("#logDate").textContent = DATA.datetime;

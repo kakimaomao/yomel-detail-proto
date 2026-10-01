@@ -95,7 +95,7 @@ body.nostatus .homeind i{visibility:hidden}
   -webkit-overflow-scrolling:touch;scrollbar-width:none}
 #scroller::-webkit-scrollbar{display:none}
 .titleblock{padding:24px 16px 32px}
-.titleblock h1{margin:0;font-size:24px;line-height:1.5;font-weight:600;letter-spacing:0;
+.titleblock h1{margin:0;font-size:24px;line-height:1.5;font-weight:600;letter-spacing:0;cursor:pointer;
   text-box-trim:trim-both;text-box-edge:cap alphabetic}
 .titleblock .meta{display:flex;align-items:center;gap:16px;margin-top:20px}
 .titleblock .meta span{display:flex;align-items:center;gap:4px;font-size:14px;color:#646a73;font-weight:300;line-height:1}
@@ -153,6 +153,9 @@ body.nostatus .homeind i{visibility:hidden}
 .sec .h img{width:8.17px;height:8.2px}
 .sec .h span{font-family:"Hiragino Sans",sans-serif;font-weight:700;font-size:17px;line-height:1.5;color:#1f2329}
 .sec p{margin:0;font-family:"Hiragino Sans",sans-serif;font-weight:300;font-size:17px;line-height:1.5;color:#1f2329}
+/* 文字を押したらその場で直せる。#phone の user-select:none を打ち消す */
+#panelSummary .sec p{-webkit-user-select:text;user-select:text}
+#panelSummary .sec p[contenteditable]{outline:0}
 .sec p.q{font-weight:600}
 .sec p.a{color:#646a73}
 .item{display:flex;flex-direction:column;gap:6px}
@@ -372,10 +375,6 @@ body.nostatus .homeind i{visibility:hidden}
   -webkit-overflow-scrolling:touch;scrollbar-width:none}
 .ebody::-webkit-scrollbar{display:none}
 /* キャンバスの編集（設計稿 4874:83297）: 書き起こしと同じ枠の中に要約を出す */
-#editWrap.canvas .ebody{left:0;width:430px;top:106px;padding-bottom:200px;gap:0}
-#editWrap.canvas .chips{position:sticky;top:0;padding:20px 16px 12px;flex:none}  /* flex で潰れると上下の余白が消える */
-#editWrap.canvas .sumbody{padding:0 16px 40px}
-#editWrap.canvas .sec p[contenteditable],#editWrap.canvas .sec p:active{outline:0}
 .erow{display:flex;gap:8px;align-items:flex-start}
 .erow .esel{padding:2px 0;display:flex;align-items:center;flex:0 0 24px}
 .erow .esel img{width:24px;height:24px}
@@ -972,7 +971,6 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
         </div>
         <div class="mlist">
           <button class="mrow" data-m="move"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIzMTsmIzE2NzsmIzE4NzsmIzIyOTsmIzEzOTsmIzE0OTsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMjIgMTJMMTIgMkwyIDEyTDEyIDIyTDE3LjUgMTYuNSIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTExIDEyLjAwMDFDMTEgMTIuMDAwMSAxNy4yNSAxMS43NTAxIDE5Ljc1IDE0LjI1MDFDMjIuMjUgMTYuNzUwMSAxOS41IDIyLjAwMDEgMTkuNSAyMi4wMDAxIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8zIiBkPSJNMTMgMTBMMTEgMTJMMTMgMTQiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt=""><i>他のグループへ移動</i></button>
-          <button class="mrow" data-m="rename"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIzMTsmIzE4MzsmIzE2ODsmIzIzMzsmIzE1NTsmIzEzNDsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMy41MDAzNCAyMUgyMS41MDAzIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNNS40OTk2NiAxMy4zNlYxN0g5LjE1ODI2TDE5LjQ5OTcgNi42NTQwNUwxNS44NDcyIDNMNS40OTk2NiAxMy4zNloiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8L3N2Zz4K" alt=""><i>タイトル変更</i></button>
           <button class="mrow" data-m="editmode"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIzMTsmIzE4MzsmIzE2ODsmIzIzMzsmIzE1NTsmIzEzNDsmIzIyNzsmIzEzMTsmIzE2MjsmIzIyNzsmIzEzMTsmIzE4ODsmIzIyNzsmIzEzMTsmIzEzNzsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMjAgMTYuNVYyMUMyMCAyMS41NTIzIDE5LjU1MjMgMjIgMTkgMjJIMTUuNzUiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik0yMCA4VjNDMjAgMi40NDc3MSAxOS41NTIzIDIgMTkgMkg1QzQuNDQ3NzEgMiA0IDIuNDQ3NzEgNCAzVjIxQzQgMjEuNTUyMyA0LjQ0NzcxIDIyIDUgMjJIOCIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfMyIgZD0iTTggOEgxNSIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNCIgZD0iTTExLjUgMjJMMjAgMTEuNSIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNSIgZD0iTTggMTJIMTIiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L2c+Cjwvc3ZnPgo=" alt=""><i>編集モード</i></button>
           <button class="mrow" data-m="resplit"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSImIzIzMjsmIzE2OTsmIzE3NzsmIzIzMjsmIzEyODsmIzEzMzsmIzIyOTsmIzEzNjsmIzEzNDsmIzIzMzsmIzE1NTsmIzE2MjsiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMTIuMDAwMiAxMEMxMy45MzMyIDEwIDE1LjUwMDIgOC40MzMgMTUuNTAwMiA2LjVDMTUuNTAwMiA0LjU2NzAxIDEzLjkzMzIgMyAxMi4wMDAyIDNDMTAuMDY3MiAzIDguNTAwMiA0LjU2NzAxIDguNTAwMiA2LjVDOC41MDAyIDguNDMzIDEwLjA2NzIgMTAgMTIuMDAwMiAxMFoiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzIiIGQ9Ik02IDMuNjI3NTRDNS4wOTMyNSA0LjI2MDAxIDQuNSA1LjMxMDggNC41IDYuNTAwMkM0LjUgNy43NzMzNSA1LjE3OTggOC44ODc3NSA2LjE5NjIgOS41MDAyIiBzdHJva2U9IiMxRjIzMjkiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHBhdGggaWQ9IlZlY3Rvcl8zIiBkPSJNMTggMy42Mjc1NEMxOC45MDY4IDQuMjYwMDEgMTkuNSA1LjMxMDggMTkuNSA2LjUwMDJDMTkuNSA3LjY4OTU1IDE4LjkwNjggOC43NDA0IDE4IDkuMzcyODUiIHN0cm9rZT0iIzFGMjMyOSIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8cGF0aCBpZD0iVmVjdG9yXzQiIGQ9Ik02IDE5Ljk5OThWMjAuOTk5OEgxOFYxOS45OTk4QzE4IDE4LjEzNjEgMTggMTcuMjA0MiAxNy42OTU1IDE2LjQ2OTFDMTcuMjg5NSAxNS40ODkgMTYuNTEwOSAxNC43MTAzIDE1LjUzMDggMTQuMzA0M0MxNC43OTU3IDEzLjk5OTggMTMuODYzNyAxMy45OTk4IDEyIDEzLjk5OThDMTAuMTM2MyAxMy45OTk4IDkuMjA0MzUgMTMuOTk5OCA4LjQ2OTI1IDE0LjMwNDNDNy40ODkxNSAxNC43MTAzIDYuNzEwNDUgMTUuNDg5IDYuMzA0NSAxNi40NjkxQzYgMTcuMjA0MiA2IDE4LjEzNjEgNiAxOS45OTk4WiIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNSIgZD0iTTIxLjk5OTkgMjEuMDAwM1YyMC40MDAzQzIxLjk5OTkgMTguMTYwMSAyMS45OTk5IDE3LjA0IDIxLjU2MzkgMTYuMTg0NEMyMS4xODA0IDE1LjQzMTcgMjAuNTY4NSAxNC44MTk4IDE5LjgxNTggMTQuNDM2MyIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxwYXRoIGlkPSJWZWN0b3JfNiIgZD0iTTEuOTk5OCAyMS4wMDAzVjIwLjQwMDNDMS45OTk4IDE4LjE2MDEgMS45OTk4IDE3LjA0IDIuNDM1NzggMTYuMTg0NEMyLjgxOTI3IDE1LjQzMTcgMy40MzExOSAxNC44MTk4IDQuMTgzODQgMTQuNDM2MyIgc3Ryb2tlPSIjMUYyMzI5IiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==" alt=""><i>話者分離再実行</i></button>
         </div>
@@ -1079,7 +1077,7 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   </form>
   <div class="foot">実際の会議録音を含みます。<br>共有ボタン → ホーム画面に追加 で全画面になります。</div>
 </div>
-<script>window.__LOCK="C";window.__APPV="e90b7c9a";</script>
+<script>window.__LOCK="C";window.__APPV="89e5385e";</script>
 <script>
 (function(){
   var KEY = "yomel-fresh";
@@ -1107,6 +1105,6 @@ body{margin:0;height:100dvh;overflow:hidden;background:#000;
   window.addEventListener("pageshow", function(e){ if(e.persisted) check(); });
 })();
 </script>
-<script src="gate.js?v=e90b7c9a"></script>
+<script src="gate.js?v=89e5385e"></script>
 </body>
 </html>
